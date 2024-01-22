@@ -1,0 +1,9 @@
+@urlDev=http://localhost:3051
+
+### checkStatus
+
+GET {{urlDev}}/checkstatus
+
+### create post
+
+POST {{urlDev}}/v1/api/post
