@@ -1,7 +1,7 @@
 {
-  "name": "acodana",
+  "name": "MessTeen",
   "version": "1.0.0",
-  "description": "Blog web app by Beyond Nguyen",
+  "description": "Chat Application",
   "main": "index.js",
   "directories": {
     "doc": "docs"
