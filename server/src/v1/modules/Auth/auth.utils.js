@@ -1,5 +1,8 @@
 const JWT = require("jsonwebtoken");
-const { NotFoundError, AuthFailureError } = require("../../core/error.response");
+const {
+    NotFoundError,
+    AuthFailureError,
+} = require("../../core/error.response");
 const asyncHandler = require("../../helpers/async.handler");
 const { findByUserId } = require("./keyToken.service");
 const crypto = require("crypto");
@@ -79,8 +82,12 @@ const authenticate = asyncHandler(async (req, res, next) => {
         next();
     }
 
-    const decodeUser = JWT.verify(token, crypto.createPublicKey(keyStore.publicKey));
-    if (userId !== decodeUser.user_id) throw new AuthFailureError(`Invalid user`);
+    const decodeUser = JWT.verify(
+        token,
+        crypto.createPublicKey(keyStore.publicKey)
+    );
+    if (userId !== decodeUser.usr_id)
+        throw new AuthFailureError(`Invalid user`);
 
     // re-assign to request
     req.keyStore = keyStore;
