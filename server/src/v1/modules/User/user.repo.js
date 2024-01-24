@@ -2,14 +2,14 @@ const userModel = require("../User/user.model");
 
 class UserRepository {
     async findUserByEmail(
-        user_email,
+        usr_email,
         select = {
-            user_email: 1,
-            user_password: 1,
-            user_name: 1,
-        },
+            usr_email: 1,
+            usr_password: 1,
+            usr_name: 1,
+        }
     ) {
-        return await userModel.findOne({ user_email }).select(select).lean();
+        return await userModel.findOne({ usr_email }).select(select).lean();
     }
 }
 
