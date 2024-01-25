@@ -85,6 +85,55 @@ class UserService {
             throw new BadRequestError(error.message);
         }
     }
+    // CRUD User
+    static async createUser(userData) {
+        try {
+            const user = await UserModel.create(userData);
+            return user;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async getAllUsers() {
+        try {
+            const users = await UserModel.find();
+            return users;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async getUserById(userId) {
+        try {
+            const user = await UserModel.findById(userId);
+            return user;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async updateUserById(userId, updatedUserData) {
+        try {
+            const user = await UserModel.findByIdAndUpdate(userId, updatedUserData, {
+                new: true,
+            });
+            return user;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async deleteUserById(userId) {
+        try {
+            const user = await UserModel.findByIdAndDelete(userId);
+            return user;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
+
+
 
 module.exports = UserService;
