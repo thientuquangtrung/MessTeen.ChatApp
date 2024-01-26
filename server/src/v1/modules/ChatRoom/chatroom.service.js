@@ -1,4 +1,8 @@
-const Chatroom = require('./chatroom.model');
+const Chatroom = require("./chatroom.model");
+const {
+  ConflictRequestError,
+  NotFoundError,
+} = require("../../core/error.response");
 
 class ChatroomService {
   async createChatroom(chatroomData) {
@@ -15,29 +19,27 @@ class ChatroomService {
   // Join chatroom
   async joinChatroom(roomId, userId) {
     const chatroom = await Chatroom.findById(roomId);
-    if (chatroom) {
-      if (chatroom.room_settings.approve_new_members && !chatroom.room_admins.includes(userId)) {
-        // If the setting to approve new members is true and the user is not an admin,
-        // add them to the pending list instead of the participant list.
-        if (!chatroom.room_pending_members.includes(userId)) {
-          chatroom.room_pending_members.push(userId);
-          await chatroom.save();
-          return { status: 'pending', chatroom };
-        } else {
-          throw new Error('User is already waiting for approval.');
-        }
-      } else {
-        // If approval is not required or the user is an admin, join them to the chatroom.
-        if (!chatroom.room_participant_ids.includes(userId)) {
-          chatroom.room_participant_ids.push(userId);
-          await chatroom.save();
-          return { status: 'joined', chatroom };
-        } else {
-          throw new Error('User has already joined the chatroom.');
-        }
-      }
+
+    if (!chatroom) {
+      throw new NotFoundError("Chatroom not found.");
+    }
+
+    const isAdminJoining = chatroom.room_admins.includes(userId);
+
+    if (chatroom.room_participant_ids.includes(userId)) {
+      throw new ConflictRequestError("User has already joined the chatroom.");
+    }
+    // If the setting to approve new members is true and the user is not an admin,
+    // add them to the pending list instead of the participant list.
+    if (chatroom.room_settings.approve_new_members && !isAdminJoining) {
+      chatroom.room_pending_members.push(userId);
+      await chatroom.save();
+      return { status: "pending", chatroom };
     } else {
-      throw new Error('Chatroom not found.');
+      // If approval is not required or the user is an admin, join them to the chatroom.
+      chatroom.room_participant_ids.push(userId);
+      await chatroom.save();
+      return { status: "joined", chatroom };
     }
   }
 
@@ -46,12 +48,12 @@ class ChatroomService {
     const chatroom = await Chatroom.findById(roomId);
     // Check if the chatroom exists
     if (!chatroom) {
-      throw new Error('Chatroom not found.');
+      throw new NotFoundError("Chatroom not found.");
     }
     // Check if the user is part of the chatroom
     const index = chatroom.room_participant_ids.indexOf(userId);
     if (index === -1) {
-      throw new Error('User is not a member of the chatroom.');
+      throw new ConflictRequestError("User is not a member of the chatroom.");
     }
     // Remove the user from the chatroom participants
     chatroom.room_participant_ids.splice(index, 1);
