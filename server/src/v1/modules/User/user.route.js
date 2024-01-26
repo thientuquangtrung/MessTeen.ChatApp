@@ -20,6 +20,6 @@ router.put('/admin/:userId', asyncHandler(userController.updateUserById));
 router.delete('/admin/:userId', asyncHandler(userController.deleteUserById));
 
 // GET UserStatistic all and GET  UserStatistic  by Date 
-router.get('/statistic/:received_date', asyncHandler(userStatisticController.getUserStatisticByDate));
+router.get('/statistic/:receivedDate', asyncHandler(userStatisticController.getUserStatisticByDate));
 router.get('/statistics', asyncHandler(userStatisticController.getAllUserStatistics));
 module.exports = router;

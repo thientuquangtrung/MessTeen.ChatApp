@@ -91,7 +91,7 @@ class UserService {
             const user = await UserModel.create(userData);
             return user;
         } catch (error) {
-            throw error;
+            throw new BadRequestError(error.message);
         }
     }
 
@@ -100,16 +100,19 @@ class UserService {
             const users = await UserModel.find();
             return users;
         } catch (error) {
-            throw error;
+            throw new BadRequestError(error.message);
         }
     }
 
     static async getUserById(userId) {
         try {
             const user = await UserModel.findById(userId);
+            if (!user) {
+                throw new NotFoundError("User not found");
+            }
             return user;
         } catch (error) {
-            throw error;
+            throw new BadRequestError(error.message);
         }
     }
 
@@ -118,18 +121,24 @@ class UserService {
             const user = await UserModel.findByIdAndUpdate(userId, updatedUserData, {
                 new: true,
             });
+            if (!user) {
+                throw new NotFoundError("User not found");
+            }
             return user;
         } catch (error) {
-            throw error;
+            throw new BadRequestError(error.message);
         }
     }
 
     static async deleteUserById(userId) {
         try {
             const user = await UserModel.findByIdAndDelete(userId);
+            if (!user) {
+                throw new NotFoundError("User not found");
+            }
             return user;
         } catch (error) {
-            throw error;
+            throw new BadRequestError(error.message);
         }
     }
 }
