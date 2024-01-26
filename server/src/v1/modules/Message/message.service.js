@@ -1,46 +1,40 @@
 const express = require("express");
 const MessageModel = require("./message.model");
 const router = express.Router();
-
+const {
+  BadRequestError,
+  ConflictRequestError,
+  AuthFailureError,
+  ForbiddenError,
+  InternalError,
+  NotFoundError,
+} = require("../../core/error.response");
 class MessageService {
+  static async getAllMessage() {
+    const messages = await MessageModel.find();
+    return messages;
+  }
   static async sendMessage(messageData) {
     const message = new MessageModel(messageData);
     await message.save();
     return message;
   }
   static async deleteMessage(messageId) {
-    try {
-      const result = await MessageModel.findByIdAndDelete(messageId);
-      if (!result) {
-        throw new Error("Message not found.");
-      }
-      return result;
-    } catch (error) {
-      throw new Error(`Failed to delete message: ${error.message}`);
+    const result = await MessageModel.findByIdAndDelete(messageId);
+    if (!result) {
+      throw new NotFoundError("Message not found.");
     }
+    return result;
   }
   static async editMessage(messageId, updatedData) {
-    try {
-      const message = await MessageModel.findById(messageId);
-      if (!message) {
-        throw new Error("Message not found.");
-      }
-      Object.assign(message, updatedData);
-      await message.save();
-
-      return message;
-    } catch (error) {
-      throw new Error(`Failed to edit message: ${error.message}`);
+    const message = await MessageModel.findById(messageId);
+    if (!message) {
+      throw new NotFoundError("Message not found.");
     }
-  }
-  static async getAllMessage() {
-    try {
-      const messages = await MessageModel.find();
+    Object.assign(message, updatedData);
+    await message.save();
 
-      return messages;
-    } catch (error) {
-      throw new Error(`Failed to retrieve all messages: ${error.message}`);
-    }
+    return message;
   }
 }
 
