@@ -19,7 +19,7 @@ class AccessController {
     login = async (req, res, next) => {
         new OK({ metadata: await AccessService.login(req.body) }).send(res);
     };
-
+s
     signUp = async (req, res, next) => {
         new CREATED({
             message: "Registration successful!",
