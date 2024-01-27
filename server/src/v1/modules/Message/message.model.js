@@ -43,7 +43,6 @@ const MessageSchema = new mongoose.Schema(
     msg_reactions: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Reaction",
-      default:""
     },
   },
   {
