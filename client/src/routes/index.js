@@ -16,6 +16,8 @@ const Loadable = (Component) => (props) => {
   );
 };
 
+// "/app"
+
 export default function Router() {
   return useRoutes([
     {
