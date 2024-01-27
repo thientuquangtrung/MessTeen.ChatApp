@@ -5,6 +5,14 @@ const {
 } = require("../../core/error.response");
 
 class ChatroomService {
+  async listChatrooms() {
+    try {
+      return await Chatroom.find({}); // Fetch all chatrooms
+    } catch (error) {
+      // Handle or throw the error
+      throw NotFoundError;
+    }
+  }
   async createChatroom(chatroomData) {
     const chatroom = new Chatroom(chatroomData);
     await chatroom.save();
@@ -60,6 +68,22 @@ class ChatroomService {
     // Save the updated chatroom
     await chatroom.save();
     // Return the updated chatroom
+    return chatroom;
+  }
+
+  async addMemberToChatroom(roomId, memberId) {
+    const chatroom = await Chatroom.findById(roomId);
+    if (!chatroom) {
+      throw new NotFoundError("Chatroom not found.");
+    }
+
+    // Check if the member is already in the chatroom
+    if (chatroom.room_participant_ids.includes(memberId)) {
+      throw new ConflictRequestError("Member already exists in the chatroom.");
+    }
+
+    chatroom.room_participant_ids.push(memberId);
+    await chatroom.save();
     return chatroom;
   }
 }
