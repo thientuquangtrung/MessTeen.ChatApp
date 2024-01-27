@@ -1,5 +1,6 @@
 const ChatroomService = require("./chatroom.service");
 const { CREATED, OK } = require("../../core/success.response");
+const { ConflictRequestError } = require("../../core/error.response");
 
 class ChatroomController {
   create = async (req, res, next) => {
@@ -111,6 +112,36 @@ class ChatroomController {
       metadata: await ChatroomService.leaveChatroom(roomId),
       chatroom: result.chatroom,
     }).send(res);
+  };
+
+  list = async (req, res, next) => {
+    try {
+      const chatrooms = await ChatroomService.listChatrooms();
+      res.json(chatrooms);
+    } catch (error) {
+      next(error); // Handle errors appropriately
+    }
+  };
+
+  addMember = async (req, res, next) => {
+    try {
+      const { roomId, memberId } = req.body;
+      const updatedChatroom = await ChatroomService.addMemberToChatroom(
+        roomId,
+        memberId
+      );
+      res.status(200).json({
+        message: "Add member successfully",
+        chatroom: updatedChatroom,
+      });
+    } catch (error) {
+      //member already exists in the chatroom
+      if (error instanceof ConflictRequestError) {
+        res.status(409).json({ message: error.message }); // 409 Conflict
+      } else {
+        next(error);
+      }
+    }
   };
 }
 

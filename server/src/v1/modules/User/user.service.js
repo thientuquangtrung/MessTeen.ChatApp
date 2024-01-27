@@ -6,84 +6,146 @@ const {
 const UserModel = require("../User/user.model");
 
 class UserService {
-    static async addFriends({ usr_id_1, usr_id_2 }) {
-        const friend = await UserModel.findById(usr_id_2);
-        if (!friend) {
-            throw new NotFoundError("Friend not found");
+    static async sendFriendRequest({ user_id, friend_id }) {
+        const user = await UserModel.findById(user_id);
+        const friend = await UserModel.findById(friend_id);
+
+        if (!user || !friend) {
+            throw new NotFoundError("User not found");
         }
 
-        await friend.update({ $addToSet: { usr_pending_friends: usr_id_1 } });
+        if (
+            user.usr_pending_friends.includes(friend_id) ||
+            user.usr_friends.includes(friend_id)
+        ) {
+            throw new BadRequestError("Already friends or request pending");
+        }
 
-        return { message: "Friend added successfully" };
+        user.usr_pending_friends.push(friend_id);
+        await user.save();
+
+        return { message: "Friend request send" };
     }
 
-    static async acceptFriend({ usr_id_1, usr_id_2 }) {
-        const friend = await UserModel.findById(usr_id_2);
-        if (!friend) {
+    static async acceptFriendRequest({ user_id, friend_id }) {
+        const user = await UserModel.findByIdAndUpdate(
+            user_id,
+            {
+                $pull: { usr_pending_friends: friend_id },
+                $addToSet: { usr_friends: friend_id },
+            },
+            { new: true }
+        );
+        const friend = await UserModel.findByIdAndUpdate(
+            friend_id,
+            {
+                $addToSet: { usr_friends: user_id },
+            },
+            { new: true }
+        );
+
+        if (!user || !friend) {
             throw new NotFoundError("Friend not found");
         }
 
-        await friend.update({ $addToSet: { usr_friends: usr_id_1 } });
+        return { message: "Friend request accepted" };
+    }
 
-        await UserModel.findByIdAndUpdate(usr_id_1, {
-            $addToSet: { usr_friends: usr_id_2 },
-            $pull: { usr_pending_friends: usr_id_2 },
-        });
+    static async rejectFriend({ user_id, friend_id }) {
+        const user = await UserModel.findByIdAndUpdate(
+            user_id,
+            {
+                $pull: { usr_pending_friends: friend_id },
+            },
+            { new: true }
+        );
 
-        return { message: "Friend added successfully" };
+        if (!user) {
+            throw new NotFoundError("Friend not found");
+        }
+
+        return { message: "Friend request rejected" };
     }
 
     static async blockFriend({ usr_id_1, usr_id_2 }) {
-        try {
-            const friend = await UserModel.findById(usr_id_2);
-            if (!friend) {
-                throw new NotFoundError("Friend not found");
-            }
-
-            await UserModel.findByIdAndUpdate(usr_id_1, {
-                $addToSet: { usr_blocked_people: usr_id_2 },
-            });
-
-            return { message: "Friend blocked successfully" };
-        } catch (error) {
-            throw new BadRequestError(error.message);
+        const friend = await UserModel.findById(usr_id_2);
+        if (!friend) {
+            throw new NotFoundError("Friend not found");
         }
+
+        await UserModel.findByIdAndUpdate(usr_id_1, {
+            $addToSet: { usr_blocked_people: usr_id_2 },
+        });
+
+        return { message: "Friend blocked successfully" };
     }
 
     static async unBlockFriend({ usr_id_1, usr_id_2 }) {
-        try {
-            const friend = await UserModel.findById(usr_id_2);
-            if (!friend) {
-                throw new NotFoundError("Friend not found");
-            }
-
-            await UserModel.findByIdAndUpdate(usr_id_1, {
-                $pull: { usr_blocked_people: usr_id_2 },
-            });
-
-            return { message: "Friend unblocked successfully" };
-        } catch (error) {
-            throw new BadRequestError(error.message);
+        const friend = await UserModel.findById(usr_id_2);
+        if (!friend) {
+            throw new NotFoundError("Friend not found");
         }
+
+        await UserModel.findByIdAndUpdate(usr_id_1, {
+            $pull: { usr_blocked_people: usr_id_2 },
+        });
+
+        return { message: "Friend unblocked successfully" };
     }
 
     static async removeFriend({ usr_id_1, usr_id_2 }) {
-        try {
-            const friend = await UserModel.findById(usr_id_2);
-            if (!friend) {
-                throw new NotFoundError("Friend not found");
-            }
-
-            await UserModel.findByIdAndUpdate(usr_id_1, {
-                $pull: { usr_friends: usr_id_2 },
-            });
-
-            await friend.update({ $pull: { usr_friends: usr_id_1 } });
-
-            return { message: "Friend remove successfully" };
-        } catch (error) {
-            throw new BadRequestError(error.message);
+        const friend = await UserModel.findById(usr_id_2);
+        if (!friend) {
+            throw new NotFoundError("Friend not found");
         }
+
+        await UserModel.findByIdAndUpdate(usr_id_1, {
+            $pull: { usr_friends: usr_id_2 },
+        });
+
+        await friend.update({ $pull: { usr_friends: usr_id_1 } });
+
+        return { message: "Friend remove successfully" };
+    }
+
+    static async friendsList(userId) {
+        const user = await UserModel.findById(userId).populate("usr_friends");
+
+        if (!user) {
+            throw new NotFoundError("User not found");
+        }
+
+        return user.usr_friends;
+    }
+
+    static async pendingFriendRequests(userId) {
+        const user = await UserModel.findById(userId).populate(
+            "usr_pending_friends"
+        );
+
+        if (!user) {
+            throw new NotFoundError("User not found");
+        }
+
+        return user.usr_pending_friends;
+    }
+
+    static async updateProfileUser(userId, updatedUserData) {
+        const user = await UserModel.findByIdAndUpdate(
+            userId,
+            {
+                usr_name: updatedUserData.usr_name,
+                usr_password: updatedUserData.usr_password,
+                usr_avatar: updatedUserData.usr_avatar,
+            },
+            { new: true }
+        );
+
+        if (!user) {
+            throw new NotFoundError("User not found");
+        }
+
+        return user;
     }
     // CRUD User
     static async createUser(userData) {
@@ -91,7 +153,7 @@ class UserService {
             const user = await UserModel.create(userData);
             return user;
         } catch (error) {
-            throw error;
+            throw new BadRequestError(error.message);
         }
     }
 
@@ -100,16 +162,19 @@ class UserService {
             const users = await UserModel.find();
             return users;
         } catch (error) {
-            throw error;
+            throw new BadRequestError(error.message);
         }
     }
 
     static async getUserById(userId) {
         try {
             const user = await UserModel.findById(userId);
+            if (!user) {
+                throw new NotFoundError("User not found");
+            }
             return user;
         } catch (error) {
-            throw error;
+            throw new BadRequestError(error.message);
         }
     }
 
@@ -118,18 +183,24 @@ class UserService {
             const user = await UserModel.findByIdAndUpdate(userId, updatedUserData, {
                 new: true,
             });
+            if (!user) {
+                throw new NotFoundError("User not found");
+            }
             return user;
         } catch (error) {
-            throw error;
+            throw new BadRequestError(error.message);
         }
     }
 
     static async deleteUserById(userId) {
         try {
             const user = await UserModel.findByIdAndDelete(userId);
+            if (!user) {
+                throw new NotFoundError("User not found");
+            }
             return user;
         } catch (error) {
-            throw error;
+            throw new BadRequestError(error.message);
         }
     }
 }

@@ -2,17 +2,24 @@ const { CREATED, OK } = require("../../core/success.response");
 const UserService = require("./user.service");
 
 class UserController {
-    addFriends = async (req, res, next) => {
+    sendFriendRequest = async (req, res, next) => {
         new CREATED({
             message: "Friend added successfully!",
-            metadata: await UserService.addFriends(req.body),
+            metadata: await UserService.sendFriendRequest(req.body),
         }).send(res);
     };
 
-    acceptFriend = async (req, res, next) => {
+    acceptFriendRequest = async (req, res, next) => {
         new CREATED({
             message: "Friend accept successfully!",
-            metadata: await UserService.acceptFriend(req.body),
+            metadata: await UserService.acceptFriendRequest(req.body),
+        }).send(res);
+    };
+
+    rejectFriend = async (req, res, next) => {
+        new OK({
+            message: "Friend rejected successfully!",
+            metadata: await UserService.rejectFriend(req.body),
         }).send(res);
     };
 
@@ -37,75 +44,72 @@ class UserController {
         }).send(res);
     };
 
+    friendsList = async (req, res, next) => {
+        new OK({
+            message: "Friend list retrieved successfully!",
+            metadata: await UserService.friendsList(req.params.userId),
+        }).send(res);
+    };
+
+    pendingFriendRequests = async (req, res, next) => {
+        new OK({
+            message: "Pending friend requests retrieved successfully!",
+            metadata: await UserService.pendingFriendRequests(
+                req.params.userId
+            ),
+        }).send(res);
+    };
+
+    updateProfileUser = async (req, res, next) => {
+        new OK({
+            message: "Profile updated successfully!",
+            metadata: await UserService.updateProfileUser(req.params.userId, req.body),
+        }).send(res);
+    };
+
     async createUser(req, res) {
-        try {
-            const user = await UserService.createUser(req.body);
-            new CREATED({
-                message: 'User created successfully!',
-                metadata: user,
-            }).send(res);
-        } catch (error) {
-            res.status(400).json({ error: error.message });
-        }
+        const user = await UserService.createUser(req.body);
+        new CREATED({
+            message: 'User created successfully!',
+            metadata: user,
+        }).send(res);
+
     }
 
     async getAllUsers(req, res) {
-        try {
-            const users = await UserService.getAllUsers();
-            new OK({
-                message: 'Get all users successfully!',
-                metadata: users,
-            }).send(res);
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
+        const users = await UserService.getAllUsers();
+        new OK({
+            message: 'Get all users successfully!',
+            metadata: users,
+        }).send(res);
+
     }
 
     async getUserById(req, res) {
-        try {
-            const user = await UserService.getUserById(req.params.userId);
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-            new OK({
-                message: 'Get user by ID successfully!',
-                metadata: user,
-            }).send(res);
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
+        const user = await UserService.getUserById(req.params.userId);
+        new OK({
+            message: 'Get user by ID successfully!',
+            metadata: user,
+        }).send(res);
+
     }
 
     async updateUserById(req, res) {
-        try {
-            const user = await UserService.updateUserById(req.params.userId, req.body);
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-            new OK({
-                message: 'Update user by ID successfully!',
-                metadata: user,
-            }).send(res);
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
+        const user = await UserService.updateUserById(req.params.userId, req.body);
+        new OK({
+            message: 'Update user by ID successfully!',
+            metadata: user,
+        }).send(res);
+
     }
 
     async deleteUserById(req, res) {
-        try {
-            const user = await UserService.deleteUserById(req.params.userId);
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-            new OK({
-                message: 'Delete user by ID successfully!',
-                metadata: user,
-            }).send(res);
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
+        const user = await UserService.deleteUserById(req.params.userId);
+        new OK({
+            message: 'Delete user by ID successfully!',
+            metadata: user,
+        }).send(res);
     }
-
 }
 
 module.exports = new UserController();
