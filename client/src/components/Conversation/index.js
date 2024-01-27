@@ -2,6 +2,7 @@ import { Avatar, Badge, Box, Stack, Typography } from "@mui/material";
 import React from "react";
 import { faker } from "@faker-js/faker";
 import { styled } from "@mui/material/styles";
+import Message from "./Message";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -74,7 +75,9 @@ const Conversation = () => {
         </Stack>
       </Box>
       {/* Msg */}
-      <Box width={"100%"} sx={{ flexGrow: 1 }}></Box>
+      <Box width={"100%"} sx={{ flexGrow: 1 }}>
+        <Message/>
+      </Box>
       {/* Chat Footer*/}
       <Box
         sx={{
