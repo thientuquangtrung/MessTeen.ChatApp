@@ -1,11 +1,25 @@
 import React from "react";
+import Chats from "./Chats";
+import { Box, Stack } from "@mui/material";
+import Conversation from "../../components/Conversation";
 
 const GeneralApp = () => {
-
   return (
-    <>
-      App
-    </>
+    <Stack direction={"row"} sx={{ width: "100%" }}>
+      {/* chats */}
+      <Chats />
+
+      <Box
+        sx={{
+          height: "100%",
+          width: "calc(100vw - 420px)",
+          backgroundColor: "#fff",
+        }}
+      >
+        {/* conversations */}
+        <Conversation/>
+      </Box>
+    </Stack>
   );
 };
 

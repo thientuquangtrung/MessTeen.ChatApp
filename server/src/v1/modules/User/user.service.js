@@ -147,6 +147,64 @@ class UserService {
 
         return user;
     }
+    // CRUD User
+    static async createUser(userData) {
+        try {
+            const user = await UserModel.create(userData);
+            return user;
+        } catch (error) {
+            throw new BadRequestError(error.message);
+        }
+    }
+
+    static async getAllUsers() {
+        try {
+            const users = await UserModel.find();
+            return users;
+        } catch (error) {
+            throw new BadRequestError(error.message);
+        }
+    }
+
+    static async getUserById(userId) {
+        try {
+            const user = await UserModel.findById(userId);
+            if (!user) {
+                throw new NotFoundError("User not found");
+            }
+            return user;
+        } catch (error) {
+            throw new BadRequestError(error.message);
+        }
+    }
+
+    static async updateUserById(userId, updatedUserData) {
+        try {
+            const user = await UserModel.findByIdAndUpdate(userId, updatedUserData, {
+                new: true,
+            });
+            if (!user) {
+                throw new NotFoundError("User not found");
+            }
+            return user;
+        } catch (error) {
+            throw new BadRequestError(error.message);
+        }
+    }
+
+    static async deleteUserById(userId) {
+        try {
+            const user = await UserModel.findByIdAndDelete(userId);
+            if (!user) {
+                throw new NotFoundError("User not found");
+            }
+            return user;
+        } catch (error) {
+            throw new BadRequestError(error.message);
+        }
+    }
 }
+
+
 
 module.exports = UserService;

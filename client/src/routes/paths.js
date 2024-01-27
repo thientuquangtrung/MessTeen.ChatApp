@@ -12,3 +12,7 @@ export const PATH_DASHBOARD = {
     app: path(ROOTS_DASHBOARD, "app"),
   },
 };
+
+// "/app"
+
+// PATH_DASHBOARD.general.app => "/" + "app" => /app
