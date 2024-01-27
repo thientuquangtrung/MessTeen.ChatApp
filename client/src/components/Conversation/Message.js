@@ -3,6 +3,7 @@ import React from "react";
 import { Chat_History } from "../../data";
 import { TextMsg, Timeline } from "./MsgTypes";
 
+
 const Message = () => {
   return (
     <Box p={3}>
@@ -11,7 +12,6 @@ const Message = () => {
           switch (el.type) {
             case "divider":
              return <Timeline el={el}/>;
-              
             case "msg":
               switch (el.subtype) {
                 case "img":
@@ -27,7 +27,6 @@ const Message = () => {
                  return <TextMsg el={el}/>  
               }
               break;
-
             default:
               return <></>
           }
