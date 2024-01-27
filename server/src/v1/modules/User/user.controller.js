@@ -2,17 +2,24 @@ const { CREATED, OK } = require("../../core/success.response");
 const UserService = require("./user.service");
 
 class UserController {
-    addFriends = async (req, res, next) => {
+    sendFriendRequest = async (req, res, next) => {
         new CREATED({
             message: "Friend added successfully!",
-            metadata: await UserService.addFriends(req.body),
+            metadata: await UserService.sendFriendRequest(req.body),
         }).send(res);
     };
 
-    acceptFriend = async (req, res, next) => {
+    acceptFriendRequest = async (req, res, next) => {
         new CREATED({
             message: "Friend accept successfully!",
-            metadata: await UserService.acceptFriend(req.body),
+            metadata: await UserService.acceptFriendRequest(req.body),
+        }).send(res);
+    };
+
+    rejectFriend = async (req, res, next) => {
+        new OK({
+            message: "Friend rejected successfully!",
+            metadata: await UserService.rejectFriend(req.body),
         }).send(res);
     };
 
@@ -34,6 +41,29 @@ class UserController {
         new OK({
             message: "Friend unblocked successfully!",
             metadata: await UserService.unBlockFriend(req.body),
+        }).send(res);
+    };
+
+    friendsList = async (req, res, next) => {
+        new OK({
+            message: "Friend list retrieved successfully!",
+            metadata: await UserService.friendsList(req.params.userId),
+        }).send(res);
+    };
+
+    pendingFriendRequests = async (req, res, next) => {
+        new OK({
+            message: "Pending friend requests retrieved successfully!",
+            metadata: await UserService.pendingFriendRequests(
+                req.params.userId
+            ),
+        }).send(res);
+    };
+
+    updateProfileUser = async (req, res, next) => {
+        new OK({
+            message: "Profile updated successfully!",
+            metadata: await UserService.updateProfileUser(req.params.userId, req.body),
         }).send(res);
     };
 }
