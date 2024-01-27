@@ -24,7 +24,7 @@ const UserSchema = new Schema(
         },
         usr_pending_friends: {
             type: [mongoose.Schema.Types.ObjectId],
-            ref: "Users",
+            ref: "User",
         },
         usr_provider_type: {
             type: "String",
@@ -50,11 +50,11 @@ const UserSchema = new Schema(
         },
         usr_friends: {
             type: [mongoose.Schema.Types.ObjectId],
-            ref: "Users",
+            ref: "User",
         },
         usr_blocked_people: {
             type: [mongoose.Schema.Types.ObjectId],
-            ref: "Users",
+            ref: "User",
         },
         usr_enabled: {
             type: "Boolean",
