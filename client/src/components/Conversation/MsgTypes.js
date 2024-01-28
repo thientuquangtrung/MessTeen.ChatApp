@@ -1,8 +1,175 @@
 import { useTheme } from "@emotion/react";
-import { Box, Divider, Stack, Typography } from "@mui/material";
+import { Box, Divider, IconButton, Link, Stack, Typography } from "@mui/material";
+import { DownloadSimple, Image } from "phosphor-react";
 import { element } from "prop-types";
 
 import React from "react";
+const DocMsg = ({ el }) => {
+  const theme = useTheme();
+  return (
+    <Stack direction="row" justifyContent={el.incoming ? "start" : "end"}>
+      <Box
+        p={1.5}
+        sx={{
+          background: el.incoming
+            ? theme.palette.background.default
+            : theme.palette.primary.main,
+          borderRadius: 1.5, //1.5*8=12px
+          width: "max-content",
+        }}
+      >
+        <Stack spacing={2}>
+          <Stack
+            p={2}
+            spacing={3}
+            alignItems="center"
+            direction="row"
+            sx={{
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: 1,
+            }}
+          >
+            <Image
+              size={48}
+            />
+              <Typography variant="caption">Abstract.png</Typography>
+             <IconButton>
+              <DownloadSimple/>
+             </IconButton>
+            </Stack>
+           <Typography  variant="body2"
+            
+                sx={{ color:el.incoming? theme.palette.text : "#fff" }}>{el.message}</Typography>
+          </Stack>
+      
+      </Box>
+    </Stack>
+  );
+};
+const LinkMsg = ({ el }) => {
+  const theme = useTheme();
+  return (
+    <Stack direction="row" justifyContent={el.incoming ? "start" : "end"}>
+      <Box
+        p={1.5}
+        sx={{
+          background: el.incoming
+            ? theme.palette.background.default
+            : theme.palette.primary.main,
+          borderRadius: 1.5, //1.5*8=12px
+          width: "max-content",
+        }}
+      >
+        <Stack spacing={2}>
+          <Stack
+            p={2}
+            spacing={3}
+            alignItems="center"
+            sx={{
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: 1,
+            }}
+          >
+            <img
+              src={el.preview}
+              alt={el.message}
+              style={{ maxHeight: 210, borderRadius: "10px" }}
+            />
+            <Stack spacing={2}>
+              <Typography variant="subtitle2">Create</Typography>
+              <Typography
+                variant="subtitle2"
+                component={Link}
+                sx={{ color: theme.palette.primary.main }}
+                to="//https://www.youtube.com"
+              >
+                www.youtube.com
+              </Typography>
+            </Stack>
+            <Typography
+              variant="body2"
+              color={el.incoming ? theme.palette.text : "#fff"}
+            >
+              {el.message}
+            </Typography>
+          </Stack>
+        </Stack>
+      </Box>
+    </Stack>
+  );
+};
+
+const ReplyMsg = ({ el }) => {
+  const theme = useTheme();
+  return (
+    <Stack direction="row" justifyContent={el.incoming ? "start" : "end"}>
+      <Box
+        p={1.5}
+        sx={{
+          background: el.incoming
+            ? theme.palette.background.default
+            : theme.palette.primary.main,
+          borderRadius: 1.5, //1.5*8=12px
+          width: "max-content",
+        }}
+      >
+        <Stack spacing={2}>
+          <Stack
+            p={2}
+            direction="column"
+            spacing={3}
+            alignItems="center"
+            sx={{
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: 1,
+            }}
+          >
+            <Typography variant="body2" color={theme.palette.text}>
+              {el.message}
+            </Typography>
+          </Stack>
+          <Typography
+            variant="body2"
+            color={el.incoming ? theme.palette.text : "#fff"}
+          >
+            {el.reply}
+          </Typography>
+        </Stack>
+      </Box>
+    </Stack>
+  );
+};
+const MediaMsg = ({ el }) => {
+  const theme = useTheme();
+  return (
+    <Stack direction="row" justifyContent={el.incoming ? "start" : "end"}>
+      <Box
+        p={1.5}
+        sx={{
+          background: el.incoming
+            ? theme.palette.background.default
+            : theme.palette.primary.main,
+          borderRadius: 1.5, //1.5*8=12px
+          width: "max-content",
+        }}
+      >
+        <Stack spacing={1}>
+          <img
+            src={el.img}
+            alt={el.message}
+            style={{ maxHeight: 210, borderRadius: "10px" }}
+          />
+          <Typography
+            variant="body2"
+            color={el.incoming ? theme.palette.text : "#fff"}
+          >
+            {el.message}
+          </Typography>
+        </Stack>
+      </Box>
+    </Stack>
+  );
+};
 const TextMsg = ({ el }) => {
   const theme = useTheme();
   return (
@@ -13,13 +180,14 @@ const TextMsg = ({ el }) => {
           background: el.incoming
             ? theme.palette.background.default
             : theme.palette.primary.main,
-            borderRadius:1.5, //1.5*8=12px
-            width:"max-content",
+          borderRadius: 1.5, //1.5*8=12px
+          width: "max-content",
         }}
       >
-        <Typography variant="body2" color={el.incoming
-            ? theme.palette.text
-            : "#fff"}>
+        <Typography
+          variant="body2"
+          color={el.incoming ? theme.palette.text : "#fff"}
+        >
           {el.message}
         </Typography>
       </Box>
@@ -40,4 +208,4 @@ const Timeline = ({ el }) => {
   );
 };
 
-export { Timeline, TextMsg };
+export { Timeline, TextMsg, MediaMsg, ReplyMsg, LinkMsg,DocMsg };
