@@ -61,7 +61,7 @@ const LinkMsg = ({ el }) => {
         }}
       >
         <Stack spacing={2}>
-          <Stack
+          <Stack 
             p={2}
             spacing={3}
             alignItems="center"
