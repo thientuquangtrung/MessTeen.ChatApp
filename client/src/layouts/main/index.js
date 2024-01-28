@@ -2,7 +2,7 @@ import { Container, Stack } from "@mui/material";
 import React from "react";
 import { Outlet } from "react-router-dom";
 
-import Logo from "../../assets/Images/logo.ico";
+import Logo from "../../assets/Images/logo1.png";
 
 const MainLayout = () => {
   return (
@@ -14,7 +14,7 @@ const MainLayout = () => {
             direction={"column"}
             alignItems={"center"}
           >
-            <img style={{ height: 120, width: 120 }} src={Logo} alt="Logo" />
+            <img style={{ height: 120, width: 125 }} src={Logo} alt="Logo" />
           </Stack>
         </Stack>
 
