@@ -3,7 +3,7 @@ import { Avatar, Box, Divider, IconButton, Stack, Switch } from "@mui/material";
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 
-import Logo from "../../assets/Images/logo.ico";
+import Logo from "../../assets/Images/logo1.png";
 import { Nav_Buttons } from "../../data";
 import { Gear } from "phosphor-react";
 import { faker } from "@faker-js/faker";
@@ -83,7 +83,7 @@ const DashboardLayout = () => {
           <Stack alignItems={"center"} spacing={4}>
             <Box
               sx={{
-                backgroundColor: theme.palette.primary.main,
+                // backgroundColor: theme.palette.primary.main,
                 height: 64,
                 width: 64,
                 borderRadius: 1.5,
