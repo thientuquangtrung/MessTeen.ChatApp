@@ -114,34 +114,53 @@ class ChatroomController {
     }).send(res);
   };
 
+  // list = async (req, res, next) => {
+  //   try {
+  //     const chatrooms = await ChatroomService.listChatrooms();
+  //     res.json(chatrooms);
+  //   } catch (error) {
+  //     next(error); // Handle errors appropriately
+  //   }
+  // };
+
   list = async (req, res, next) => {
-    try {
-      const chatrooms = await ChatroomService.listChatrooms();
-      res.json(chatrooms);
-    } catch (error) {
-      next(error); // Handle errors appropriately
-    }
+    const results = await ChatroomService.listChatrooms();
+    new OK({
+      message: "List of all chatrooms",
+      metadata: await ChatroomService.listChatrooms(),
+      chatrooms: results.chatrooms,
+    }).send(res);
   };
 
+  // addMember = async (req, res, next) => {
+  //   try {
+  //     const { roomId, memberId } = req.body;
+  //     const updatedChatroom = await ChatroomService.addMemberToChatroom(
+  //       roomId,
+  //       memberId
+  //     );
+  //     res.status(200).json({
+  //       message: "Add member successfully",
+  //       chatroom: updatedChatroom,
+  //     });
+  //   } catch (error) {
+  //     //member already exists in the chatroom
+  //     if (error instanceof ConflictRequestError) {
+  //       res.status(409).json({ message: error.message }); // 409 Conflict
+  //     } else {
+  //       next(error);
+  //     }
+  //   }
+  // };
+
   addMember = async (req, res, next) => {
-    try {
-      const { roomId, memberId } = req.body;
-      const updatedChatroom = await ChatroomService.addMemberToChatroom(
-        roomId,
-        memberId
-      );
-      res.status(200).json({
-        message: "Add member successfully",
-        chatroom: updatedChatroom,
-      });
-    } catch (error) {
-      //member already exists in the chatroom
-      if (error instanceof ConflictRequestError) {
-        res.status(409).json({ message: error.message }); // 409 Conflict
-      } else {
-        next(error);
-      }
-    }
+    const { roomId, memberId } = req.body;
+    const result = await ChatroomService.addMemberToChatroom(roomId, memberId);
+    new OK({
+      message: "Add member successfully",
+      metadata: await ChatroomService.addMemberToChatroom(roomId),
+      chatroom: result.chatroom,
+    }).send(res);
   };
 }
 
