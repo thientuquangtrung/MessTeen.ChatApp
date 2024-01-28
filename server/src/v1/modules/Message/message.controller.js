@@ -23,11 +23,18 @@ class MessageController {
       metadata: await MessageService.editMessage(messageId, req.body),
     }).send(res);
   };
-  getAllMessage = async (req, res, next) => {
-    new OK({
-      message: "Get all message success",
-      metadata: await MessageService.getAllMessage(req.body),
-    }).send(res);
-  };
+getAllMessage = async (req, res, next) => {
+    try {
+        const msg_room_id = req.params.chatroomId.toString();
+        const messages = await MessageService.getAllMessages(msg_room_id);
+        new OK({
+            message: "Get all messages success",
+            metadata: messages,
+        }).send(res);
+    } catch (error) {
+        // Handle errors appropriately
+        next(error);
+    }
+};
 }
 module.exports = new MessageController();
