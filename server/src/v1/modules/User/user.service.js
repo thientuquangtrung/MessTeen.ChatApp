@@ -4,6 +4,7 @@ const {
     NotFoundError,
 } = require("../../core/error.response");
 const UserModel = require("../User/user.model");
+const bcrypt = require("bcrypt");
 
 class UserService {
     static async sendFriendRequest({ user_id, friend_id }) {
@@ -149,59 +150,50 @@ class UserService {
     }
     // CRUD User
     static async createUser(userData) {
-        try {
-            const user = await UserModel.create(userData);
-            return user;
-        } catch (error) {
-            throw new BadRequestError(error.message);
-        }
+        const hashedPassword = await bcrypt.hash(userData.usr_password, 10);
+        const user = await UserModel.create({
+            usr_email: userData.usr_email,
+            usr_name: userData.usr_name,
+            usr_password: hashedPassword,
+        });
+        return user;
     }
 
     static async getAllUsers() {
-        try {
-            const users = await UserModel.find();
-            return users;
-        } catch (error) {
-            throw new BadRequestError(error.message);
-        }
+        const users = await UserModel.find();
+        return users;
     }
 
     static async getUserById(userId) {
-        try {
-            const user = await UserModel.findById(userId);
-            if (!user) {
-                throw new NotFoundError("User not found");
-            }
-            return user;
-        } catch (error) {
-            throw new BadRequestError(error.message);
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            throw new NotFoundError("User not found");
         }
+        return user;
     }
 
     static async updateUserById(userId, updatedUserData) {
-        try {
-            const user = await UserModel.findByIdAndUpdate(userId, updatedUserData, {
-                new: true,
-            });
-            if (!user) {
-                throw new NotFoundError("User not found");
-            }
-            return user;
-        } catch (error) {
-            throw new BadRequestError(error.message);
+        const user = await UserModel.findByIdAndUpdate(userId, updatedUserData, {
+            new: true,
+        });
+        if (!user) {
+            throw new NotFoundError("User not found");
         }
+        return user;
+
     }
 
     static async deleteUserById(userId) {
-        try {
-            const user = await UserModel.findByIdAndDelete(userId);
-            if (!user) {
-                throw new NotFoundError("User not found");
-            }
-            return user;
-        } catch (error) {
-            throw new BadRequestError(error.message);
+        const user = await UserModel.findByIdAndUpdate(
+            userId,
+            { usr_enabled: false },
+            { new: true }
+        );
+        if (!user) {
+            throw new NotFoundError("User not found");
         }
+        return user;
+
     }
 }
 
