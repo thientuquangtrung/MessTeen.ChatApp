@@ -1,6 +1,6 @@
 const MessageService = require("./message.service");
 const { CREATED, OK } = require("../../core/success.response");
-
+const Chatroom = require("./../ChatRoom/chatroom.model");
 class MessageController {
   send = async (req, res, next) => {
     new CREATED({
@@ -23,18 +23,39 @@ class MessageController {
       metadata: await MessageService.editMessage(messageId, req.body),
     }).send(res);
   };
-getAllMessage = async (req, res, next) => {
-    try {
-        const msg_room_id = req.params.chatroomId.toString();
-        const messages = await MessageService.getAllMessages(msg_room_id);
-        new OK({
-            message: "Get all messages success",
-            metadata: messages,
-        }).send(res);
-    } catch (error) {
-        // Handle errors appropriately
-        next(error);
+  search = async (req, res, next) => {
+    const msg_room_id = req.params.chatroomId;
+    const msg_content = req.body.msg_content;
+    const chatroom = await Chatroom.findOne({_id: msg_room_id});
+    console.log('Chatroom:', chatroom); // Add this line to log the chatroom
+    
+    if (!chatroom) {
+      throw new NotFoundError("Chatroom not found.");
+    } else
+     if (!msg_content) {
+      return new BadRequest({
+        message: "Empty search content. Please provide a search term.",
+      }).send(res);
     }
-};
+
+    const messages = await MessageService.searchMessage(
+      msg_room_id,
+      msg_content
+    );
+
+    new OK({
+      message: "Search message success",
+      metadata: messages,
+      
+    }).send(res);
+  };
+  getAllMessage = async (req, res, next) => {
+    const msg_room_id = req.params.chatroomId.toString();
+    const messages = await MessageService.getAllMessages(msg_room_id);
+    new OK({
+      message: "Get all messages success",
+      metadata: messages,
+    }).send(res);
+  };
 }
 module.exports = new MessageController();

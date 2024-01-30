@@ -11,13 +11,12 @@ const {
 } = require("../../core/error.response");
 class MessageService {
   static async getAllMessages(msg_room_id, limit = 20) {
-    const messages = await MessageModel
-        .find({ msg_room_id })
-        .sort({ createdAt: -1 })  // Sort in descending order based on createdAt timestamp
-        .limit(limit);
+    const messages = await MessageModel.find({ msg_room_id })
+      .sort({ createdAt: -1 }) // Sort in descending order based on createdAt timestamp
+      .limit(limit);
 
     return messages;
-}
+  }
   static async sendMessage(messageData) {
     const message = new MessageModel(messageData);
     await message.save();
@@ -40,6 +39,15 @@ class MessageService {
 
     return message;
   }
+  static async searchMessage(msg_room_id, msg_content) {
+    const messages = await MessageModel.find({
+        msg_room_id,
+        msg_content: RegExp(msg_content, 'i') 
+      
+    }); 
+    return messages; 
+}
 }
 
 module.exports = MessageService;
+  
