@@ -179,9 +179,14 @@ class UserService {
         if (!user) {
             throw new NotFoundError("User not found");
         }
-        return user;
+        if (updatedUserData.usr_password) {
+            const hashedPassword = await bcrypt.hash(updatedUserData.usr_password, 10);
+            user.usr_password = hashedPassword;
+        }
 
+        return user;
     }
+
 
     static async deleteUserById(userId) {
         const user = await UserModel.findByIdAndUpdate(
