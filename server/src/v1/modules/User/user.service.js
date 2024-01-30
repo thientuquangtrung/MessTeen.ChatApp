@@ -1,8 +1,4 @@
-const {
-    BadRequestError,
-    ForbiddenError,
-    NotFoundError,
-} = require("../../core/error.response");
+const { BadRequestError, NotFoundError } = require("../../core/error.response");
 const UserModel = require("../User/user.model");
 
 class UserService {
@@ -15,14 +11,14 @@ class UserService {
         }
 
         if (
-            user.usr_pending_friends.includes(friend_id) ||
-            user.usr_friends.includes(friend_id)
+            friend.usr_pending_friends.includes(user_id) ||
+            friend.usr_friends.includes(user_id)
         ) {
             throw new BadRequestError("Already friends or request pending");
         }
 
-        user.usr_pending_friends.push(friend_id);
-        await user.save();
+        // user.usr_pending_friends.push(friend_id);
+        // await user.save();
 
         return { message: "Friend request send" };
     }
@@ -180,9 +176,13 @@ class UserService {
 
     static async updateUserById(userId, updatedUserData) {
         try {
-            const user = await UserModel.findByIdAndUpdate(userId, updatedUserData, {
-                new: true,
-            });
+            const user = await UserModel.findByIdAndUpdate(
+                userId,
+                updatedUserData,
+                {
+                    new: true,
+                }
+            );
             if (!user) {
                 throw new NotFoundError("User not found");
             }
@@ -204,7 +204,5 @@ class UserService {
         }
     }
 }
-
-
 
 module.exports = UserService;
