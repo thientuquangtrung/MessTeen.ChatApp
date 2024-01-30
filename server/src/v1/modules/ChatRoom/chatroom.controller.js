@@ -21,7 +21,6 @@ class ChatroomController {
   join = async (req, res, next) => {
     const { roomId } = req.params;
     const { userId } = req.body;
-    // chỗ này Mai gọi hàm này 2 lần nè
     new OK({
       message: "Join chatroom success",
       metadata: await ChatroomService.joinChatroom(roomId, userId),
@@ -31,33 +30,24 @@ class ChatroomController {
   leave = async (req, res, next) => {
     const { roomId } = req.params;
     const { userId } = req.body;
-    // tí chỉnh chỗ này luôn nha
-    // const result = await ChatroomService.leaveChatroom(roomId, userId);
     new OK({
       message: "Leave chatroom success",
       metadata: await ChatroomService.leaveChatroom(roomId, userId),
-      // chatroom: result.chatroom,
     }).send(res);
   };
 
   list = async (req, res, next) => {
-    // đây cũng vậy
-    // const results = await ChatroomService.listChatrooms();
     new OK({
       message: "List of all chatrooms",
       metadata: await ChatroomService.listChatrooms(),
-      // chatrooms: results.chatrooms,
     }).send(res);
   };
 
   addMember = async (req, res, next) => {
     const { roomId, memberId } = req.body;
-    // này lun
-    // const result = await ChatroomService.addMemberToChatroom(roomId, memberId);
     new OK({
       message: "Add member successfully",
       metadata: await ChatroomService.addMemberToChatroom(roomId, memberId),
-      // chatroom: result.chatroom,
     }).send(res);
   };
 }

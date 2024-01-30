@@ -19,10 +19,12 @@ class ChatroomService {
     for (const participantId of chatroomData.room_participant_ids) {
       const userExists = await UserService.getUserById(participantId);
       if (!userExists) {
-          // Handle the error appropriately
-          throw new Error(`User with ID ${participantId} does not exist.`);
+        // Handle the error appropriately
+        throw new NotFoundError(
+          `User with ID ${participantId} does not exist.`
+        );
       }
-  }
+    }
     const chatroom = new Chatroom(chatroomData);
     await chatroom.save();
     return chatroom;
@@ -31,18 +33,17 @@ class ChatroomService {
   async deleteChatroom(roomId) {
     const result = await Chatroom.findByIdAndDelete(roomId);
     if (!result) {
-        throw new NotFoundError("Chatroom not found.");
+      throw new NotFoundError("Chatroom not found.");
     }
     return result;
-}
-
+  }
 
   // Join chatroom
   async joinChatroom(roomId, userId) {
-     // First, check if the user exists
+    // First, check if the user exists
     const userExists = await UserService.getUserById(userId);
     if (!userExists) {
-        throw new NotFoundError("User not found.");
+      throw new NotFoundError("User not found.");
     }
 
     const chatroom = await Chatroom.findById(roomId);
