@@ -37,6 +37,9 @@ export default function Router() {
       children: [
         { element: <Navigate to={DEFAULT_PATH} replace />, index: true },
         { path: "app", element: <GeneralApp /> },
+        { path: "settings", element: <Settings /> },
+        { path: "settings/privacy", element: <Privacy /> },
+        { path: "settings/privacy/block-contacts", element: <BlockContacts /> },
         { path: "profile", element: <ProfilePage />},
         { path: "404", element: <Page404 /> },
         { path: "*", element: <Navigate to="/404" replace /> },
@@ -59,6 +62,18 @@ const ResetPasswordPage = Loadable(
 );
 const NewPasswordPage = Loadable(
   lazy(() => import("../pages/auth/NewPassword"))
+);
+
+const Settings = Loadable(
+  lazy(() => import("../pages/dashboard/Settings"))
+);
+
+const Privacy = Loadable(
+  lazy(() => import("../pages/dashboard/Privacy"))
+);
+
+const BlockContacts = Loadable(
+  lazy(() => import("../pages/dashboard/BlockContacts"))
 );
 
 const ProfilePage = Loadable(lazy(() => import("../pages/dashboard/Profile")));
