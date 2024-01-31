@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const helmet = require("helmet");
 const morgan = require("morgan");
@@ -9,6 +10,7 @@ require("./v1/databases/init.mongodb");
 // require('./v1/databases/init.redis')
 
 //user middleware
+app.use(cors());
 app.use(helmet());
 app.use(morgan("combined"));
 // compress responses
