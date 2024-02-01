@@ -1,6 +1,13 @@
 import React from "react";
 import { ThemeContext } from "@emotion/react";
-import { Avatar, Box, Divider, IconButton, Stack, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Divider,
+  IconButton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 
@@ -16,7 +23,6 @@ import {
   PencilCircle,
 } from "phosphor-react";
 import { faker } from "@faker-js/faker";
-
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -88,7 +94,7 @@ const Settings = () => {
         {/* LeftPanel */}
         <Box
           sx={{
-            // overflow: "scroll",
+            overflow: "hidden",
             height: "100vh",
             width: 320,
             backgroundColor:
@@ -121,21 +127,30 @@ const Settings = () => {
               </Stack>
             </Stack>
             {/* List of options */}
-            <Stack spacing={4}>
+            <Stack
+              sx={{
+                maxHeight: "calc(100vh - 240px)",
+                overflowY: "auto",
+                paddingBottom: 1,
+                paddingTop: 1,
+              }}
+              spacing={4}
+            >
               {list.map(({ key, icon, title, onclick, disabled }) => (
-                <>
-                  <Stack
-                    spacing={2}
-                    sx={{ cursor: "pointer" , opacity: disabled ? 0.5 : 1 }}
-                    onClick={disabled ? () => {} : onclick}
-                  >
-                    <Stack direction={"row"} spacing={2} alignItems={"center"}>
-                      {icon}
-                      <Typography variant="body2">{title}</Typography>
-                    </Stack>
-                    {key !==7 && <Divider/>}
+                <Stack
+                  spacing={2}
+                  sx={{
+                    cursor: disabled ? "default" : "pointer", // Thay đổi kiểu con trỏ chuột
+                    opacity: disabled ? 0.5 : 1,
+                  }}
+                  onClick={disabled ? () => {} : onclick}
+                >
+                  <Stack direction={"row"} spacing={2} alignItems={"center"}>
+                    {icon}
+                    <Typography variant="body2">{title}</Typography>
                   </Stack>
-                </>
+                  {key !== 7 && <Divider />}
+                </Stack>
               ))}
             </Stack>
           </Stack>

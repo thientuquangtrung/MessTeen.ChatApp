@@ -1,20 +1,18 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
 import {
   Avatar,
   Box,
-  Button,
   Divider,
   Grid,
   IconButton,
   InputBase,
+  Modal,
   Stack,
   Typography,
 } from "@mui/material";
-import { alpha, styled, useTheme } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import {
-  ArchiveBox,
   CaretLeft,
   MagnifyingGlass,
   Plus,
@@ -22,7 +20,6 @@ import {
 } from "phosphor-react";
 import { faker } from "@faker-js/faker";
 import { ChatList } from "../../data";
-import Modal from "@mui/material/Modal";
 
 const BlockElements = ({ id, name, img, msg, time }) => {
   return (
@@ -107,7 +104,7 @@ const BlockContacts = () => {
         {/* LeftPanel */}
         <Box
           sx={{
-            overflow: "scroll",
+            // overflow: "scroll",
             height: "100vh",
             width: 320,
             backgroundColor:
@@ -149,19 +146,22 @@ const BlockContacts = () => {
               <Divider />
             </Stack>
 
-            <Stack spacing={2.4} direction={"column"}>
-              {ChatList.filter((el) => !el.pinned).map((el) => {
-                return <BlockElements {...el} />;
-              })}
+            <Stack
+              sx={{
+                overflow: "auto",
+                maxHeight: "calc(100vh - 12rem )",
+                paddingRight: 1,
+              }}
+            >
+              <Stack spacing={2.4} direction={"column"}>
+                {ChatList.filter((el) => !el.pinned).map((el) => {
+                  return <BlockElements {...el} />;
+                })}
+              </Stack>
             </Stack>
           </Stack>
           <Stack>
-            <Modal
-              open={openModal}
-              onClose={handleCloseModal}
-              aria-labelledby="modal-title"
-              aria-describedby="modal-description"
-            >
+            <Modal open={openModal} onClose={handleCloseModal}>
               <Stack
                 sx={{
                   position: "absolute",
@@ -173,7 +173,7 @@ const BlockContacts = () => {
                   boxShadow: 24,
                   p: 3,
                   borderRadius: "20px",
-                  overflow: "hidden",
+                  // overflow: "scroll",
                 }}
               >
                 <Stack spacing={1.5}>
@@ -192,8 +192,7 @@ const BlockContacts = () => {
                   <Divider />
                   <Stack
                     sx={{
-                      maxHeight: "70vh",
-                      overflow: "auto",
+                      
                     }}
                   >
                     <Search>
@@ -211,13 +210,15 @@ const BlockContacts = () => {
                         ".MuiIconButton-root": {
                           display: "none",
                         },
-                        paddingTop: 1,
-                        
+                        paddingTop: 1,maxHeight: "70vh",
+                        overflow: "auto",
+                        overflowX: "hidden", 
                       }}
                     >
                       {ChatList.filter((el) => !el.pinned).map((el) => (
                         <Box sx={{ cursor: "pointer" }}>
-                        <BlockElements key={el.id} {...el} /></Box>
+                          <BlockElements key={el.id} {...el} />
+                        </Box>
                       ))}
                     </Stack>
                   </Stack>
