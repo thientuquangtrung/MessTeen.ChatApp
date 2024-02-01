@@ -12,7 +12,7 @@ const {
 class MessageService {
   static async getAllMessages(msg_room_id, limit = 20) {
     const messages = await MessageModel.find({ msg_room_id })
-      .sort({ createdAt: -1 }) // Sort in descending order based on createdAt timestamp
+      .sort({ createdAt: -1 })
       .limit(limit);
 
     return messages;
