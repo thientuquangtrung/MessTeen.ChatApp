@@ -9,7 +9,7 @@ import { Alert, Button, IconButton, InputAdornment, Link, Stack } from "@mui/mat
 import { RHFTextField } from "../../components/hook-form";
 import { Eye, EyeSlash } from "phosphor-react";
 import { useDispatch } from "react-redux";
-import { RegisterUser } from "../../redux/slices/auth";
+import { RegisterUser } from "../../redux/auth/authActionCreators";
 
 const RegisterForm = () => {
     const dispatch = useDispatch();

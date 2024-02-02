@@ -54,6 +54,7 @@ class InternalError extends ErrorResponse {
 }
 
 module.exports = {
+    ErrorResponse,
     ConflictRequestError,
     BadRequestError,
     AuthFailureError,

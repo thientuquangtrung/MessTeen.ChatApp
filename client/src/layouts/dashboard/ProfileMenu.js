@@ -5,7 +5,7 @@ import { faker } from "@faker-js/faker";
 
 import { Profile_Menu } from "../../data";
 import { useDispatch, useSelector } from "react-redux";
-import { LogoutUser } from "../../redux/slices/auth";
+import { LogoutUser } from "../../redux/auth/authActionCreators";
 // import { socket } from "../../socket";
 import { useNavigate } from "react-router-dom";
 // import { AWS_S3_REGION, S3_BUCKET_NAME } from "../../config";

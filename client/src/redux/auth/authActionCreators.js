@@ -1,46 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
-
 import axios from "../../utils/axios";
-import { showSnackbar } from "./app";
-
-// ----------------------------------------------------------------------
-
-const initialState = {
-    isLoggedIn: false,
-    token: "",
-    isLoading: false,
-    user: null,
-    user_id: null,
-    email: "",
-    error: false,
-};
-
-const slice = createSlice({
-    name: "auth",
-    initialState,
-    reducers: {
-        updateIsLoading(state, action) {
-            state.error = action.payload.error;
-            state.isLoading = action.payload.isLoading;
-        },
-        logIn(state, action) {
-            state.isLoggedIn = action.payload.isLoggedIn;
-            state.token = action.payload.token;
-            state.user_id = action.payload.user_id;
-        },
-        signOut(state, action) {
-            state.isLoggedIn = false;
-            state.token = "";
-            state.user_id = null;
-        },
-        updateRegisterEmail(state, action) {
-            state.email = action.payload.email;
-        },
-    },
-});
-
-// Reducer
-export default slice.reducer;
+import { slice } from "./authReducer";
+import { showSnackbar } from "../app/appActionCreators";
 
 // export function NewPassword(formValues) {
 //     return async (dispatch, getState) => {
@@ -135,10 +95,9 @@ export function LoginUser(formValues) {
                     }),
                 );
                 window.localStorage.setItem("user_id", response.data.metadata.user._id);
+                window.localStorage.setItem("user_token", response.data.metadata.tokens.accessToken);
                 dispatch(showSnackbar({ severity: "success", message: response.data.message }));
                 dispatch(slice.actions.updateIsLoading({ isLoading: false, error: false }));
-                axios.defaults.headers.common["Authorization"] = "Bearer " + response.data.metadata.tokens.accessToken;
-                axios.defaults.headers.common["x-client-id"] = response.data.metadata.user._id;
             })
             .catch(function (error) {
                 console.log(error);
