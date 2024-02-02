@@ -6,7 +6,7 @@ import ThemeProvider from "./theme";
 import ThemeSettings from "./components/settings";
 import { useDispatch, useSelector } from "react-redux";
 import { Alert as MuiAlert, Snackbar } from "@mui/material";
-import { closeSnackBar } from "./redux/slices/app";
+import { closeSnackBar } from "./redux/app/appActionCreators";
 import { forwardRef } from "react";
 // import Alert from "./theme/overrides/Alert";
 

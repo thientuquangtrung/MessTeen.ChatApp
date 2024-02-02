@@ -10,7 +10,7 @@ import { LoadingButton } from "@mui/lab";
 // components
 import FormProvider, { RHFTextField } from "../../components/hook-form";
 import { Eye, EyeSlash } from "phosphor-react";
-import { LoginUser } from "../../redux/slices/auth";
+import { LoginUser } from "../../redux/auth/authActionCreators";
 import { useDispatch, useSelector } from "react-redux";
 
 const LoginForm = () => {
