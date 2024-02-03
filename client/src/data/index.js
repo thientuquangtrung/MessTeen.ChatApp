@@ -28,14 +28,17 @@ const Nav_Buttons = [
   {
     index: 0,
     icon: <ChatCircleDots />,
+    path: "/app",
   },
   {
     index: 1,
     icon: <Users />,
+    path: "/users",
   },
   {
     index: 2,
     icon: <Phone />,
+    path: "/phone",
   },
 ];
 
@@ -43,6 +46,7 @@ const Nav_Setting = [
   {
     index: 3,
     icon: <GearSix />,
+    path: "/settings",
   },
 ];
 

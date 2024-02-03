@@ -29,6 +29,10 @@ const Settings = () => {
 
   const theme = useTheme();
 
+  const handleBackToApp = () => {
+    navigate('/app'); 
+  };
+
   const list = [
     {
       key: 0,
@@ -107,7 +111,7 @@ const Settings = () => {
           <Stack p={4} spacing={5}>
             {/* Header */}
             <Stack direction={"row"} alignItems={"center"} spacing={3}>
-              <IconButton>
+              <IconButton onClick={handleBackToApp}>
                 <CaretLeft size={24} color="#4b4b4b" />
               </IconButton>
               <Typography variant="h4">Settings</Typography>
