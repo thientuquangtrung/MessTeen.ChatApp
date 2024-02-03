@@ -9,7 +9,7 @@ const {
   InternalError,
   NotFoundError,
 } = require("../../core/error.response");
-class MessageService {
+class   Service {
   static async getAllMessages(msg_room_id, limit = 20) {
     const messages = await MessageModel.find({ msg_room_id })
       .sort({ createdAt: -1 })

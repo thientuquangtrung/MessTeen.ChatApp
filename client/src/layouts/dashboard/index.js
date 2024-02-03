@@ -1,9 +1,16 @@
-import { useTheme, styled } from '@mui/material/styles';
-import { Avatar, Box, Divider, IconButton, Stack, Switch } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { faker } from '@faker-js/faker';
+import { useTheme, styled } from "@mui/material/styles";
+import {
+  Avatar,
+  Box,
+  Divider,
+  IconButton,
+  Menu,
+  MenuItem,
+  Stack,
+  Switch,
+} from "@mui/material";
+import React, { useState } from "react";
+import { Outlet } from "react-router-dom";
 
 import Logo from '../../assets/Images/logo1.png';
 import { Nav_Buttons } from '../../data';
@@ -159,90 +166,92 @@ const DashboardLayout = () => {
     //     return <Navigate to={"/auth/login"} />;
     // }
 
-    return (
-        <Stack direction={'row'}>
+  return (
+    <Stack direction={"row"}>
+      <Box
+        p={2}
+        sx={{
+          backgroundColor: theme.palette.background.paper,
+          boxShadow: "0px 0px 2px rgba(0,0,0,0.25)",
+          height: "100vh",
+          width: 100,
+        }}
+      >
+        <Stack
+          direction="column"
+          alignItems={"center"}
+          sx={{ height: "100%" }}
+          spacing={3}
+          justifyContent={"space-between"}
+        >
+          <Stack alignItems={"center"} spacing={4}>
             <Box
-                p={2}
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    boxShadow: '0px 0px 2px rgba(0,0,0,0.25)',
-                    height: '100vh',
-                    width: 100,
-                }}
+              sx={{
+                // backgroundColor: theme.palette.primary.main,
+                height: 64,
+                width: 64,
+                borderRadius: 1.5,
+              }}
             >
-                <Stack
-                    direction="column"
-                    alignItems={'center'}
-                    sx={{ height: '100%' }}
-                    spacing={3}
-                    justifyContent={'space-between'}
+              <img src={Logo} alt="Chat App Logo" />
+            </Box>
+            <Stack
+              sx={{ width: "max-content" }}
+              direction={"column"}
+              alignItems={"center"}
+              spacing={3}
+            >
+              {Nav_Buttons.map((el) =>
+                el.index === selected ? (
+                  <Box
+                    sx={{
+                      backgroundColor: theme.palette.primary.main,
+                      borderRadius: 1.5,
+                    }}
+                  >
+                    <IconButton
+                      sx={{ width: "max-content", color: "#fff" }}
+                      key={el.index}
+                    >
+                      {el.icon}
+                    </IconButton>
+                  </Box>
+                ) : (
+                  <IconButton
+                    onClick={() => {
+                      setSelected(el.index);
+                    }}
+                    sx={{ width: "max-content", color: theme.palette.mode === "light" ? "#000" : theme.palette.text.primary }}
+                    key={el.index}
+                  >
+                    {el.icon}
+                  </IconButton>
+                )
+              )}
+              <Divider sx={{ width: "48px" }} />
+              {selected === 3 ? (
+                <Box
+                  sx={{
+                    backgroundColor: theme.palette.primary.main,
+                    borderRadius: 1.5,
+                  }}
                 >
-                    <Stack alignItems={'center'} spacing={4}>
-                        <Box
-                            sx={{
-                                // backgroundColor: theme.palette.primary.main,
-                                height: 64,
-                                width: 64,
-                                borderRadius: 1.5,
-                            }}
-                        >
-                            <img src={Logo} alt="Chat App Logo" />
-                        </Box>
-                        <Stack sx={{ width: 'max-content' }} direction={'column'} alignItems={'center'} spacing={3}>
-                            {Nav_Buttons.map((el) =>
-                                el.index === selected ? (
-                                    <Box
-                                        sx={{
-                                            backgroundColor: theme.palette.primary.main,
-                                            borderRadius: 1.5,
-                                        }}
-                                    >
-                                        <IconButton sx={{ width: 'max-content', color: '#fff' }} key={el.index}>
-                                            {el.icon}
-                                        </IconButton>
-                                    </Box>
-                                ) : (
-                                    <IconButton
-                                        onClick={() => {
-                                            setSelected(el.index);
-                                        }}
-                                        sx={{
-                                            width: 'max-content',
-                                            color: theme.palette.mode === 'light' ? '#000' : theme.palette.text.primary,
-                                        }}
-                                        key={el.index}
-                                    >
-                                        {el.icon}
-                                    </IconButton>
-                                ),
-                            )}
-                            <Divider sx={{ width: '48px' }} />
-                            {selected === 3 ? (
-                                <Box
-                                    sx={{
-                                        backgroundColor: theme.palette.primary.main,
-                                        borderRadius: 1.5,
-                                    }}
-                                >
-                                    <IconButton sx={{ width: 'max-content', color: '#fff' }}>
-                                        <Gear />
-                                    </IconButton>
-                                </Box>
-                            ) : (
-                                <IconButton
-                                    onClick={() => {
-                                        setSelected(3);
-                                    }}
-                                    sx={{
-                                        width: 'max-content',
-                                        color: theme.palette.mode === 'light' ? '#000' : theme.palette.text.primary,
-                                    }}
-                                >
-                                    <Gear />
-                                </IconButton>
-                            )}
-                        </Stack>
-                    </Stack>
+                  <IconButton sx={{ width: "max-content", color: "#fff" }}>
+                    <Gear />
+                  </IconButton>
+                </Box>
+              ) : (
+                <IconButton
+                  onClick={() => {
+                    setSelected(3);
+                  }}
+                  sx={{ width: "max-content", color: theme.palette.mode === "light" ? "#000" : theme.palette.text.primary}}
+                >
+                  <Gear />
+                </IconButton>
+              )}
+            </Stack>
+          </Stack>
 
                     <Stack spacing={4}>
                         {/* Switch */}
