@@ -7,6 +7,7 @@ import { TextField } from "@mui/material";
 // ----------------------------------------------------------------------
 
 RHFTextField.propTypes = {
+    label: PropTypes.string,
     name: PropTypes.string,
     helperText: PropTypes.node,
 };
