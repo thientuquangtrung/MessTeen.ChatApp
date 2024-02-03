@@ -1,9 +1,7 @@
 import { useTheme, styled } from '@mui/material/styles';
-import { Avatar, Box, Divider, IconButton, Stack, Switch } from '@mui/material';
+import { Avatar, Box, Divider, IconButton, Menu, MenuItem, Stack, Switch } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { faker } from '@faker-js/faker';
+import { Outlet } from 'react-router-dom';
 
 import Logo from '../../assets/Images/logo1.png';
 import { Nav_Buttons } from '../../data';
@@ -11,6 +9,7 @@ import { Gear } from 'phosphor-react';
 import useSettings from '../../hooks/useSettings';
 import ProfileMenu from './ProfileMenu';
 import { socket, connectSocket } from '../../socket';
+import { useSelector } from '../../redux/store';
 
 const AntSwitch = styled(Switch)(({ theme }) => ({
     width: 40,

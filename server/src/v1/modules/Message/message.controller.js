@@ -1,6 +1,7 @@
 const MessageService = require("./message.service");
 const { CREATED, OK } = require("../../core/success.response");
 const Chatroom = require("./../ChatRoom/chatroom.model");
+const { BadRequestError, NotFoundError } = require("../../core/error.response");
 class MessageController {
   send = async (req, res, next) => {
     new CREATED({
@@ -27,13 +28,12 @@ class MessageController {
     const msg_room_id = req.params.chatroomId;
     const msg_content = req.body.msg_content;
     const chatroom = await Chatroom.findOne({_id: msg_room_id});
-    console.log('Chatroom:', chatroom); // Add this line to log the chatroom
     
     if (!chatroom) {
       throw new NotFoundError("Chatroom not found.");
     } else
      if (!msg_content) {
-      return new BadRequest({
+      return new BadRequestError({
         message: "Empty search content. Please provide a search term.",
       }).send(res);
     }
