@@ -13,10 +13,10 @@ const initialState = {
         severity: null,
         message: null,
     },
-    // users: [], // all users of app who are not friends and not requested yet
+    users: [], // all users of app who are not friends and not requested yet
     // all_users: [],
-    // friends: [], // all friends
-    // friendRequests: [], // all friend requests
+    friends: [], // all friends
+    friendRequests: [], // all friend requests
     // chat_type: null,
     // room_id: null,
     // call_logs: [],
@@ -57,18 +57,18 @@ export const slice = createSlice({
             state.snackbar.open = false;
             state.snackbar.message = null;
         },
-        // updateUsers(state, action) {
-        //     state.users = action.payload.users;
-        // },
+        updateUsers(state, action) {
+            state.users = action.payload.users;
+        },
         // updateAllUsers(state, action) {
         //     state.all_users = action.payload.users;
         // },
-        // updateFriends(state, action) {
-        //     state.friends = action.payload.friends;
-        // },
-        // updateFriendRequests(state, action) {
-        //     state.friendRequests = action.payload.requests;
-        // },
+        updateFriends(state, action) {
+            state.friends = action.payload.friends;
+        },
+        updateFriendRequests(state, action) {
+            state.friendRequests = action.payload.requests;
+        },
         // selectConversation(state, action) {
         //     state.chat_type = "individual";
         //     state.room_id = action.payload.room_id;
