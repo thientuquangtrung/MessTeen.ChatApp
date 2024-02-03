@@ -1,13 +1,13 @@
-import React from "react";
-import { Avatar, Box, Fade, Menu, MenuItem, Stack } from "@mui/material";
+import React from 'react';
+import { Avatar, Box, Fade, Menu, MenuItem, Stack } from '@mui/material';
 
-import { faker } from "@faker-js/faker";
+import { faker } from '@faker-js/faker';
 
-import { Profile_Menu } from "../../data";
-import { useDispatch, useSelector } from "react-redux";
-import { LogoutUser } from "../../redux/auth/authActionCreators";
-// import { socket } from "../../socket";
-import { useNavigate } from "react-router-dom";
+import { Profile_Menu } from '../../data';
+import { useDispatch, useSelector } from 'react-redux';
+import { LogoutUser } from '../../redux/auth/authActionCreators';
+import { socket } from '../../socket';
+import { useNavigate } from 'react-router-dom';
 // import { AWS_S3_REGION, S3_BUCKET_NAME } from "../../config";
 
 const ProfileMenu = () => {
@@ -23,8 +23,8 @@ const ProfileMenu = () => {
         setAnchorEl(null);
     };
 
-    const user_id = window.localStorage.getItem("user_id");
-    const user_name = "Trung";
+    const user_id = window.localStorage.getItem('user_id');
+    const user_name = 'Trung';
     // const user_img = `https://${S3_BUCKET_NAME}.s3.${AWS_S3_REGION}.amazonaws.com/${user?.avatar}`;
     const user_img = faker.image.avatar();
 
@@ -32,16 +32,16 @@ const ProfileMenu = () => {
         <>
             <Avatar
                 id="profile-positioned-button"
-                aria-controls={openMenu ? "profile-positioned-menu" : undefined}
+                aria-controls={openMenu ? 'profile-positioned-menu' : undefined}
                 aria-haspopup="true"
-                aria-expanded={openMenu ? "true" : undefined}
+                aria-expanded={openMenu ? 'true' : undefined}
                 alt={user_name}
                 src={user_img}
                 onClick={handleClick}
             />
             <Menu
                 MenuListProps={{
-                    "aria-labelledby": "fade-button",
+                    'aria-labelledby': 'fade-button',
                 }}
                 TransitionComponent={Fade}
                 id="profile-positioned-menu"
@@ -50,12 +50,12 @@ const ProfileMenu = () => {
                 open={openMenu}
                 onClose={handleClose}
                 anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "right",
+                    vertical: 'bottom',
+                    horizontal: 'right',
                 }}
                 transformOrigin={{
-                    vertical: "bottom",
-                    horizontal: "left",
+                    vertical: 'bottom',
+                    horizontal: 'left',
                 }}
             >
                 <Box p={1}>
@@ -65,22 +65,22 @@ const ProfileMenu = () => {
                                 <Stack
                                     onClick={() => {
                                         if (idx === 0) {
-                                            navigate("/profile");
+                                            navigate('/profile');
                                         } else if (idx === 1) {
-                                            navigate("/settings");
+                                            navigate('/settings');
                                         } else {
                                             dispatch(LogoutUser());
-                                            // socket.emit("end", { user_id });
+                                            socket.emit('end', { user_id });
                                         }
                                     }}
                                     sx={{ width: 100 }}
                                     direction="row"
-                                    alignItems={"center"}
+                                    alignItems={'center'}
                                     justifyContent="space-between"
                                 >
                                     <span>{el.title}</span>
                                     {el.icon}
-                                </Stack>{" "}
+                                </Stack>{' '}
                             </MenuItem>
                         ))}
                     </Stack>

@@ -1,22 +1,22 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema(
     {
         usr_name: {
-            type: "String",
+            type: 'String',
             required: true,
             unique: true,
             trim: true,
         },
         usr_password: {
-            type: "String",
+            type: 'String',
             required: true,
             minlength: 8,
         },
         usr_email: {
-            type: "String",
+            type: 'String',
             required: true,
             unique: true,
             lowercase: true,
@@ -24,53 +24,56 @@ const UserSchema = new Schema(
         },
         usr_pending_friends: {
             type: [mongoose.Schema.Types.ObjectId],
-            ref: "User",
+            ref: 'User',
         },
         usr_provider_type: {
-            type: "String",
-            enum: ["facebook", "google"],
+            type: 'String',
+            enum: ['facebook', 'google'],
         },
         usr_provider_id: {
-            type: "String",
+            type: 'String',
         },
         usr_avatar: {
-            type: "String",
+            type: 'String',
         },
-        usr_is_online: {
-            type: "Boolean",
-            required: true,
-            default: true,
+        usr_status: {
+            type: 'String',
+            enum: ['ONLINE', 'OFFLINE', 'IN_CALL'], //TODO: add more values
+            default: 'ONLINE',
         },
         usr_last_active: {
-            type: "Date",
+            type: 'Date',
         },
         usr_room_ids: {
             type: [mongoose.Schema.Types.ObjectId],
-            ref: "ChatRooms",
+            ref: 'ChatRooms',
         },
         usr_friends: {
             type: [mongoose.Schema.Types.ObjectId],
-            ref: "User",
+            ref: 'User',
         },
         usr_blocked_people: {
             type: [mongoose.Schema.Types.ObjectId],
-            ref: "User",
+            ref: 'User',
         },
         usr_enabled: {
-            type: "Boolean",
+            type: 'Boolean',
             required: true,
             default: true,
         },
         usr_role: {
             type: String,
-            enum: ["user", "admin"],
-            default: "user",
+            enum: ['user', 'admin'],
+            default: 'user',
+        },
+        usr_socket_id: {
+            type: 'String',
         },
     },
     {
         timestamps: true,
-        collection: "Users",
-    }
+        collection: 'Users',
+    },
 );
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model('User', UserSchema);
