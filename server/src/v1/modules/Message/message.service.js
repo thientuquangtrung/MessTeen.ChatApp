@@ -2,16 +2,18 @@ const express = require('express');
 const MessageModel = require('./message.model');
 const router = express.Router();
 const {
-    BadRequestError,
-    ConflictRequestError,
-    AuthFailureError,
-    ForbiddenError,
-    InternalError,
-    NotFoundError,
-} = require('../../core/error.response');
-class MessageService {
-    static async getAllMessages(msg_room_id, limit = 20) {
-        const messages = await MessageModel.find({ msg_room_id }).sort({ createdAt: -1 }).limit(limit);
+  BadRequestError,
+  ConflictRequestError,
+  AuthFailureError,
+  ForbiddenError,
+  InternalError,
+  NotFoundError,
+} = require("../../core/error.response");
+class   MessageService {
+  static async getAllMessages(msg_room_id, limit = 20) {
+    const messages = await MessageModel.find({ msg_room_id })
+      .sort({ createdAt: -1 })
+      .limit(limit);
 
         return messages;
     }
