@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
 const UserModel = require('./v1/modules/User/user.model');
+const UserService = require('./v1/modules/User/user.service');
 
 //init dbs
 require('./v1/databases/init.mongodb');
@@ -64,23 +65,21 @@ const handleSocketConnect = async (socket) => {
     }
 
     // We can write our socket event listeners in here...
-    // socket.on('friend_request', async (data) => {
-    //     const to = await User.findById(data.to).select('socket_id');
-    //     const from = await User.findById(data.from).select('socket_id');
+    socket.on('friend_request', async (data) => {
+        const to = await UserModel.findById(data.to).select('usr_socket_id');
+        const from = await UserModel.findById(data.from).select('usr_socket_id');
 
-    //     // create a friend request
-    //     await FriendRequest.create({
-    //         sender: data.from,
-    //         recipient: data.to,
-    //     });
-    //     // emit event request received to recipient
-    //     io.to(to?.socket_id).emit('new_friend_request', {
-    //         message: 'New friend request received',
-    //     });
-    //     io.to(from?.socket_id).emit('request_sent', {
-    //         message: 'Request Sent successfully!',
-    //     });
-    // });
+        // create a friend request
+        await UserService.sendFriendRequest({ user_id: data.from, friend_id: data.to });
+
+        // emit event request received to recipient
+        io.to(to?.usr_socket_id).emit('new_friend_request', {
+            message: 'New friend request received',
+        });
+        io.to(from?.usr_socket_id).emit('request_sent', {
+            message: 'Request Sent successfully!',
+        });
+    });
 
     // socket.on('accept_request', async (data) => {
     //     // accept friend request => add ref of each other in friends array
