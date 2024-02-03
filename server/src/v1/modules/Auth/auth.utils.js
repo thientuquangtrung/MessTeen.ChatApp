@@ -79,14 +79,26 @@ const authenticate = asyncHandler(async (req, res, next) => {
         return next();
     }
 
-    const decodeUser = JWT.verify(token, crypto.createPublicKey(keyStore.publicKey));
-    if (userId !== decodeUser.usr_id) throw new AuthFailureError(`Invalid user`);
+    try {
+        const decodeUser = JWT.verify(token, crypto.createPublicKey(keyStore.publicKey));
 
-    // re-assign to request
-    req.keyStore = keyStore;
-    req.token = token;
-    req.user = decodeUser;
-    return next();
+        if (userId !== decodeUser.usr_id) throw new AuthFailureError(`Invalid user`);
+
+        // re-assign to request
+        req.keyStore = keyStore;
+        req.token = token;
+        req.user = decodeUser;
+        return next();
+    } catch (error) {
+        if (error.name === "TokenExpiredError") {
+            return res.send({
+                status: 401,
+                message: error.message,
+            });
+        } else {
+            return next(error);
+        }
+    }
 });
 
 module.exports = {
