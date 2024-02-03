@@ -97,33 +97,53 @@ const Privacy = () => {
               <Typography variant="h4">Privacy</Typography>
             </Stack>
             {/* List of options */}
-            <Stack spacing={2.5}>
-            {list.map((option, index) => (
-              <Stack spacing={1} key={option.key} style={{ opacity: option.disabled ? 0.5 : 1 }}>
-                <Grid container direction={"row"} alignItems="center">
-                  <Grid item xs={8 }>
-                    <Stack spacing={1}>
-                      <Typography variant="h6">{option.title}</Typography>
-                      <Typography variant="caption">{option.caption}</Typography>
-                    </Stack>
+            <Stack
+              sx={{
+                maxHeight: "calc(100vh - 150px)", 
+                overflowY: "auto", 
+                paddingBottom:1
+              }}
+              spacing={2.5}
+            >
+              {list.map((option, index) => (
+                <Stack
+                  spacing={1}
+                  key={option.key}
+                  // style={{ opacity: option.disabled ? 0.5 : 1 }}
+                  sx={{
+                    cursor: option.disabled ? "default" : "pointer", // Thay đổi kiểu con trỏ chuột
+                    opacity: option.disabled ? 0.5 : 1,
+                  }}
+                >
+                  <Grid container direction={"row"} alignItems="center">
+                    <Grid item xs={8}>
+                      <Stack spacing={1}>
+                        <Typography variant="h6">{option.title}</Typography>
+                        <Typography variant="caption">
+                          {option.caption}
+                        </Typography>
+                      </Stack>
+                    </Grid>
+                    <Grid item xs={4} style={{ textAlign: "right" }}>
+                      {option.isCheckbox ? (
+                        <FormControlLabel
+                          control={<Checkbox checked={!option.disabled} />}
+                          label=""
+                          labelPlacement="start"
+                          disabled={option.disabled}
+                          sx={{ margin: "auto" }} // Căn chỉnh checkbox sang phải
+                        />
+                      ) : (
+                        <IconButton
+                          onClick={option.onclick}
+                          disabled={option.disabled}
+                        >
+                          <CaretRight size={24} color="#4b4b4b" />
+                        </IconButton>
+                      )}
+                    </Grid>
                   </Grid>
-                  <Grid item xs={ 4 } style={{ textAlign: "right" }}>
-                    {option.isCheckbox ? (
-                      <FormControlLabel
-                        control={<Checkbox checked={!option.disabled} />}
-                        label=""
-                        labelPlacement="start"
-                        disabled={option.disabled}
-                        sx={{ margin: 'auto' }} // Căn chỉnh checkbox sang phải
-                      />
-                    ) : (
-                      <IconButton onClick={option.onclick} disabled={option.disabled}>
-                        <CaretRight size={24} color="#4b4b4b" />
-                      </IconButton>
-                    )}
-                  </Grid>
-                </Grid>
-                {index < list.length - 1 && <Divider />}
+                  {index < list.length - 1 && <Divider />}
                 </Stack>
               ))}
             </Stack>
@@ -135,4 +155,3 @@ const Privacy = () => {
 };
 
 export default Privacy;
-
