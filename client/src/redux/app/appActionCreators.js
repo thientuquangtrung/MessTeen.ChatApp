@@ -1,4 +1,4 @@
-import axios from '../../utils/axios';
+import axios from "../../utils/axios";
 // import S3 from "../../utils/s3";
 // import { v4 } from "uuid";
 // import S3 from "../../utils/s3";
@@ -45,11 +45,11 @@ export function FetchUsers() {
     return async (dispatch, getState) => {
         await axios
             .get(
-                '/user/get-users',
+                "/user/get-users",
 
                 {
                     headers: {
-                        'Content-Type': 'application/json',
+                        "Content-Type": "application/json",
                         Authorization: `Bearer ${getState().auth.token}`,
                     },
                 },
