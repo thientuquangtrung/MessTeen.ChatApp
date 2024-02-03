@@ -3,7 +3,7 @@
 // import { v4 } from "uuid";
 // import S3 from "../../utils/s3";
 // import { S3_BUCKET_NAME } from "../../config";
-import { slice } from "./appReducer";
+import { slice } from './appReducer';
 // ----------------------------------------------------------------------
 
 export const closeSnackBar = () => async (dispatch, getState) => {

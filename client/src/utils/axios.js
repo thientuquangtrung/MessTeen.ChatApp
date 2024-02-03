@@ -1,6 +1,7 @@
 import axios from "axios";
 // config
 import { BASE_URL } from "../config";
+import { handleRefreshToken } from "../redux/auth/authActionCreators";
 import { store } from "../redux/store";
 
 // ----------------------------------------------------------------------
@@ -27,8 +28,47 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
-    (response) => response,
+    async (response) => {
+        // Any status code that lie within the range of 2xx cause this function to trigger
+        // Do something with response data
+
+        const state = store.getState();
+        const userId = state.auth.user_id;
+        const oldRefreshToken = state.auth.refreshToken;
+
+        const { status, message } = response.data;
+        if (status === 401) {
+            if (message === "jwt expired") {
+                // axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${oldRefreshToken}`;
+
+                const { accessToken, refreshToken } = await getNewTokens(userId, oldRefreshToken);
+                if (accessToken) {
+                    response.config.headers["Authorization"] = `Bearer ${accessToken}`;
+                    store.dispatch(handleRefreshToken({ accessToken, refreshToken }));
+
+                    return axiosInstance(response.config);
+                }
+            }
+        }
+
+        return response;
+    },
     (error) => Promise.reject((error.response && error.response.data) || "Something went wrong"),
 );
+
+const getNewTokens = async (userId, token) => {
+    return (
+        await axios.post(
+            `${BASE_URL}auth/handle-refresh-token`,
+            {},
+            {
+                headers: {
+                    Authorization: "Bearer " + token,
+                    ["x-client-id"]: userId,
+                },
+            },
+        )
+    ).data.metadata.tokens;
+};
 
 export default axiosInstance;

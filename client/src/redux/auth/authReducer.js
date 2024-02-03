@@ -1,19 +1,20 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 // ----------------------------------------------------------------------
 
 const initialState = {
     isLoggedIn: false,
-    token: "",
+    token: '',
+    refreshToken: '',
     isLoading: false,
     user: null,
     user_id: null,
-    email: "",
+    email: '',
     error: false,
 };
 
 export const slice = createSlice({
-    name: "auth",
+    name: 'auth',
     initialState,
     reducers: {
         updateIsLoading(state, action) {
@@ -23,11 +24,17 @@ export const slice = createSlice({
         logIn(state, action) {
             state.isLoggedIn = action.payload.isLoggedIn;
             state.token = action.payload.token;
+            state.refreshToken = action.payload.refreshToken;
             state.user_id = action.payload.user_id;
+        },
+        saveNewTokens(state, action) {
+            state.token = action.payload.accessToken;
+            state.refreshToken = action.payload.refreshToken;
         },
         signOut(state, action) {
             state.isLoggedIn = false;
-            state.token = "";
+            state.token = '';
+            state.refreshToken = '';
             state.user_id = null;
         },
         updateRegisterEmail(state, action) {
