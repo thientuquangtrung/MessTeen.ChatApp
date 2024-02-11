@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const compression = require('compression');
 const UserModel = require('./v1/modules/User/user.model');
 const UserService = require('./v1/modules/User/user.service');
+const withErrorHandling = require('./v1/helpers/socketAsyncHandler');
 
 //init dbs
 require('./v1/databases/init.mongodb');
@@ -65,21 +66,24 @@ const handleSocketConnect = async (socket) => {
     }
 
     // We can write our socket event listeners in here...
-    socket.on('friend_request', async (data) => {
-        const to = await UserModel.findById(data.to).select('usr_socket_id');
-        const from = await UserModel.findById(data.from).select('usr_socket_id');
+    socket.on(
+        'friend_request',
+        withErrorHandling(socket, async (data) => {
+            const to = await UserModel.findById(data.to).select('usr_socket_id');
+            const from = await UserModel.findById(data.from).select('usr_socket_id');
 
-        // create a friend request
-        await UserService.sendFriendRequest({ user_id: data.from, friend_id: data.to });
+            // create a friend request
+            await UserService.sendFriendRequest({ user_id: data.from, friend_id: data.to });
 
-        // emit event request received to recipient
-        io.to(to?.usr_socket_id).emit('new_friend_request', {
-            message: 'New friend request received',
-        });
-        io.to(from?.usr_socket_id).emit('request_sent', {
-            message: 'Request Sent successfully!',
-        });
-    });
+            // emit event request received to recipient
+            _io.to(to?.usr_socket_id).emit('new_friend_request', {
+                message: 'New friend request received',
+            });
+            _io.to(from?.usr_socket_id).emit('request_sent', {
+                message: 'Request Sent successfully!',
+            });
+        }),
+    );
 
     // socket.on('accept_request', async (data) => {
     //     // accept friend request => add ref of each other in friends array
@@ -123,39 +127,42 @@ const handleSocketConnect = async (socket) => {
     //     callback(existing_conversations);
     // });
 
-    socket.on('start_conversation', async (data) => {
-        // data: {to: from:}
+    socket.on(
+        'start_conversation',
+        withErrorHandling(socket, async (data) => {
+            // data: {to: from:}
 
-        const { to, from } = data;
+            const { to, from } = data;
 
-        // check if there is any existing conversation
+            // check if there is any existing conversation
 
-        const existing_conversations = await userModel.find({
-            room_participant_ids: { $size: 2, $all: [to, from] },
-        }).populate('room_participant_ids', 'usr_name usr_room_ids usr_email usr_status');
+            const existing_conversations = await UserModel.find({
+                room_participant_ids: { $size: 2, $all: [to, from] },
+            }).populate('room_participant_ids', 'usr_name usr_room_ids usr_email usr_status');
 
-        console.log(existing_conversations[0], 'Existing Conversation');
+            console.log(existing_conversations[0], 'Existing Conversation');
 
-        // if no => create a new OneToOneMessage doc & emit event "start_chat" & send conversation details as payload
-        if (existing_conversations.length === 0) {
-            let new_chat = await userModel.create({
-                room_participant_ids: [to, from],
-            });
+            // if no => create a new OneToOneMessage doc & emit event "start_chat" & send conversation details as payload
+            if (existing_conversations.length === 0) {
+                let new_chat = await UserModel.create({
+                    room_participant_ids: [to, from],
+                });
 
-            new_chat = await OneToOneMessage.findById(new_chat).populate(
-                'room_participant_ids',
-                'usr_name usr_room_ids usr_email usr_status',
-            );
+                new_chat = await OneToOneMessage.findById(new_chat).populate(
+                    'room_participant_ids',
+                    'usr_name usr_room_ids usr_email usr_status',
+                );
 
-            console.log(new_chat);
+                console.log(new_chat);
 
-            socket.emit('start_chat', new_chat);
-        }
-        // if yes => just emit event "start_chat" & send conversation details as payload
-        else {
-            socket.emit('start_chat', existing_conversations[0]);
-        }
-    });
+                socket.emit('start_chat', new_chat);
+            }
+            // if yes => just emit event "start_chat" & send conversation details as payload
+            else {
+                socket.emit('start_chat', existing_conversations[0]);
+            }
+        }),
+    );
 
     // socket.on('get_messages', async (data, callback) => {
     //     try {

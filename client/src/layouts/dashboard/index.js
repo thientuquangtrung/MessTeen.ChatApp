@@ -9,8 +9,10 @@ import { Gear } from 'phosphor-react';
 import useSettings from '../../hooks/useSettings';
 import ProfileMenu from './ProfileMenu';
 import { socket, connectSocket } from '../../socket';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from '../../redux/store';
+import { useDispatch } from 'react-redux';
+import { showSnackbar } from '../../redux/app/appActionCreators';
 
 const AntSwitch = styled(Switch)(({ theme }) => ({
     width: 40,
@@ -53,20 +55,21 @@ const AntSwitch = styled(Switch)(({ theme }) => ({
     },
 }));
 const DashboardLayout = () => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const handleToSettings = () => {
-    navigate("/settings");
-  };
-  const theme = useTheme();
+    const handleToSettings = () => {
+        navigate('/settings');
+    };
+    const theme = useTheme();
 
-  const { isLoggedIn, user_id } = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
+    const { isLoggedIn, user_id } = useSelector((state) => state.auth);
 
-  const [selected, setSelected] = useState(0);
+    const [selected, setSelected] = useState(0);
 
-  console.log(theme);
+    console.log(theme);
 
-  const { onToggleMode } = useSettings();
+    const { onToggleMode } = useSettings();
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -146,6 +149,10 @@ const DashboardLayout = () => {
             // socket.on('request_sent', (data) => {
             //     dispatch(showSnackbar({ severity: 'success', message: data.message }));
             // });
+
+            socket.on('error', (data) => {
+                dispatch(showSnackbar({ severity: 'error', message: data.message }));
+            });
         }
 
         // Remove event listener on component unmount
@@ -156,6 +163,7 @@ const DashboardLayout = () => {
             socket?.off('start_chat');
             socket?.off('new_message');
             socket?.off('audio_call_notification');
+            socket?.off('error');
         };
     }, [socket]);
     //   }, [isLoggedIn, socket]);
@@ -166,123 +174,110 @@ const DashboardLayout = () => {
     // }
 
     const handleNavigation = (path, index) => {
-      navigate(path);
-      setSelected(index);
+        navigate(path);
+        setSelected(index);
     };
-    
-  return (
-    <Stack direction={"row"}>
-      <Box
-        p={2}
-        sx={{
-          backgroundColor: theme.palette.background.paper,
-          boxShadow: "0px 0px 2px rgba(0,0,0,0.25)",
-          height: "100vh",
-          width: 100,
-        }}
-      >
-        <Stack
-          direction="column"
-          alignItems={"center"}
-          sx={{ height: "100%" }}
-          spacing={3}
-          justifyContent={"space-between"}
-        >
-          <Stack alignItems={"center"} spacing={4}>
-            <Box
-              sx={{
-                // backgroundColor: theme.palette.primary.main,
-                height: 64,
-                width: 64,
-                borderRadius: 1.5,
-              }}
-            >
-              <img src={Logo} alt="Chat App Logo" />
-            </Box>
-            <Stack
-              sx={{ width: "max-content" }}
-              direction={"column"}
-              alignItems={"center"}
-              spacing={3}
-            >
-              {Nav_Buttons.map((el, index) => (
-                <IconButton
-                  onClick={() => handleNavigation(el.path, index)}
-                  sx={{
-                    width: "max-content",
-                    color:
-                      index === selected
-                        ? "#fff"
-                        : theme.palette.mode === "light"
-                        ? "#000"
-                        : theme.palette.text.primary,
-                    backgroundColor:
-                      index === selected
-                        ? theme.palette.primary.main
-                        : "transparent",
-                    borderRadius: 1.5,
-                    "&:hover": {
-                      backgroundColor: theme.palette.primary.main, // Màu nền khi hover
-                      color: "#fff",
-                    },
-                  }}
-                  key={el.index}
-                >
-                  {el.icon}
-                </IconButton>
-              ))}
-              
-              <Divider sx={{ width: "48px" }} />
-              {selected === 3 ? (
-                <Box
-                  sx={{
-                    backgroundColor: theme.palette.primary.main,
-                    borderRadius: 1.5,
-                  }}
-                >
-                  <IconButton
-                    onClick={handleToSettings}
-                    sx={{ width: "max-content", color: "#fff" }}
-                  >
-                    <Gear />
-                  </IconButton>
-                </Box>
-              ) : (
-                <IconButton
-                onClick={() => {
-                    handleToSettings();
-                    setSelected(3);
-                  }}
-                  sx={{
-                    width: "max-content",
-                    color:
-                      theme.palette.mode === "light"
-                        ? "#000"
-                        : theme.palette.text.primary,
-                  }}
-                >
-                  <Gear />
-                </IconButton>
-              )}
-            </Stack>
-          </Stack>
 
-          <Stack spacing={4}>
-            {/* Switch */}
-            <AntSwitch
-              onChange={() => {
-                onToggleMode();
-              }}
-              defaultChecked
-            />
-            {/* <Avatar src={faker.image.avatar()} /> */}
-            <ProfileMenu />
-          </Stack>
+    return (
+        <Stack direction={'row'}>
+            <Box
+                p={2}
+                sx={{
+                    backgroundColor: theme.palette.background.paper,
+                    boxShadow: '0px 0px 2px rgba(0,0,0,0.25)',
+                    height: '100vh',
+                    width: 100,
+                }}
+            >
+                <Stack
+                    direction="column"
+                    alignItems={'center'}
+                    sx={{ height: '100%' }}
+                    spacing={3}
+                    justifyContent={'space-between'}
+                >
+                    <Stack alignItems={'center'} spacing={4}>
+                        <Box
+                            sx={{
+                                // backgroundColor: theme.palette.primary.main,
+                                height: 64,
+                                width: 64,
+                                borderRadius: 1.5,
+                            }}
+                        >
+                            <img src={Logo} alt="Chat App Logo" />
+                        </Box>
+                        <Stack sx={{ width: 'max-content' }} direction={'column'} alignItems={'center'} spacing={3}>
+                            {Nav_Buttons.map((el, index) => (
+                                <IconButton
+                                    onClick={() => handleNavigation(el.path, index)}
+                                    sx={{
+                                        width: 'max-content',
+                                        color:
+                                            index === selected
+                                                ? '#fff'
+                                                : theme.palette.mode === 'light'
+                                                ? '#000'
+                                                : theme.palette.text.primary,
+                                        backgroundColor:
+                                            index === selected ? theme.palette.primary.main : 'transparent',
+                                        borderRadius: 1.5,
+                                        '&:hover': {
+                                            backgroundColor: theme.palette.primary.main, // Màu nền khi hover
+                                            color: '#fff',
+                                        },
+                                    }}
+                                    key={el.index}
+                                >
+                                    {el.icon}
+                                </IconButton>
+                            ))}
+
+                            <Divider sx={{ width: '48px' }} />
+                            {selected === 3 ? (
+                                <Box
+                                    sx={{
+                                        backgroundColor: theme.palette.primary.main,
+                                        borderRadius: 1.5,
+                                    }}
+                                >
+                                    <IconButton onClick={handleToSettings} sx={{ width: 'max-content', color: '#fff' }}>
+                                        <Gear />
+                                    </IconButton>
+                                </Box>
+                            ) : (
+                                <IconButton
+                                    onClick={() => {
+                                        handleToSettings();
+                                        setSelected(3);
+                                    }}
+                                    sx={{
+                                        width: 'max-content',
+                                        color: theme.palette.mode === 'light' ? '#000' : theme.palette.text.primary,
+                                    }}
+                                >
+                                    <Gear />
+                                </IconButton>
+                            )}
+                        </Stack>
+                    </Stack>
+
+                    <Stack spacing={4}>
+                        {/* Switch */}
+                        <AntSwitch
+                            onChange={() => {
+                                onToggleMode();
+                            }}
+                            defaultChecked
+                        />
+                        {/* <Avatar src={faker.image.avatar()} /> */}
+                        <ProfileMenu />
+                    </Stack>
+                </Stack>
+            </Box>
+            <Outlet />
         </Stack>
-      </Box>
-      <Outlet />
-    </Stack>
-  );
+    );
 };
 
 export default DashboardLayout;

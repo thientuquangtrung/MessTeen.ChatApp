@@ -1,25 +1,25 @@
-const JWT = require("jsonwebtoken");
-const { NotFoundError, AuthFailureError } = require("../../core/error.response");
-const asyncHandler = require("../../helpers/async.handler");
-const { findByUserId } = require("./keyToken.service");
-const crypto = require("crypto");
+const JWT = require('jsonwebtoken');
+const { NotFoundError, AuthFailureError } = require('../../core/error.response');
+const asyncHandler = require('../../helpers/asyncHandler');
+const { findByUserId } = require('./keyToken.service');
+const crypto = require('crypto');
 
 const HEADER = {
-    API_KEY: "x-api-key",
-    CLIENT_ID: "x-client-id",
-    AUTHORIZATION: "authorization",
+    API_KEY: 'x-api-key',
+    CLIENT_ID: 'x-client-id',
+    AUTHORIZATION: 'authorization',
 };
 
 const createTokenPair = async (payload, publicKey, privateKey) => {
     try {
         const accessToken = await JWT.sign(payload, privateKey, {
-            algorithm: "RS256",
-            expiresIn: "2 hours",
+            algorithm: 'RS256',
+            expiresIn: '2 hours',
         });
 
         const refreshToken = await JWT.sign(payload, privateKey, {
-            algorithm: "RS256",
-            expiresIn: "7 days",
+            algorithm: 'RS256',
+            expiresIn: '7 days',
         });
 
         // double check
@@ -36,15 +36,15 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
 };
 
 const generatePubPriKey = () => {
-    const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
+    const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
         modulusLength: 4096,
         publicKeyEncoding: {
-            type: "pkcs1",
-            format: "pem",
+            type: 'pkcs1',
+            format: 'pem',
         },
         privateKeyEncoding: {
-            type: "pkcs1",
-            format: "pem",
+            type: 'pkcs1',
+            format: 'pem',
         },
     });
 
@@ -72,9 +72,9 @@ const authenticate = asyncHandler(async (req, res, next) => {
     if (!bearerHeader) throw new AuthFailureError(`Invalid request`);
 
     // Get token from array
-    const token = bearerHeader.split(" ")[1];
+    const token = bearerHeader.split(' ')[1];
 
-    if (req.originalUrl.includes("/handle-refresh-token")) {
+    if (req.originalUrl.includes('/handle-refresh-token')) {
         req.token = token;
         return next();
     }
@@ -90,7 +90,7 @@ const authenticate = asyncHandler(async (req, res, next) => {
         req.user = decodeUser;
         return next();
     } catch (error) {
-        if (error.name === "TokenExpiredError") {
+        if (error.name === 'TokenExpiredError') {
             return res.send({
                 status: 401,
                 message: error.message,
