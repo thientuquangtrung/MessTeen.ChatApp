@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { countConnections } = require("../helpers/check.connect");
+const { countConnections } = require("../helpers/checkConnect");
 const {
     DB: { host, name, port },
 } = require("../configs");
