@@ -5,9 +5,8 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
 const UserModel = require('./v1/modules/User/user.model');
-const UserService = require('./v1/modules/User/user.service');
 const withErrorHandling = require('./v1/helpers/socketAsyncHandler');
-const { sendFriendRequestWS } = require('./v1/modules/User/user.ws');
+const { sendFriendRequestWS, acceptRequestWS } = require('./v1/modules/User/user.ws');
 const { startConversationWS } = require('./v1/modules/ChatRoom/chatroom.ws');
 
 //init dbs
@@ -70,35 +69,7 @@ const handleSocketConnect = async (socket) => {
     // We can write our socket event listeners in here...
     socket.on('friend_request', withErrorHandling(socket, sendFriendRequestWS));
 
-    // socket.on('accept_request', async (data) => {
-    //     // accept friend request => add ref of each other in friends array
-    //     console.log(data);
-    //     const request_doc = await FriendRequest.findById(data.request_id);
-
-    //     console.log(request_doc);
-
-    //     const sender = await User.findById(request_doc.sender);
-    //     const receiver = await User.findById(request_doc.recipient);
-
-    //     sender.friends.push(request_doc.recipient);
-    //     receiver.friends.push(request_doc.sender);
-
-    //     await receiver.save({ new: true, validateModifiedOnly: true });
-    //     await sender.save({ new: true, validateModifiedOnly: true });
-
-    //     await FriendRequest.findByIdAndDelete(data.request_id);
-
-    //     // delete this request doc
-    //     // emit event to both of them
-
-    //     // emit event request accepted to both
-    //     io.to(sender?.socket_id).emit('request_accepted', {
-    //         message: 'Friend Request Accepted',
-    //     });
-    //     io.to(receiver?.socket_id).emit('request_accepted', {
-    //         message: 'Friend Request Accepted',
-    //     });
-    // });
+    socket.on('accept_request', withErrorHandling(socket, acceptRequestWS));
 
     // socket.on('get_direct_conversations', async ({ user_id }, callback) => {
     //     const existing_conversations = await OneToOneMessage.find({

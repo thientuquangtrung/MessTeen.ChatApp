@@ -39,7 +39,7 @@ export default function Router() {
                 { path: 'app', element: <GeneralApp /> },
                 { path: 'settings', element: <Settings /> },
                 { path: 'settings/privacy', element: <Privacy /> },
-                { path: 'settings', element: <Settings /> },
+                { path: 'settings/privacy/block-contacts', element: <BlockContacts /> },
                 { path: 'group', element: <GroupPage /> },
                 { path: 'profile', element: <ProfilePage /> },
                 { path: '404', element: <Page404 /> },
@@ -52,22 +52,14 @@ export default function Router() {
 }
 
 const GeneralApp = Loadable(lazy(() => import('../pages/dashboard/GeneralApp')));
-
 const GroupPage = Loadable(lazy(() => import('../pages/dashboard/Group')));
-
 const Page404 = Loadable(lazy(() => import('../pages/Page404')));
-
 const LoginPage = Loadable(lazy(() => import('../pages/auth/Login')));
 const RegisterPage = Loadable(lazy(() => import('../pages/auth/Register')));
 const ResetPasswordPage = Loadable(lazy(() => import('../pages/auth/ResetPassword')));
 const NewPasswordPage = Loadable(lazy(() => import('../pages/auth/NewPassword')));
-
 const Settings = Loadable(lazy(() => import('../pages/dashboard/Settings')));
-
 const Privacy = Loadable(lazy(() => import('../pages/dashboard/Privacy')));
-
 const BlockContacts = Loadable(lazy(() => import('../pages/dashboard/BlockContacts')));
-
 const CallPage = Loadable(lazy(() => import('../pages/dashboard/Call')));
-
 const ProfilePage = Loadable(lazy(() => import('../pages/dashboard/Profile')));

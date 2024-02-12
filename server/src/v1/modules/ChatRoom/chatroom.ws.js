@@ -1,39 +1,47 @@
 const userModel = require('../User/user.model');
+const UserService = require('../User/user.service');
+const chatroomModel = require('./chatroom.model');
 
 module.exports = {
     startConversationWS: async (data) => {
         // data: {to: from:}
-
         const { to, from } = data;
 
         // check if there is any existing conversation
-
-        const existing_conversations = await userModel
+        const existing_conversations = await chatroomModel
             .find({
                 room_participant_ids: { $size: 2, $all: [to, from] },
+                room_type: 'PRIVATE',
             })
             .populate('room_participant_ids', 'usr_name usr_room_ids usr_email usr_status');
 
-        console.log(existing_conversations[0], 'Existing Conversation');
-
-        // if no => create a new OneToOneMessage doc & emit event "start_chat" & send conversation details as payload
+        let chatroom;
         if (existing_conversations.length === 0) {
-            let new_chat = await userModel.create({
+            // if no => Create a new chatroom
+            let new_chat = await chatroomModel.create({
                 room_participant_ids: [to, from],
             });
 
-            new_chat = await OneToOneMessage.findById(new_chat).populate(
-                'room_participant_ids',
-                'usr_name usr_room_ids usr_email usr_status',
-            );
+            chatroom = await chatroomModel
+                .findById(new_chat._id)
+                .populate('room_participant_ids', 'usr_name usr_room_ids usr_email usr_status');
 
-            console.log(new_chat);
+            // Add the new chatroom id to usr_room_ids of each user
+            for (const participantId of chatroom.room_participant_ids) {
+                const user = await UserService.getUserById(participantId);
+                user.usr_room_ids.push(chatroom._id);
+                await user.save();
+            }
+            console.log(chatroom);
+        } else {
+            console.log(existing_conversations[0], 'Existing Conversation');
+            // if yes => Use the existing chatroom
+            chatroom = existing_conversations[0];
+        }
 
-            socket.emit('start_chat', new_chat);
-        }
-        // if yes => just emit event "start_chat" & send conversation details as payload
-        else {
-            socket.emit('start_chat', existing_conversations[0]);
-        }
+        // get socket id
+        const toSocketId = await userModel.findById(data.to).select('usr_socket_id');
+        // send conversation details as payload
+        _io.to(toSocketId).emit('start_chat', chatroom);
     },
 };

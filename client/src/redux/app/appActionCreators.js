@@ -1,4 +1,4 @@
-import axios from "../../utils/axios";
+import axios from '../../utils/axios';
 // import S3 from "../../utils/s3";
 // import { v4 } from "uuid";
 // import S3 from "../../utils/s3";
@@ -41,22 +41,13 @@ export const showSnackbar =
 //     };
 // }
 
-export function FetchUsers() {
+export function FetchUsers(searchQuery = '') {
     return async (dispatch, getState) => {
         await axios
-            .get(
-                "/user/get-users",
-
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${getState().auth.token}`,
-                    },
-                },
-            )
+            .get(`/users/explore-users/${getState().auth.user_id}?search=${searchQuery}`)
             .then((response) => {
                 console.log(response);
-                dispatch(slice.actions.updateUsers({ users: response.data.data }));
+                dispatch(slice.actions.updateUsers({ users: response.data.metadata }));
             })
             .catch((err) => {
                 console.log(err);
@@ -85,18 +76,10 @@ export function FetchUsers() {
 //             });
 //     };
 // }
-export function FetchFriends() {
+export function FetchFriends(searchQuery = '') {
     return async (dispatch, getState) => {
         await axios
-            .get(
-                `/users/friends-list/${getState().auth.user_id}`,
-
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                },
-            )
+            .get(`/users/friends-list/${getState().auth.user_id}?search=${searchQuery}`)
             .then((response) => {
                 console.log(response);
                 dispatch(slice.actions.updateFriends({ friends: response.data.metadata }));
@@ -106,14 +89,10 @@ export function FetchFriends() {
             });
     };
 }
-export function FetchFriendRequests() {
+export function FetchFriendRequests(searchQuery = '') {
     return async (dispatch, getState) => {
         await axios
-            .get(`/users/pending-friend-requests/${getState().auth.user_id}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
+            .get(`/users/pending-friend-requests/${getState().auth.user_id}?search=${searchQuery}`)
             .then((response) => {
                 console.log(response);
                 dispatch(slice.actions.updateFriendRequests({ requests: response.data.metadata }));

@@ -1,12 +1,12 @@
-import axios from "axios";
+import axios from 'axios';
 // config
-import { BASE_URL } from "../config";
-import { handleRefreshToken } from "../redux/auth/authActionCreators";
-import { store } from "../redux/store";
+import { BASE_URL } from '../config';
+import { handleRefreshToken } from '../redux/auth/authActionCreators';
+import { store } from '../redux/store';
 
 // ----------------------------------------------------------------------
 
-const axiosInstance = axios.create({ baseURL: BASE_URL });
+const axiosInstance = axios.create({ baseURL: BASE_URL, headers: { 'Content-Type': 'application/json' } });
 
 // Add a request interceptor
 axiosInstance.interceptors.request.use(
@@ -16,8 +16,8 @@ axiosInstance.interceptors.request.use(
         const userId = state.auth.user_id;
         const token = state.auth.token;
         if (userId && token) {
-            config.headers["x-client-id"] = userId;
-            config.headers["Authorization"] = "Bearer " + token;
+            config.headers['x-client-id'] = userId;
+            config.headers['Authorization'] = 'Bearer ' + token;
         }
         return config;
     },
@@ -38,12 +38,12 @@ axiosInstance.interceptors.response.use(
 
         const { status, message } = response.data;
         if (status === 401) {
-            if (message === "jwt expired") {
+            if (message === 'jwt expired') {
                 // axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${oldRefreshToken}`;
 
                 const { accessToken, refreshToken } = await getNewTokens(userId, oldRefreshToken);
                 if (accessToken) {
-                    response.config.headers["Authorization"] = `Bearer ${accessToken}`;
+                    response.config.headers['Authorization'] = `Bearer ${accessToken}`;
                     store.dispatch(handleRefreshToken({ accessToken, refreshToken }));
 
                     return axiosInstance(response.config);
@@ -53,7 +53,7 @@ axiosInstance.interceptors.response.use(
 
         return response;
     },
-    (error) => Promise.reject((error.response && error.response.data) || "Something went wrong"),
+    (error) => Promise.reject((error.response && error.response.data) || 'Something went wrong'),
 );
 
 const getNewTokens = async (userId, token) => {
@@ -63,8 +63,8 @@ const getNewTokens = async (userId, token) => {
             {},
             {
                 headers: {
-                    Authorization: "Bearer " + token,
-                    ["x-client-id"]: userId,
+                    Authorization: 'Bearer ' + token,
+                    ['x-client-id']: userId,
                 },
             },
         )
