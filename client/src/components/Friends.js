@@ -4,6 +4,9 @@ import { Box, Badge, Avatar, Button, Typography, Stack, IconButton } from '@mui/
 import { Chat } from 'phosphor-react';
 import { faker } from '@faker-js/faker';
 import { socket } from '../socket';
+import { useSelector } from 'react-redux';
+
+const user_id = window.localStorage.getItem('user_id');
 
 const StyledChatBox = styled(Box)(({ theme }) => ({
     '&:hover': {
@@ -40,19 +43,14 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     },
 }));
 
-const UserComponent = ({ firstName, lastName, _id, online, img }) => {
-    const user_id = window.localStorage.getItem('user_id');
+const UserComponent = ({ usr_name, _id, online, img }) => {
     const theme = useTheme();
-    // const name = `${firstName} ${lastName}`;
-    const name = 'Ngan Tran';
 
     return (
         <StyledChatBox
             sx={{
                 width: '100%',
-
                 borderRadius: 1,
-
                 backgroundColor: theme.palette.background.paper,
             }}
             p={2}
@@ -69,14 +67,14 @@ const UserComponent = ({ firstName, lastName, _id, online, img }) => {
                             }}
                             variant="dot"
                         >
-                            <Avatar alt={name} src={faker.image.avatar()} />
+                            <Avatar alt={usr_name} src={faker.image.avatar()} />
                         </StyledBadge>
                     ) : (
-                        <Avatar alt={name} src={faker.image.avatar()} />
+                        <Avatar alt={usr_name} src={faker.image.avatar()} />
                     )}
 
                     <Stack spacing={0.3}>
-                        <Typography variant="subtitle2">{name}</Typography>
+                        <Typography variant="subtitle2">{usr_name}</Typography>
                     </Stack>
                 </Stack>
                 <Stack direction={'row'} spacing={2} alignItems={'center'}>
@@ -95,17 +93,14 @@ const UserComponent = ({ firstName, lastName, _id, online, img }) => {
     );
 };
 
-const FriendRequestComponent = ({ firstName, lastName, _id, online, img, id }) => {
+const FriendRequestComponent = ({ usr_name, _id, online, img }) => {
     const theme = useTheme();
-    // const name = `${firstName} ${lastName}`;
-    const name = 'Ngan Tran';
+
     return (
         <StyledChatBox
             sx={{
                 width: '100%',
-
                 borderRadius: 1,
-
                 backgroundColor: theme.palette.background.paper,
             }}
             p={2}
@@ -122,26 +117,29 @@ const FriendRequestComponent = ({ firstName, lastName, _id, online, img, id }) =
                             }}
                             variant="dot"
                         >
-                            <Avatar alt={name} src={faker.image.avatar()} />
+                            <Avatar alt={usr_name} src={faker.image.avatar()} />
                         </StyledBadge>
                     ) : (
-                        <Avatar alt={name} src={img} />
+                        <Avatar alt={usr_name} src={img} />
                     )}
                     <Stack spacing={0.3}>
-                        <Typography variant="subtitle2">{name}</Typography>
+                        <Typography variant="subtitle2">{usr_name}</Typography>
                     </Stack>
                 </Stack>
                 <Stack direction={'row'} spacing={2} alignItems={'center'}>
                     <Button
-                    // onClick={() => {
-                    //     socket.emit(
-                    //         "accept_request",
-                    //         { request_id: id },
-                    //         () => {
-                    //             alert("request sent");
-                    //         }
-                    //     );
-                    // }}
+                        onClick={() => {
+                            socket.emit(
+                                'accept_request',
+                                {
+                                    user_id,
+                                    friend_id: _id,
+                                },
+                                () => {
+                                    alert('request sent');
+                                },
+                            );
+                        }}
                     >
                         Accept Request
                     </Button>
@@ -151,18 +149,14 @@ const FriendRequestComponent = ({ firstName, lastName, _id, online, img, id }) =
     );
 };
 
-const FriendComponent = ({ img, firstName, lastName, online, _id }) => {
+const FriendComponent = ({ img, usr_name, online, _id }) => {
     const theme = useTheme();
-
-    const name = `${firstName} ${lastName}`;
 
     return (
         <StyledChatBox
             sx={{
                 width: '100%',
-
                 borderRadius: 1,
-
                 backgroundColor: theme.palette.background.paper,
             }}
             p={2}
@@ -179,18 +173,21 @@ const FriendComponent = ({ img, firstName, lastName, online, _id }) => {
                             }}
                             variant="dot"
                         >
-                            <Avatar alt={name} src={faker.image.avatar()} />
+                            <Avatar alt={usr_name} src={faker.image.avatar()} />
                         </StyledBadge>
                     ) : (
-                        <Avatar alt={name} src={faker.image.avatar()} />
+                        <Avatar alt={usr_name} src={faker.image.avatar()} />
                     )}
                     <Stack spacing={0.3}>
-                        <Typography variant="subtitle2">{name}</Typography>
+                        <Typography variant="subtitle2">{usr_name}</Typography>
                     </Stack>
                 </Stack>
                 <Stack direction={'row'} spacing={2} alignItems={'center'}>
                     <IconButton
-                    // start a new conversation
+                        onClick={() => {
+                            // start a new conversation
+                            socket.emit('start_conversation', { to: _id, from: user_id });
+                        }}
                     >
                         <Chat />
                     </IconButton>

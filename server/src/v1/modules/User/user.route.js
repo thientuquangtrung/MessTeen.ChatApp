@@ -13,6 +13,7 @@ router.post('/reject-friend', asyncHandler(userController.rejectFriend));
 router.post('/block-friend', asyncHandler(userController.blockFriend));
 router.post('/unblock-friend', asyncHandler(userController.unBlockFriend));
 router.delete('/remove-friend', asyncHandler(userController.removeFriend));
+router.get('/explore-users/:userId', asyncHandler(userController.getExploreUsers));
 router.get('/friends-list/:userId', asyncHandler(userController.friendsList));
 router.get('/pending-friend-requests/:userId', asyncHandler(userController.pendingFriendRequests));
 router.put('/update-profile-user/:userId', asyncHandler(userController.updateProfileUser));

@@ -55,20 +55,13 @@ const AntSwitch = styled(Switch)(({ theme }) => ({
     },
 }));
 const DashboardLayout = () => {
+
+    //#region hooks
     const navigate = useNavigate();
-
-    const handleToSettings = () => {
-        navigate('/settings');
-    };
     const theme = useTheme();
-
     const dispatch = useDispatch();
     const { isLoggedIn, user_id } = useSelector((state) => state.auth);
-
     const [selected, setSelected] = useState(0);
-
-    console.log(theme);
-
     const { onToggleMode } = useSettings();
 
     useEffect(() => {
@@ -128,27 +121,27 @@ const DashboardLayout = () => {
             //     dispatch(SelectConversation({ room_id: data._id }));
             // });
 
-            // socket.on('new_friend_request', (data) => {
-            //     dispatch(
-            //         showSnackbar({
-            //             severity: 'success',
-            //             message: 'New friend request received',
-            //         }),
-            //     );
-            // });
+            socket.on('new_friend_request', (data) => {
+                dispatch(
+                    showSnackbar({
+                        severity: 'success',
+                        message: 'New friend request received',
+                    }),
+                );
+            });
 
-            // socket.on('request_accepted', (data) => {
-            //     dispatch(
-            //         showSnackbar({
-            //             severity: 'success',
-            //             message: 'Friend Request Accepted',
-            //         }),
-            //     );
-            // });
+            socket.on('request_accepted', (data) => {
+                dispatch(
+                    showSnackbar({
+                        severity: 'success',
+                        message: 'Friend Request Accepted',
+                    }),
+                );
+            });
 
-            // socket.on('request_sent', (data) => {
-            //     dispatch(showSnackbar({ severity: 'success', message: data.message }));
-            // });
+            socket.on('request_sent', (data) => {
+                dispatch(showSnackbar({ severity: 'success', message: data.message }));
+            });
 
             socket.on('error', (data) => {
                 dispatch(showSnackbar({ severity: 'error', message: data.message }));
@@ -167,6 +160,14 @@ const DashboardLayout = () => {
         };
     }, [socket]);
     //   }, [isLoggedIn, socket]);
+    //#endregion hooks
+
+    // methods
+    const handleToSettings = () => {
+        navigate('/settings');
+    };
+
+    console.log(theme);
 
     // TODO: uncomment when done some important features
     // if (!isLoggedIn) {
