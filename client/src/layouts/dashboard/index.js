@@ -55,6 +55,7 @@ const AntSwitch = styled(Switch)(({ theme }) => ({
     },
 }));
 const DashboardLayout = () => {
+
     //#region hooks
     const navigate = useNavigate();
     const theme = useTheme();
