@@ -7,7 +7,7 @@ const compression = require('compression');
 const UserModel = require('./v1/modules/User/user.model');
 const withErrorHandling = require('./v1/helpers/socketAsyncHandler');
 const { sendFriendRequestWS, acceptRequestWS } = require('./v1/modules/User/user.ws');
-const { startConversationWS } = require('./v1/modules/ChatRoom/chatroom.ws');
+const { startConversationWS, getDirectConversationsWS } = require('./v1/modules/ChatRoom/chatroom.ws');
 
 //init dbs
 require('./v1/databases/init.mongodb');
@@ -71,17 +71,7 @@ const handleSocketConnect = async (socket) => {
 
     socket.on('accept_request', withErrorHandling(socket, acceptRequestWS));
 
-    // socket.on('get_direct_conversations', async ({ user_id }, callback) => {
-    //     const existing_conversations = await OneToOneMessage.find({
-    //         participants: { $all: [user_id] },
-    //     }).populate('participants', 'firstName lastName avatar _id email status');
-
-    //     // db.books.find({ authors: { $elemMatch: { name: "John Smith" } } })
-
-    //     console.log(existing_conversations);
-
-    //     callback(existing_conversations);
-    // });
+    socket.on('get_direct_conversations', withErrorHandling(socket, getDirectConversationsWS));
 
     socket.on('start_conversation', withErrorHandling(socket, startConversationWS));
 
