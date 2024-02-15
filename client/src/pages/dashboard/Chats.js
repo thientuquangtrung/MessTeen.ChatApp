@@ -1,6 +1,6 @@
 import { Avatar, Badge, Box, Button, Divider, IconButton, InputBase, Stack, Typography, useTheme } from '@mui/material';
 import { ArchiveBox, CircleDashed, MagnifyingGlass, Users } from 'phosphor-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { styled, alpha } from '@mui/material';
 import { faker } from '@faker-js/faker';
 import { ChatList } from '../../data';
@@ -8,6 +8,7 @@ import Friends from '../../sections/main/Friends';
 import { socket } from '../../socket';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectConversation } from '../../redux/app/appActionCreators';
+import { FetchDirectConversations } from '../../redux/conversation/convActionCreators';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
     '& .MuiBadge-badge': {
@@ -116,20 +117,23 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
+const user_id = window.localStorage.getItem('user_id');
+
 const Chats = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const theme = useTheme();
 
+    const dispatch = useDispatch();
     const { conversations } = useSelector((state) => state.conversation);
 
-    // useEffect(() => {
-    //     socket.emit('get_direct_conversations', { user_id }, (data) => {
-    //         console.log(data); // this data is the list of conversations
-    //         // dispatch action
+    useEffect(() => {
+        socket.emit('get_direct_conversations', { user_id }, (data) => {
+            console.log(data); // this data is the list of conversations
+            // dispatch action
 
-    //         dispatch(FetchDirectConversations({ conversations: data }));
-    //     });
-    // }, []);
+            dispatch(FetchDirectConversations({ conversations: data }));
+        });
+    }, []);
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
