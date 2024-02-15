@@ -40,8 +40,9 @@ module.exports = {
         }
 
         // get socket id
-        const toSocketId = await userModel.findById(data.to).select('usr_socket_id');
+        const fromSocketId = await userModel.findById(data.from).select('usr_socket_id');
         // send conversation details as payload
-        _io.to(toSocketId).emit('start_chat', chatroom);
+        _io.to(fromSocketId.usr_socket_id).emit('start_chat', chatroom);
+        console.log(fromSocketId.usr_socket_id);
     },
 };
