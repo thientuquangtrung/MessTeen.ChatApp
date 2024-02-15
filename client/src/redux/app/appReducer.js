@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
     // user: {},
@@ -17,13 +17,13 @@ const initialState = {
     // all_users: [],
     friends: [], // all friends
     friendRequests: [], // all friend requests
-    // chat_type: null,
-    // room_id: null,
+    chat_type: null,
+    room_id: null,
     // call_logs: [],
 };
 
 export const slice = createSlice({
-    name: "app",
+    name: 'app',
     initialState,
     reducers: {
         // fetchCallLogs(state, action) {
@@ -53,7 +53,7 @@ export const slice = createSlice({
             state.snackbar.message = action.payload.message;
         },
         closeSnackBar(state) {
-            console.log("This is getting executed");
+            console.log('This is getting executed');
             state.snackbar.open = false;
             state.snackbar.message = null;
         },
@@ -69,10 +69,10 @@ export const slice = createSlice({
         updateFriendRequests(state, action) {
             state.friendRequests = action.payload.requests;
         },
-        // selectConversation(state, action) {
-        //     state.chat_type = "individual";
-        //     state.room_id = action.payload.room_id;
-        // },
+        selectConversation(state, action) {
+            state.chat_type = 'individual';
+            state.room_id = action.payload.room_id;
+        },
     },
 });
 

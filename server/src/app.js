@@ -57,7 +57,7 @@ const handleSocketConnect = async (socket) => {
 
     if (user_id != null && Boolean(user_id)) {
         try {
-            UserModel.findByIdAndUpdate(user_id, {
+            await UserModel.findByIdAndUpdate(user_id, {
                 usr_socket_id: socket.id,
                 usr_status: 'ONLINE',
             });

@@ -12,7 +12,8 @@ import { socket, connectSocket } from '../../socket';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from '../../redux/store';
 import { useDispatch } from 'react-redux';
-import { showSnackbar } from '../../redux/app/appActionCreators';
+import { SelectConversation, showSnackbar } from '../../redux/app/appActionCreators';
+import { AddDirectConversation, UpdateDirectConversation } from '../../redux/conversation/convActionCreators';
 
 const AntSwitch = styled(Switch)(({ theme }) => ({
     width: 40,
@@ -55,12 +56,12 @@ const AntSwitch = styled(Switch)(({ theme }) => ({
     },
 }));
 const DashboardLayout = () => {
-
     //#region hooks
     const navigate = useNavigate();
     const theme = useTheme();
     const dispatch = useDispatch();
     const { isLoggedIn, user_id } = useSelector((state) => state.auth);
+    const { conversations, current_conversation } = useSelector((state) => state.conversation);
     const [selected, setSelected] = useState(0);
     const { onToggleMode } = useSettings();
 
@@ -107,19 +108,19 @@ const DashboardLayout = () => {
             //     }
             // });
 
-            // socket.on('start_chat', (data) => {
-            //     console.log(data);
-            //     // add / update to conversation list
-            //     const existing_conversation = conversations.find((el) => el?.id === data._id);
-            //     if (existing_conversation) {
-            //         // update direct conversation
-            //         dispatch(UpdateDirectConversation({ conversation: data }));
-            //     } else {
-            //         // add direct conversation
-            //         dispatch(AddDirectConversation({ conversation: data }));
-            //     }
-            //     dispatch(SelectConversation({ room_id: data._id }));
-            // });
+            socket.on('start_chat', (data) => {
+                console.log(data);
+                // add / update to conversation list
+                const existing_conversation = conversations.find((el) => el?.id === data._id);
+                if (existing_conversation) {
+                    // update direct conversation
+                    dispatch(UpdateDirectConversation({ conversation: data }));
+                } else {
+                    // add direct conversation
+                    dispatch(AddDirectConversation({ conversation: data }));
+                }
+                dispatch(SelectConversation({ room_id: data._id }));
+            });
 
             socket.on('new_friend_request', (data) => {
                 dispatch(
