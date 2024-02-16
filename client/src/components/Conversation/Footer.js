@@ -6,6 +6,8 @@ import styled from '@emotion/styled';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { ClickAwayListener } from '@mui/base/ClickAwayListener';
+import { useSelector } from 'react-redux';
+import { socket } from '../../socket';
 
 const StyledInput = styled(TextField)(({ theme }) => ({
     '& .MuiInputBase-input': {
@@ -47,7 +49,7 @@ const Actions = [
     },
 ];
 
-const ChatInput = ({ openPicker, setOpenPicker }) => {
+const ChatInput = ({ openPicker, setOpenPicker, setValue, value }) => {
     const [openActions, setOpenActions] = React.useState(false);
     const handleClickAway = () => {
         setOpenActions(false);
@@ -58,6 +60,10 @@ const ChatInput = ({ openPicker, setOpenPicker }) => {
 
     return (
         <StyledInput
+            value={value}
+            onChange={(event) => {
+                setValue(event.target.value);
+            }}
             fullWidth
             placeholder="Write a message..."
             variant="filled"
@@ -121,12 +127,28 @@ const ChatInput = ({ openPicker, setOpenPicker }) => {
     );
 };
 
+function linkify(text) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, (url) => `<a href="${url}" target="_blank">${url}</a>`);
+}
+
+function containsUrl(text) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return urlRegex.test(text);
+}
+
 const Footer = () => {
+    const theme = useTheme();
+    const [openPicker, setOpenPicker] = useState(false);
+    const [value, setValue] = useState('');
+    const { current_conversation } = useSelector((state) => state.conversation);
+    const { sideBar, room_id } = useSelector((state) => state.app);
+    const user_id = window.localStorage.getItem('user_id');
+
     const handleClickAwayPicker = () => {
         setOpenPicker(false);
     };
-    const theme = useTheme();
-    const [openPicker, setOpenPicker] = useState(false);
+
     return (
         <Box
             p={2}
@@ -155,7 +177,12 @@ const Footer = () => {
                             <Picker theme={theme.palette.mode} data={data} onEmojiSelect={console.log} />
                         </Box>
                     </ClickAwayListener>
-                    <ChatInput openPicker={openPicker} setOpenPicker={setOpenPicker} />
+                    <ChatInput
+                        openPicker={openPicker}
+                        setOpenPicker={setOpenPicker}
+                        value={value}
+                        setValue={setValue}
+                    />
                 </Stack>
 
                 <Box
@@ -168,7 +195,17 @@ const Footer = () => {
                 >
                     <Stack sx={{ height: '100%', width: '100%' }} alignItems="center" justifyContent="center">
                         {' '}
-                        <IconButton>
+                        <IconButton
+                            onClick={() => {
+                                socket.emit('text_message', {
+                                    message: linkify(value),
+                                    conversation_id: room_id,
+                                    from: user_id,
+                                    to: current_conversation.user_id,
+                                    type: containsUrl(value) ? 'LINK' : 'TEXT',
+                                });
+                            }}
+                        >
                             <PaperPlaneTilt color="white" />
                         </IconButton>
                     </Stack>

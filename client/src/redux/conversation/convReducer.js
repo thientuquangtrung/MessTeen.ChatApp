@@ -97,9 +97,9 @@ export const slice = createSlice({
         //     }));
         //     state.current_messages = formatted_messages;
         // },
-        // addDirectMessage(state, action) {
-        //     state.current_messages.push(action.payload.message);
-        // },
+        addDirectMessage(state, action) {
+            state.current_messages.push(action.payload.message);
+        },
     },
 });
 
