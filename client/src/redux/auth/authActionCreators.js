@@ -139,17 +139,9 @@ export function RegisterUser(formValues) {
         dispatch(slice.actions.updateIsLoading({ isLoading: true, error: false }));
 
         await axios
-            .post(
-                '/auth/signup',
-                {
-                    ...formValues,
-                },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                },
-            )
+            .post('/auth/signup', {
+                ...formValues,
+            })
             .then(function (response) {
                 console.log(response);
                 dispatch(slice.actions.updateRegisterEmail({ email: response.data.metadata.user.usr_email }));
@@ -163,7 +155,8 @@ export function RegisterUser(formValues) {
             })
             .finally(() => {
                 if (!getState().auth.error) {
-                    window.location.href = '/auth/verify';
+                    // window.location.href = '/auth/verify';
+                    window.location.href = '/app';
                 }
             });
     };
