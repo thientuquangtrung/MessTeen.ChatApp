@@ -1,7 +1,7 @@
 import { useTheme, styled } from '@mui/material/styles';
 import { Avatar, Box, Divider, IconButton, Menu, MenuItem, Stack, Switch } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 
 import Logo from '../../assets/Images/logo1.png';
 import { Nav_Buttons } from '../../data';
@@ -163,8 +163,7 @@ const DashboardLayout = () => {
             socket?.off('audio_call_notification');
             socket?.off('error');
         };
-    }, [socket]);
-    //   }, [isLoggedIn, socket]);
+    }, [isLoggedIn, socket]);
     //#endregion hooks
 
     // methods
@@ -174,10 +173,9 @@ const DashboardLayout = () => {
 
     console.log(theme);
 
-    // TODO: uncomment when done some important features
-    // if (!isLoggedIn) {
-    //     return <Navigate to={"/auth/login"} />;
-    // }
+    if (!isLoggedIn) {
+        return <Navigate to={'/auth/login'} />;
+    }
 
     const handleNavigation = (path, index) => {
         navigate(path);

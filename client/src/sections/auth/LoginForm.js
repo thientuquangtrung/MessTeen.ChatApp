@@ -1,17 +1,17 @@
-import { useState } from "react";
-import * as Yup from "yup";
-import { Link as RouterLink } from "react-router-dom";
+import { useState } from 'react';
+import * as Yup from 'yup';
+import { Link as RouterLink } from 'react-router-dom';
 // form
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
-import { Link, Stack, Alert, IconButton, InputAdornment } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
+import { Link, Stack, Alert, IconButton, InputAdornment } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 // components
-import FormProvider, { RHFTextField } from "../../components/hook-form";
-import { Eye, EyeSlash } from "phosphor-react";
-import { LoginUser } from "../../redux/auth/authActionCreators";
-import { useDispatch, useSelector } from "react-redux";
+import FormProvider, { RHFTextField } from '../../components/hook-form';
+import { Eye, EyeSlash } from 'phosphor-react';
+import { LoginUser } from '../../redux/auth/authActionCreators';
+import { useDispatch, useSelector } from 'react-redux';
 
 const LoginForm = () => {
     //#region fields
@@ -21,13 +21,13 @@ const LoginForm = () => {
     const { isLoading } = useSelector((state) => state.auth);
 
     const LoginSchema = Yup.object().shape({
-        email: Yup.string().required("Email is required").email("Email must be a valid email address"),
-        password: Yup.string().required("Password is required"),
+        email: Yup.string().required('Email is required').email('Email must be a valid email address'),
+        password: Yup.string().required('Password is required'),
     });
 
     const defaultValues = {
-        email: "trung_test@gmail.com",
-        password: "1234567890",
+        email: 'trung_test@gmail.com',
+        password: '1234567890',
     };
 
     const methods = useForm({
@@ -53,7 +53,7 @@ const LoginForm = () => {
         } catch (error) {
             console.log(error);
             reset();
-            setError("afterSubmit", {
+            setError('afterSubmit', {
                 ...error,
                 message: error.message,
             });
@@ -78,7 +78,7 @@ const LoginForm = () => {
                 <RHFTextField
                     name="password"
                     label="Password"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     InputProps={{
                         endAdornment: (
                             <InputAdornment>
@@ -94,8 +94,14 @@ const LoginForm = () => {
                     }}
                 />
             </Stack>
-            <Stack alignItems={"flex-end"} sx={{ my: 2 }}>
-                <Link component={RouterLink} to="/auth/reset-password" variant="body2" color="inherit" underline="always">
+            <Stack alignItems={'flex-end'} sx={{ my: 2 }}>
+                <Link
+                    component={RouterLink}
+                    to="/auth/reset-password"
+                    variant="body2"
+                    color="inherit"
+                    underline="always"
+                >
                     Forgot Password?
                 </Link>
             </Stack>
@@ -107,11 +113,11 @@ const LoginForm = () => {
                 variant="contained"
                 loading={isLoading}
                 sx={{
-                    bgcolor: "text.primary",
-                    color: (theme) => (theme.palette.mode === "light" ? "common.white" : "grey.800"),
-                    "&:hover": {
-                        bgcolor: "text.primary",
-                        color: (theme) => (theme.palette.mode === "light" ? "common.white" : "grey.800"),
+                    bgcolor: 'text.primary',
+                    color: (theme) => (theme.palette.mode === 'light' ? 'common.white' : 'grey.800'),
+                    '&:hover': {
+                        bgcolor: 'text.primary',
+                        color: (theme) => (theme.palette.mode === 'light' ? 'common.white' : 'grey.800'),
                     },
                 }}
             >
