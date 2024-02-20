@@ -1,8 +1,4 @@
 import { Box, useTheme, Stack, Avatar, Typography, IconButton, Divider } from '@mui/material';
-import { Box, useTheme, Stack, Avatar, Typography, IconButton, Divider } from '@mui/material';
-
-import { faker } from '@faker-js/faker';
-import React from 'react';
 import { faker } from '@faker-js/faker';
 import React from 'react';
 import StyledBadge from '../settings/StyledBadge';
