@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogContent, Stack, Tab, Tabs } from '@mui/material';
+import { Badge, Dialog, DialogContent, Stack, Tab, Tabs } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { FetchFriendRequests, FetchFriends, FetchUsers } from '../../redux/app/appActionCreators';
 import { FriendComponent, FriendRequestComponent, UserComponent } from '../../components/Friends';
 import { Search, SearchIconWrapper, StyledInputBase } from '../../Search';
-import { MagnifyingGlass } from 'phosphor-react';
+import { HourglassMedium, MagnifyingGlass, ShareNetwork, UsersThree } from 'phosphor-react';
 import useDebounce from '../../hooks/useDebounce';
 
 const UsersList = ({ searchQuery }) => {
@@ -78,9 +78,17 @@ const Friends = ({ open, handleClose }) => {
             {/* <DialogTitle>{"Friends"}</DialogTitle> */}
             <Stack p={2} sx={{ width: '100%' }}>
                 <Tabs value={value} onChange={handleChange} centered>
-                    <Tab label="Explore" />
-                    <Tab label="Friends" />
-                    <Tab label="Requests" />
+                    <Tab sx={{ px: 1 }} icon={<ShareNetwork size={18} />} label="Explore" />
+                    <Tab sx={{ px: 1 }} icon={<UsersThree size={18} />} label="Friends" />
+                    <Tab
+                        sx={{ px: 1 }}
+                        icon={
+                            <Badge color="error" variant="dot" anchorOrigin={{ vertical: 'top', horizontal: 'left' }}>
+                                <HourglassMedium size={18} />
+                            </Badge>
+                        }
+                        label="Requests"
+                    />
                 </Tabs>
                 {/* Search */}
                 <Search>
