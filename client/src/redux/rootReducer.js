@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import storage from 'redux-persist/lib/storage';
+import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import { encryptTransform } from 'redux-persist-transform-encrypt';
 // slices
 import appReducer from './app/appReducer';
@@ -13,6 +14,7 @@ import conversationReducer from './conversation/convReducer';
 const rootPersistConfig = {
     key: 'root',
     storage,
+    stateReconciler: autoMergeLevel2,
     keyPrefix: 'redux-',
     transforms: [
         encryptTransform({
@@ -23,8 +25,8 @@ const rootPersistConfig = {
             },
         }),
     ],
-    //   whitelist: [],
-    //   blacklist: [],
+    whitelist: ['auth'],
+    blacklist: ['conversation'],
 };
 
 const rootReducer = combineReducers({
