@@ -110,6 +110,7 @@ const DashboardLayout = () => {
                         }),
                     );
                 }
+                // TODO: add new chatroom if not existing
             });
 
             socket.on('start_chat', (data) => {
@@ -163,7 +164,7 @@ const DashboardLayout = () => {
             socket?.off('audio_call_notification');
             socket?.off('error');
         };
-    }, [isLoggedIn, socket]);
+    }, [isLoggedIn, socket, conversations, current_conversation, user_id]);
     //#endregion hooks
 
     // methods

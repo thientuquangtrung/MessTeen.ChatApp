@@ -11,7 +11,6 @@ const Message = () => {
 
     const { conversations, current_messages } = useSelector((state) => state.conversation);
     const { room_id } = useSelector((state) => state.app);
-
     useEffect(() => {
         const current = conversations.find((el) => el?.id === room_id);
 

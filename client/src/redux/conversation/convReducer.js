@@ -85,18 +85,18 @@ export const slice = createSlice({
         setCurrentConversation(state, action) {
             state.current_conversation = action.payload;
         },
-        // fetchCurrentMessages(state, action) {
-        //     const messages = action.payload.messages;
-        //     const formatted_messages = messages.map((el) => ({
-        //         id: el._id,
-        //         type: 'msg',
-        //         subtype: el.type,
-        //         message: el.text,
-        //         incoming: el.to === user_id,
-        //         outgoing: el.from === user_id,
-        //     }));
-        //     state.current_messages = formatted_messages;
-        // },
+        fetchCurrentMessages(state, action) {
+            const messages = action.payload.messages;
+            const formatted_messages = messages.map((el) => ({
+                id: el._id,
+                type: 'msg',
+                subtype: el.type,
+                message: el.text,
+                incoming: el.to === user_id,
+                outgoing: el.from === user_id,
+            }));
+            state.current_messages = formatted_messages;
+        },
         addDirectMessage(state, action) {
             state.current_messages.push(action.payload.message);
         },
