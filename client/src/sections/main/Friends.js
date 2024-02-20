@@ -16,11 +16,11 @@ const UsersList = ({ searchQuery }) => {
     }, [debouncedSearchTerm]);
 
     const { users } = useSelector((state) => state.app);
-
+    // console.log(users);
     return (
         <>
             {users.map((el, idx) => {
-                return <UserComponent key={el._id} {...el} />;
+                return <UserComponent key={el._id} {...el} userList={users} />;
             })}
         </>
     );

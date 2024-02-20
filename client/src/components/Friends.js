@@ -5,6 +5,9 @@ import { Chat } from 'phosphor-react';
 import { faker } from '@faker-js/faker';
 import { socket } from '../socket';
 import { useSelector } from 'react-redux';
+import { useState } from 'react';
+import { dispatch } from '../redux/store';
+import { UpdateUsersAction } from '../redux/app/appActionCreators';
 
 const user_id = window.localStorage.getItem('user_id');
 
@@ -43,8 +46,10 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     },
 }));
 
-const UserComponent = ({ usr_name, _id, online, img }) => {
+const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userList }) => {
     const theme = useTheme();
+    const isRequested = usr_pending_friends.includes(user_id);
+    // const [isRequested, setIsRequested] = useState(usr_pending_friends.includes(user_id));
 
     return (
         <StyledChatBox
@@ -83,9 +88,20 @@ const UserComponent = ({ usr_name, _id, online, img }) => {
                             socket.emit('friend_request', { to: _id, from: user_id }, () => {
                                 alert('request sent');
                             });
+                            // TODO: dispatch action to update explore users in store
+                            const newUsersList = userList.map((u) => {
+                                if (u._id === _id) {
+                                    return {
+                                        ...u,
+                                        usr_pending_friends: [...u.usr_pending_friends, user_id],
+                                    };
+                                }
+                                return u;
+                            });
+                            dispatch(UpdateUsersAction(newUsersList));
                         }}
                     >
-                        Send Request
+                        {isRequested ? 'Requested' : 'Send Request'}
                     </Button>
                 </Stack>
             </Stack>

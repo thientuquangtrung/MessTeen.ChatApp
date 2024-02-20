@@ -54,6 +54,12 @@ export function FetchUsers(searchQuery = '') {
             });
     };
 }
+
+export function UpdateUsersAction(userList) {
+    return (dispatch, getState) => {
+        dispatch(slice.actions.updateUsers({ users: userList }));
+    }
+}
 // export function FetchAllUsers() {
 //     return async (dispatch, getState) => {
 //         await axios
