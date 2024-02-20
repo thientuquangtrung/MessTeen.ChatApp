@@ -7,7 +7,8 @@ const compression = require('compression');
 const UserModel = require('./v1/modules/User/user.model');
 const withErrorHandling = require('./v1/helpers/socketAsyncHandler');
 const { sendFriendRequestWS, acceptRequestWS } = require('./v1/modules/User/user.ws');
-const { startConversationWS } = require('./v1/modules/ChatRoom/chatroom.ws');
+const { startConversationWS, getDirectConversationsWS } = require('./v1/modules/ChatRoom/chatroom.ws');
+const { sendMesssageWS } = require('./v1/modules/Message/message.ws');
 
 //init dbs
 require('./v1/databases/init.mongodb');
@@ -57,7 +58,7 @@ const handleSocketConnect = async (socket) => {
 
     if (user_id != null && Boolean(user_id)) {
         try {
-            UserModel.findByIdAndUpdate(user_id, {
+            await UserModel.findByIdAndUpdate(user_id, {
                 usr_socket_id: socket.id,
                 usr_status: 'ONLINE',
             });
@@ -71,17 +72,7 @@ const handleSocketConnect = async (socket) => {
 
     socket.on('accept_request', withErrorHandling(socket, acceptRequestWS));
 
-    // socket.on('get_direct_conversations', async ({ user_id }, callback) => {
-    //     const existing_conversations = await OneToOneMessage.find({
-    //         participants: { $all: [user_id] },
-    //     }).populate('participants', 'firstName lastName avatar _id email status');
-
-    //     // db.books.find({ authors: { $elemMatch: { name: "John Smith" } } })
-
-    //     console.log(existing_conversations);
-
-    //     callback(existing_conversations);
-    // });
+    socket.on('get_direct_conversations', withErrorHandling(socket, getDirectConversationsWS));
 
     socket.on('start_conversation', withErrorHandling(socket, startConversationWS));
 
@@ -95,45 +86,7 @@ const handleSocketConnect = async (socket) => {
     // });
 
     // // Handle incoming text/link messages
-    // socket.on('text_message', async (data) => {
-    //     console.log('Received message:', data);
-
-    //     // data: {to, from, text}
-
-    //     const { message, conversation_id, from, to, type } = data;
-
-    //     const to_user = await User.findById(to);
-    //     const from_user = await User.findById(from);
-
-    //     // message => {to, from, type, created_at, text, file}
-
-    //     const new_message = {
-    //         to: to,
-    //         from: from,
-    //         type: type,
-    //         created_at: Date.now(),
-    //         text: message,
-    //     };
-
-    //     // fetch OneToOneMessage Doc & push a new message to existing conversation
-    //     const chat = await OneToOneMessage.findById(conversation_id);
-    //     chat.messages.push(new_message);
-    //     // save to db`
-    //     await chat.save({ new: true, validateModifiedOnly: true });
-
-    //     // emit incoming_message -> to user
-
-    //     io.to(to_user?.socket_id).emit('new_message', {
-    //         conversation_id,
-    //         message: new_message,
-    //     });
-
-    //     // emit outgoing_message -> from user
-    //     io.to(from_user?.socket_id).emit('new_message', {
-    //         conversation_id,
-    //         message: new_message,
-    //     });
-    // });
+    socket.on('text_message', withErrorHandling(socket, sendMesssageWS));
 
     // // handle Media/Document Message
     // socket.on('file_message', (data) => {

@@ -1,7 +1,7 @@
 import { useTheme, styled } from '@mui/material/styles';
 import { Avatar, Box, Divider, IconButton, Menu, MenuItem, Stack, Switch } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 
 import Logo from '../../assets/Images/logo1.png';
 import { Nav_Buttons } from '../../data';
@@ -12,7 +12,12 @@ import { socket, connectSocket } from '../../socket';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from '../../redux/store';
 import { useDispatch } from 'react-redux';
-import { showSnackbar } from '../../redux/app/appActionCreators';
+import { SelectConversation, showSnackbar } from '../../redux/app/appActionCreators';
+import {
+    AddDirectConversation,
+    AddDirectMessage,
+    UpdateDirectConversation,
+} from '../../redux/conversation/convActionCreators';
 
 const AntSwitch = styled(Switch)(({ theme }) => ({
     width: 40,
@@ -55,12 +60,12 @@ const AntSwitch = styled(Switch)(({ theme }) => ({
     },
 }));
 const DashboardLayout = () => {
-
     //#region hooks
     const navigate = useNavigate();
     const theme = useTheme();
     const dispatch = useDispatch();
     const { isLoggedIn, user_id } = useSelector((state) => state.auth);
+    const { conversations, current_conversation } = useSelector((state) => state.conversation);
     const [selected, setSelected] = useState(0);
     const { onToggleMode } = useSettings();
 
@@ -89,37 +94,38 @@ const DashboardLayout = () => {
             //     dispatch(PushToVideoCallQueue(data));
             // });
 
-            // socket.on('new_message', (data) => {
-            //     const message = data.message;
-            //     console.log(current_conversation, data);
-            //     // check if msg we got is from currently selected conversation
-            //     if (current_conversation?.id === data.conversation_id) {
-            //         dispatch(
-            //             AddDirectMessage({
-            //                 id: message._id,
-            //                 type: 'msg',
-            //                 subtype: message.type,
-            //                 message: message.text,
-            //                 incoming: message.to === user_id,
-            //                 outgoing: message.from === user_id,
-            //             }),
-            //         );
-            //     }
-            // });
+            socket.on('new_message', (data) => {
+                const message = data.message;
+                console.log(current_conversation, data);
+                // check if msg we got is from currently selected conversation
+                if (current_conversation?.id === data.conversation_id) {
+                    dispatch(
+                        AddDirectMessage({
+                            id: message._id,
+                            type: 'msg',
+                            subtype: message.msg_type,
+                            message: message.msg_content,
+                            incoming: message.msg_sender_id !== user_id,
+                            outgoing: message.msg_sender_id === user_id,
+                        }),
+                    );
+                }
+                // TODO: add new chatroom if not existing
+            });
 
-            // socket.on('start_chat', (data) => {
-            //     console.log(data);
-            //     // add / update to conversation list
-            //     const existing_conversation = conversations.find((el) => el?.id === data._id);
-            //     if (existing_conversation) {
-            //         // update direct conversation
-            //         dispatch(UpdateDirectConversation({ conversation: data }));
-            //     } else {
-            //         // add direct conversation
-            //         dispatch(AddDirectConversation({ conversation: data }));
-            //     }
-            //     dispatch(SelectConversation({ room_id: data._id }));
-            // });
+            socket.on('start_chat', (data) => {
+                console.log(data);
+                // add / update to conversation list
+                const existing_conversation = conversations.find((el) => el?.id === data._id);
+                if (existing_conversation) {
+                    // update direct conversation
+                    dispatch(UpdateDirectConversation({ conversation: data }));
+                } else {
+                    // add direct conversation
+                    dispatch(AddDirectConversation({ conversation: data }));
+                }
+                dispatch(SelectConversation({ room_id: data._id }));
+            });
 
             socket.on('new_friend_request', (data) => {
                 dispatch(
@@ -158,8 +164,7 @@ const DashboardLayout = () => {
             socket?.off('audio_call_notification');
             socket?.off('error');
         };
-    }, [socket]);
-    //   }, [isLoggedIn, socket]);
+    }, [isLoggedIn, socket, conversations, current_conversation, user_id]);
     //#endregion hooks
 
     // methods
@@ -169,10 +174,9 @@ const DashboardLayout = () => {
 
     console.log(theme);
 
-    // TODO: uncomment when done some important features
-    // if (!isLoggedIn) {
-    //     return <Navigate to={"/auth/login"} />;
-    // }
+    if (!isLoggedIn) {
+        return <Navigate to={'/auth/login'} />;
+    }
 
     const handleNavigation = (path, index) => {
         navigate(path);

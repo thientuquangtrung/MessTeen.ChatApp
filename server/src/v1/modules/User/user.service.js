@@ -136,7 +136,7 @@ class UserService {
         if (!user) {
             throw new NotFoundError('User not found');
         }
-
+        console.log(user);
         return user.usr_pending_friends;
     }
 

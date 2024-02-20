@@ -1,16 +1,24 @@
 import { Box, useTheme, Stack, Avatar, Typography, IconButton, Divider } from '@mui/material';
+import { Box, useTheme, Stack, Avatar, Typography, IconButton, Divider } from '@mui/material';
 
+import { faker } from '@faker-js/faker';
+import React from 'react';
 import { faker } from '@faker-js/faker';
 import React from 'react';
 import StyledBadge from '../settings/StyledBadge';
 import { CaretDown, Divide, MagnifyingGlass, Phone, VideoCamera } from 'phosphor-react';
+import { useSelector } from 'react-redux';
 
 const Header = () => {
     const theme = useTheme();
+
+    const { current_conversation } = useSelector((state) => state.conversation);
+
     return (
         <Box
             p={2}
             sx={{
+                height: 100,
                 width: '100%',
                 backgroundColor: theme.palette.mode === 'light' ? 'F8FAFF' : theme.palette.background.paper,
                 boxShadow: '0px 0px 2px rgba(0,0,0,0.25)',
@@ -29,11 +37,11 @@ const Header = () => {
                             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                             variant="dot"
                         >
-                            <Avatar alt={faker.name.fullName()} src={faker.image.avatar()} />
+                            <Avatar alt={current_conversation?.name} src={current_conversation?.img} />
                         </StyledBadge>
                     </Box>
                     <Stack spacing={0.2}>
-                        <Typography variant="subtitle2">{faker.name.fullName()}</Typography>
+                        <Typography variant="subtitle2">{current_conversation?.name}</Typography>
                         <Typography variant="caption">Online</Typography>
                     </Stack>
                 </Stack>

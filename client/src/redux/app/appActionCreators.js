@@ -103,11 +103,11 @@ export function FetchFriendRequests(searchQuery = '') {
     };
 }
 
-// export const SelectConversation = ({ room_id }) => {
-//     return async (dispatch, getState) => {
-//         dispatch(slice.actions.selectConversation({ room_id }));
-//     };
-// };
+export const SelectConversation = ({ room_id }) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.selectConversation({ room_id }));
+    };
+};
 
 // export const FetchCallLogs = () => {
 //     return async (dispatch, getState) => {
