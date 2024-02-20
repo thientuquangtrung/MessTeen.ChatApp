@@ -74,17 +74,9 @@ export function LoginUser(formValues) {
         dispatch(slice.actions.updateIsLoading({ isLoading: true, error: false }));
 
         await axios
-            .post(
-                '/auth/login',
-                {
-                    ...formValues,
-                },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                },
-            )
+            .post('/auth/login', {
+                ...formValues,
+            })
             .then(function (response) {
                 console.log(response);
                 dispatch(
@@ -139,20 +131,21 @@ export function RegisterUser(formValues) {
         dispatch(slice.actions.updateIsLoading({ isLoading: true, error: false }));
 
         await axios
-            .post(
-                '/auth/signup',
-                {
-                    ...formValues,
-                },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                },
-            )
+            .post('/auth/signup', {
+                ...formValues,
+            })
             .then(function (response) {
                 console.log(response);
-                dispatch(slice.actions.updateRegisterEmail({ email: response.data.metadata.user.usr_email }));
+                // dispatch(slice.actions.updateRegisterEmail({ email: response.data.metadata.user.usr_email }));
+                dispatch(
+                    slice.actions.logIn({
+                        isLoggedIn: true,
+                        token: response.data.metadata.tokens.accessToken,
+                        refreshToken: response.data.metadata.tokens.refreshToken,
+                        user_id: response.data.metadata.user._id,
+                    }),
+                );
+                window.localStorage.setItem('user_id', response.data.metadata.user._id);
                 dispatch(showSnackbar({ severity: 'success', message: response.data.message }));
                 dispatch(slice.actions.updateIsLoading({ isLoading: false, error: false }));
             })
@@ -162,9 +155,10 @@ export function RegisterUser(formValues) {
                 dispatch(slice.actions.updateIsLoading({ error: true, isLoading: false }));
             })
             .finally(() => {
-                if (!getState().auth.error) {
-                    window.location.href = '/auth/verify';
-                }
+                // if (!getState().auth.error) {
+                //     // window.location.href = '/auth/verify';
+                //     window.location.href = '/app';
+                // }
             });
     };
 }

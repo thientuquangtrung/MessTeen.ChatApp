@@ -59,7 +59,6 @@ const FriendRequestList = ({ searchQuery }) => {
         <>
             {friendRequests.map((el, idx) => {
                 //el => {_id, sender: {_id, firstName, lastName, img, online}}
-                //TODO => Render FriendRequestComponent
                 return <FriendRequestComponent key={el._id} {...el} />;
             })}
         </>

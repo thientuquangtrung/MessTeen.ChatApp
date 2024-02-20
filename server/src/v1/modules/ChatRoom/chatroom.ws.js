@@ -24,7 +24,7 @@ module.exports = {
 
             chatroom = await chatroomModel
                 .findById(new_chat._id)
-                .populate('room_participant_ids', 'usr_name usr_room_ids usr_email usr_status');
+                .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status');
 
             // Add the new chatroom id to usr_room_ids of each user
             for (const participantId of chatroom.room_participant_ids) {
@@ -40,8 +40,21 @@ module.exports = {
         }
 
         // get socket id
-        const toSocketId = await userModel.findById(data.to).select('usr_socket_id');
+        const fromSocketId = await userModel.findById(data.from).select('usr_socket_id');
         // send conversation details as payload
-        _io.to(toSocketId).emit('start_chat', chatroom);
+        _io.to(fromSocketId.usr_socket_id).emit('start_chat', chatroom);
+        console.log(fromSocketId.usr_socket_id);
+    },
+
+    getDirectConversationsWS: async ({ user_id }, callback) => {
+        const existing_conversations = await chatroomModel
+            .find({
+                room_participant_ids: { $all: [user_id] },
+            })
+            .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status');
+
+        console.log(existing_conversations);
+
+        callback(existing_conversations);
     },
 };
