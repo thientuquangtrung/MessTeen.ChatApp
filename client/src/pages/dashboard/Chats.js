@@ -74,7 +74,12 @@ const ChatElement = ({ id, name, img, msg, time, unread, online }) => {
 
                     <Stack spacing={0.3}>
                         <Typography variant="subtitle2">{name}</Typography>
-                        <Typography variant="caption">{msg}</Typography>
+                        <Typography
+                            sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '140px'}}
+                            variant="caption"
+                        >
+                            {msg + `fcgcgcg fc gfcfgvfvghvfhcytf  fgv`}
+                        </Typography>
                     </Stack>
                 </Stack>
                 <Stack spacing={2} alignItems={'center'}>
