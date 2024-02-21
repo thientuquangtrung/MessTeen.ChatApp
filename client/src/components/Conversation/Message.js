@@ -1,5 +1,5 @@
 import { Box, Stack } from '@mui/material';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Chat_History } from '../../data';
 import { FetchCurrentMessages, SetCurrentConversation } from '../../redux/conversation/convActionCreators';
@@ -8,6 +8,7 @@ import { DocMsg, LinkMsg, MediaMsg, ReplyMsg, TextMsg, Timeline } from './MsgTyp
 
 const Message = () => {
     const dispatch = useDispatch();
+    const messagesEndRef = useRef(null); // Tham chiếu đến phần tử cuối cùng của Stack
 
     const { conversations, current_messages } = useSelector((state) => state.conversation);
     const { room_id } = useSelector((state) => state.app);
@@ -16,14 +17,19 @@ const Message = () => {
 
         if (current) {
             socket.emit('get_messages', { conversation_id: current?.id }, (data) => {
-                // data => list of messages
-                console.log(data, 'List of messages');
                 dispatch(FetchCurrentMessages({ messages: data }));
             });
 
             dispatch(SetCurrentConversation(current));
         }
     }, [room_id]);
+
+    useEffect(() => {
+        // Kéo thanh cuộn xuống dưới khi có tin nhắn mới
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [current_messages]);
 
     return (
         <Box p={3}>
@@ -51,6 +57,7 @@ const Message = () => {
                             return <></>;
                     }
                 })}
+                <div ref={messagesEndRef} /> {/* Phần tử cuối cùng của Stack */}
             </Stack>
         </Box>
     );

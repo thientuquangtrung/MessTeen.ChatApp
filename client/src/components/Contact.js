@@ -3,8 +3,11 @@ import React from 'react';
 import { Bell, CaretRight, Phone, Prohibit, Star, Trash, VideoCamera, X } from 'phosphor-react';
 import { faker } from '@faker-js/faker';
 import AntSwitch from './AntSwitch';
+import { useDispatch } from 'react-redux';
+import { toggleSidebar } from '../redux/app/appActionCreators';
 const Contact = () => {
     const theme = useTheme();
+    const dispatch = useDispatch();
     return (
         <Box sx={{ width: 320, height: '100vh' }}>
             <Stack sx={{ height: '100%' }}>
@@ -23,7 +26,7 @@ const Contact = () => {
                         spacing={3}
                     >
                         <Typography>Contact Info</Typography>
-                        <IconButton>
+                        <IconButton onClick={() => dispatch(toggleSidebar())}>
                             <X />
                         </IconButton>
                     </Stack>

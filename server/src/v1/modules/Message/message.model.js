@@ -20,7 +20,7 @@ const MessageSchema = new mongoose.Schema(
         },
         msg_timestamp: {
             type: Date,
-            default: Date.now(),
+            default: Date.now,
             // require: true,
         },
         msg_read_by: {

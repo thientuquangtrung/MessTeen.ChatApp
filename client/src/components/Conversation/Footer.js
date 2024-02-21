@@ -1,7 +1,7 @@
 import { Fab, Tooltip, useTheme } from '@mui/material';
 import { Box, IconButton, InputAdornment, TextField, Stack } from '@mui/material';
 import { Camera, File, Image, LinkSimple, PaperPlaneTilt, Smiley, Sticker, User } from 'phosphor-react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
@@ -49,22 +49,27 @@ const Actions = [
     },
 ];
 
-const ChatInput = ({ openPicker, setOpenPicker, setValue, value }) => {
+const ChatInput = ({ openPicker, setOpenPicker, setValue, value, sendMessage, inputRef }) => {
     const [openActions, setOpenActions] = React.useState(false);
     const handleClickAway = () => {
         setOpenActions(false);
     };
-    const handleClickAwayPicker = () => {
-        setOpenPicker(false);
-    };
 
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendMessage();
+        }
+    };
     return (
         <StyledInput
+            inputRef={inputRef}
             value={value}
             onChange={(event) => {
                 setValue(event.target.value);
             }}
             fullWidth
+            onKeyDown={handleKeyDown}
             placeholder="Write a message..."
             variant="filled"
             InputProps={{
@@ -144,6 +149,24 @@ const Footer = () => {
     const { current_conversation } = useSelector((state) => state.conversation);
     const { sideBar, room_id } = useSelector((state) => state.app);
     const user_id = window.localStorage.getItem('user_id');
+    const inputRef = useRef(null);
+    const handleEmojiSelect = (emoji) => {
+        setValue(value + emoji.native);
+    };
+    const sendMessage = () => {
+        let messageToSend = value.trim();
+        if (messageToSend !== '') {
+            socket.emit('text_message', {
+                message: linkify(messageToSend),
+                conversation_id: room_id,
+                from: user_id,
+                to: current_conversation.user_id,
+                type: containsUrl(messageToSend) ? 'LINK' : 'TEXT',
+            });
+            setValue('');
+            inputRef.current.focus();
+        }
+    };
 
     const handleClickAwayPicker = () => {
         setOpenPicker(false);
@@ -160,11 +183,7 @@ const Footer = () => {
         >
             <Stack direction="row" alignItems={'center'} spacing={3}>
                 <Stack sx={{ width: '100%' }}>
-                    <ClickAwayListener
-                        mouseEvent="onMouseDown"
-                        // touchEvent="onTouchStart"
-                        onClickAway={handleClickAwayPicker}
-                    >
+                    <ClickAwayListener mouseEvent="onMouseDown" onClickAway={handleClickAwayPicker}>
                         <Box
                             sx={{
                                 display: openPicker ? 'inline' : 'none',
@@ -174,7 +193,11 @@ const Footer = () => {
                                 right: 100,
                             }}
                         >
-                            <Picker theme={theme.palette.mode} data={data} onEmojiSelect={console.log} />
+                            <Picker
+                                theme={theme.palette.mode}
+                                data={data}
+                                onEmojiSelect={(emoji) => handleEmojiSelect(emoji)}
+                            />
                         </Box>
                     </ClickAwayListener>
                     <ChatInput
@@ -182,6 +205,8 @@ const Footer = () => {
                         setOpenPicker={setOpenPicker}
                         value={value}
                         setValue={setValue}
+                        sendMessage={sendMessage}
+                        inputRef={inputRef}
                     />
                 </Stack>
 
@@ -195,17 +220,7 @@ const Footer = () => {
                 >
                     <Stack sx={{ height: '100%', width: '100%' }} alignItems="center" justifyContent="center">
                         {' '}
-                        <IconButton
-                            onClick={() => {
-                                socket.emit('text_message', {
-                                    message: linkify(value),
-                                    conversation_id: room_id,
-                                    from: user_id,
-                                    to: current_conversation.user_id,
-                                    type: containsUrl(value) ? 'LINK' : 'TEXT',
-                                });
-                            }}
-                        >
+                        <IconButton onClick={sendMessage}>
                             <PaperPlaneTilt color="white" />
                         </IconButton>
                     </Stack>

@@ -90,11 +90,17 @@ export const slice = createSlice({
             const formatted_messages = messages.map((el) => ({
                 id: el._id,
                 type: 'msg',
-                subtype: el.type,
-                message: el.text,
-                incoming: el.to === user_id,
-                outgoing: el.from === user_id,
+                subtype: el.msg_type,
+                message: el.msg_content,
+                incoming: el.msg_sender_id !== user_id,
+                outgoing: el.msg_sender_id === user_id,
+                timestamp: el.msg_timestamp,
             }));
+            console.log(formatted_messages);
+            formatted_messages.sort((a, b) => {
+                return new Date(a.timestamp) - new Date(b.timestamp);
+            });
+            console.log(formatted_messages);
             state.current_messages = formatted_messages;
         },
         addDirectMessage(state, action) {

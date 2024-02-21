@@ -1,6 +1,6 @@
 const userModel = require('../User/user.model');
 const messageModel = require('./message.model');
-
+const MessageService = require('./message.service');
 module.exports = {
     sendMesssageWS: async (data) => {
         console.log('Received message:', data);
@@ -33,5 +33,9 @@ module.exports = {
             conversation_id,
             message: new_message,
         });
+    },
+    getMessagesWS: async (data, callback) => {
+        const messages = await MessageService.getAllMessages(data.conversation_id);
+        callback(messages);
     },
 };

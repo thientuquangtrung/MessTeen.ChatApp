@@ -3,11 +3,13 @@ import { faker } from '@faker-js/faker';
 import React from 'react';
 import StyledBadge from '../settings/StyledBadge';
 import { CaretDown, Divide, MagnifyingGlass, Phone, VideoCamera } from 'phosphor-react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { dispatch } from '../../redux/store';
+import { toggleSidebar } from '../../redux/app/appActionCreators';
 
 const Header = () => {
     const theme = useTheme();
-
+    const dispatch = useDispatch();
     const { current_conversation } = useSelector((state) => state.conversation);
 
     return (
@@ -26,7 +28,14 @@ const Header = () => {
                 justifyContent={'space-between'}
                 sx={{ width: '100%', height: '100%' }}
             >
-                <Stack direction={'row'} spacing={2}>
+                <Stack
+                    onClick={() => {
+                        dispatch(toggleSidebar());
+                    }}
+                    direction={'row'}
+                    spacing={2}
+                    sx={{ cursor: 'pointer' }}
+                >
                     <Box>
                         <StyledBadge
                             overlap="circular"
