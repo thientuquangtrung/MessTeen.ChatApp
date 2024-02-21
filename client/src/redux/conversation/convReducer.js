@@ -159,9 +159,17 @@ export const slice = createSlice({
                 outgoing: el.msg_sender_id === user_id,
                 timestamp: el.msg_timestamp,
             }));
+<<<<<<< HEAD
             formatted_messages.sort((a, b) => {
                 return new Date(a.timestamp) - new Date(b.timestamp);
             });
+=======
+            console.log(formatted_messages);
+            formatted_messages.sort((a, b) => {
+                return new Date(a.timestamp) - new Date(b.timestamp);
+            });
+            console.log(formatted_messages);
+>>>>>>> 5d8c483 (chat feature)
             state.current_messages = formatted_messages;
         },
         addDirectMessage(state, action) {
