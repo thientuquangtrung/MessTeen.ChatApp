@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-    mongo:
+    nosql-db:
         image: mongo:latest
         container_name: mongo-c
         volumes:
@@ -8,19 +8,17 @@ services:
         ports:
             - 27017:27017
     server:
-        build:
-            dockerfile: Dockerfile.dev
-            context: ./server
+        build: ./server
         container_name: server-c
         ports:
             - 3051:3051
         depends_on:
-            - mongo
+            - nosql-db
         volumes:
             - ./server:/app
             - /app/node_modules
         env_file:
-            - ./server/.env.dev
+            - ./server/.env
         # environment:
         #     - PORT=3051
         #     - REDIS_URL=localhost
