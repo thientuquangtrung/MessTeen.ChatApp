@@ -4,10 +4,9 @@ import { Box, Badge, Avatar, Button, Typography, Stack, IconButton } from '@mui/
 import { Chat } from 'phosphor-react';
 import { faker } from '@faker-js/faker';
 import { socket } from '../socket';
-import { useSelector } from 'react-redux';
-import { useState } from 'react';
 import { dispatch } from '../redux/store';
 import { UpdateUsersAction } from '../redux/app/appActionCreators';
+import { UpdateFriendsRequestAction } from '../redux/app/appActionCreators';
 
 const user_id = window.localStorage.getItem('user_id');
 
@@ -109,7 +108,7 @@ const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userLi
     );
 };
 
-const FriendRequestComponent = ({ usr_name, _id, online, img }) => {
+const FriendRequestComponent = ({ usr_name, _id, online, img, friendsRequestList }) => {
     const theme = useTheme();
 
     return (
@@ -155,6 +154,8 @@ const FriendRequestComponent = ({ usr_name, _id, online, img }) => {
                                     alert('request sent');
                                 },
                             );
+                            const newFriendsList = friendsRequestList.filter((u) => u._id !== _id);
+                            dispatch(UpdateFriendsRequestAction(newFriendsList));
                         }}
                     >
                         Accept Request

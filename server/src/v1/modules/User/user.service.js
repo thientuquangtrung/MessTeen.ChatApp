@@ -18,7 +18,7 @@ class UserService {
         friend.usr_pending_friends.push(user_id);
         await friend.save();
 
-        return { message: 'Friend request send' };
+        return friend.usr_pending_friends;
     }
 
     static async acceptFriendRequest({ user_id, friend_id }) {
