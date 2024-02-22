@@ -1,10 +1,11 @@
-const mongoose = require("mongoose");
-const { countConnections } = require("../helpers/checkConnect");
+const mongoose = require('mongoose');
+const { countConnections } = require('../helpers/checkConnect');
 const {
-    DB: { host, name, port },
-} = require("../configs");
+    DB: { MONGO_URI },
+} = require('../configs');
 
-const connectString = `mongodb://${host}:${port}/${name}`;
+const connectString = MONGO_URI;
+console.log(`MONGO CONNECT STRING::::`, connectString);
 
 class Database {
     constructor() {
@@ -12,16 +13,16 @@ class Database {
     }
 
     // connect
-    connect(type = "mongodb") {
+    connect(type = 'mongodb') {
         if (1 === 1) {
             // all executed methods log output to console
-            mongoose.set("debug", true);
+            mongoose.set('debug', true);
 
             // disable colors in debug mode
-            mongoose.set("debug", { color: false });
+            mongoose.set('debug', { color: false });
 
             // get mongodb-shell friendly output (ISODate)
-            mongoose.set("debug", { shell: true });
+            mongoose.set('debug', { shell: true });
         }
 
         mongoose
