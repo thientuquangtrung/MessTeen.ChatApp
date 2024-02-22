@@ -8,7 +8,7 @@ const UserModel = require('./v1/modules/User/user.model');
 const withErrorHandling = require('./v1/helpers/socketAsyncHandler');
 const { sendFriendRequestWS, acceptRequestWS } = require('./v1/modules/User/user.ws');
 const { startConversationWS, getDirectConversationsWS } = require('./v1/modules/ChatRoom/chatroom.ws');
-const { sendMesssageWS } = require('./v1/modules/Message/message.ws');
+const { sendMesssageWS, getMessagesWS } = require('./v1/modules/Message/message.ws');
 
 //init dbs
 require('./v1/databases/init.mongodb');
@@ -84,6 +84,7 @@ const handleSocketConnect = async (socket) => {
     //         console.log(error);
     //     }
     // });
+    socket.on('get_messages', withErrorHandling(socket, getMessagesWS));
 
     // // Handle incoming text/link messages
     socket.on('text_message', withErrorHandling(socket, sendMesssageWS));

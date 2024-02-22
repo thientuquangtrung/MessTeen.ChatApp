@@ -20,6 +20,12 @@ const initialState = {
     chat_type: null,
     room_id: null,
     // call_logs: [],
+
+    //slidebar
+    sidebar: {
+        open: false,
+        type: 'CONTACT',
+    },
 };
 
 export const slice = createSlice({
@@ -72,6 +78,13 @@ export const slice = createSlice({
         selectConversation(state, action) {
             state.chat_type = 'individual';
             state.room_id = action.payload.room_id;
+        },
+
+        toggleSidebar(state, action) {
+            state.sidebar.open = !state.sidebar.open;
+        },
+        updatedSidebarType(state, action) {
+            state.sidebar.type = action.payload.type;
         },
     },
 });

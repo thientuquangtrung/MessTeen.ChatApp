@@ -1,5 +1,6 @@
 const userModel = require('../User/user.model');
 const messageModel = require('./message.model');
+const MessageService = require('./message.service');
 const chatroomModel = require('../ChatRoom/chatroom.model');
 
 module.exports = {
@@ -45,5 +46,9 @@ module.exports = {
             message: new_message,
             conversation: chatroom_data,
         });
+    },
+    getMessagesWS: async (data, callback) => {
+        const messages = await MessageService.getAllMessages(data.conversation_id);
+        callback(messages);
     },
 };

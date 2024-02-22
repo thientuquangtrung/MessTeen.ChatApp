@@ -1,5 +1,5 @@
 const MessageStatistic = require('../Message/messageStatistic.model');
-const { BadRequestError, NotFoundError } = require("../../core/error.response");
+const { BadRequestError, NotFoundError } = require('../../core/error.response');
 
 class MessageStatisticService {
     static async getMessageStatisticByDate(receivedDate) {

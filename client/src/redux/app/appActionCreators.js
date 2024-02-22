@@ -25,6 +25,16 @@ export const showSnackbar =
         }, 4000);
     };
 
+export const toggleSidebar = () => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.toggleSidebar());
+    };
+};
+export const updatedSidebarType = (type) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.updatedSidebarType({ type }));
+    };
+};
 // export function ToggleSidebar() {
 //     return async (dispatch, getState) => {
 //         dispatch(slice.actions.toggleSideBar());
