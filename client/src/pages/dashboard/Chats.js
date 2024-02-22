@@ -74,7 +74,12 @@ const ChatElement = ({ id, name, img, msg, time, unread, online }) => {
 
                     <Stack spacing={0.3}>
                         <Typography variant="subtitle2">{name}</Typography>
-                        <Typography variant="caption">{msg}</Typography>
+                        <Typography
+                            sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '140px'}}
+                            variant="caption"
+                        >
+                            {msg + `fcgcgcg fc gfcfgvfvghvfhcytf  fgv`}
+                        </Typography>
                     </Stack>
                 </Stack>
                 <Stack spacing={2} alignItems={'center'}>
@@ -125,6 +130,7 @@ const Chats = () => {
 
     const dispatch = useDispatch();
     const { conversations } = useSelector((state) => state.conversation);
+    const { friendRequests } = useSelector((state) => state.app);
 
     useEffect(() => {
         socket.emit('get_direct_conversations', { user_id }, (data) => {
@@ -163,7 +169,13 @@ const Chats = () => {
                                     handleOpenDialog();
                                 }}
                             >
-                                <Users />
+                                <Badge
+                                    color="error"
+                                    badgeContent={friendRequests.length}
+                                    invisible={friendRequests.length === 0}
+                                >
+                                    <Users />
+                                </Badge>
                             </IconButton>
                             <IconButton>
                                 <CircleDashed />

@@ -12,7 +12,7 @@ import { socket, connectSocket } from '../../socket';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from '../../redux/store';
 import { useDispatch } from 'react-redux';
-import { SelectConversation, showSnackbar } from '../../redux/app/appActionCreators';
+import { SelectConversation, UpdateFriendsRequestAction, showSnackbar } from '../../redux/app/appActionCreators';
 import {
     AddDirectConversation,
     AddDirectMessage,
@@ -98,7 +98,7 @@ const DashboardLayout = () => {
                 const message = data.message;
                 console.log(current_conversation, data);
                 // check if msg we got is from currently selected conversation
-                if (current_conversation?.id === data.conversation_id) {
+                if (current_conversation?.id === data.conversation._id) {
                     dispatch(
                         AddDirectMessage({
                             id: message._id,
@@ -111,6 +111,14 @@ const DashboardLayout = () => {
                     );
                 }
                 // TODO: add new chatroom if not existing
+                const existing_conversation = conversations.find((el) => el?.id === data.conversation._id);
+                if (existing_conversation) {
+                    // update direct conversation
+                    dispatch(UpdateDirectConversation({ conversation: data.conversation }));
+                } else {
+                    // add direct conversation
+                    dispatch(AddDirectConversation({ conversation: data.conversation }));
+                }
             });
 
             socket.on('start_chat', (data) => {
@@ -134,6 +142,7 @@ const DashboardLayout = () => {
                         message: 'New friend request received',
                     }),
                 );
+                dispatch(UpdateFriendsRequestAction([{}]));
             });
 
             socket.on('request_accepted', (data) => {
