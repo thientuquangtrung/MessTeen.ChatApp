@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTheme, styled } from '@mui/material/styles';
 import { Box, Badge, Avatar, Button, Typography, Stack, IconButton } from '@mui/material';
 import { Chat } from 'phosphor-react';
@@ -166,7 +166,7 @@ const FriendRequestComponent = ({ usr_name, _id, online, img, friendsRequestList
     );
 };
 
-const FriendComponent = ({ img, usr_name, online, _id }) => {
+const FriendComponent = ({ img, usr_name, online, _id, handleCloseDialog }) => {
     const theme = useTheme();
 
     return (
@@ -204,6 +204,7 @@ const FriendComponent = ({ img, usr_name, online, _id }) => {
                         onClick={() => {
                             // start a new conversation
                             socket.emit('start_conversation', { to: _id, from: user_id });
+                            handleCloseDialog();
                         }}
                     >
                         <Chat />

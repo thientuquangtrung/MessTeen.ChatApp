@@ -26,7 +26,7 @@ const UsersList = ({ searchQuery }) => {
     );
 };
 
-const FriendsList = ({ searchQuery }) => {
+const FriendsList = ({ searchQuery, handleCloseDialog }) => {
     const dispatch = useDispatch();
     const debouncedSearchTerm = useDebounce(searchQuery, 500);
 
@@ -39,7 +39,7 @@ const FriendsList = ({ searchQuery }) => {
     return (
         <>
             {friends.map((el, idx) => {
-                return <FriendComponent key={el._id} {...el} />;
+                return <FriendComponent key={el._id} {...el} handleCloseDialog={handleCloseDialog} />;
             })}
         </>
     );
@@ -120,7 +120,7 @@ const Friends = ({ open, handleClose }) => {
                                     return <UsersList searchQuery={searchQuery} />;
 
                                 case 1: // display friends in this list
-                                    return <FriendsList searchQuery={searchQuery} />;
+                                    return <FriendsList searchQuery={searchQuery} handleCloseDialog={handleClose} />;
 
                                 case 2: // display request in this list
                                     return <FriendRequestList searchQuery={searchQuery} />;

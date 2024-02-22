@@ -1,5 +1,6 @@
 const userModel = require('../User/user.model');
 const messageModel = require('./message.model');
+const chatroomModel = require('../ChatRoom/chatroom.model');
 
 module.exports = {
     sendMesssageWS: async (data) => {
@@ -21,17 +22,28 @@ module.exports = {
             msg_type: type,
         });
 
+        // get chatroom data
+        const chatroom_data = await chatroomModel
+            .findByIdAndUpdate(conversation_id, {
+                room_last_msg: {
+                    sender_id: new_message.msg_sender_id,
+                    content: new_message.msg_content,
+                    timestamp: new_message.msg_timestamp,
+                },
+            })
+            .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status');
+
         // emit incoming_message -> to user
 
         _io.to(to_user?.usr_socket_id).emit('new_message', {
-            conversation_id,
             message: new_message,
+            conversation: chatroom_data,
         });
 
         // emit outgoing_message -> from user
         _io.to(from_user?.usr_socket_id).emit('new_message', {
-            conversation_id,
             message: new_message,
+            conversation: chatroom_data,
         });
     },
 };
