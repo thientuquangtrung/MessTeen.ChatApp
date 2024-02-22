@@ -54,14 +54,14 @@ class UserController {
     friendsList = async (req, res, next) => {
         new OK({
             message: 'Friend list retrieved successfully!',
-            metadata: await UserService.friendsList(req.params.userId),
+            metadata: await UserService.friendsList(req.params.userId, req.query.search),
         }).send(res);
     };
 
     pendingFriendRequests = async (req, res, next) => {
         new OK({
             message: 'Pending friend requests retrieved successfully!',
-            metadata: await UserService.pendingFriendRequests(req.params.userId),
+            metadata: await UserService.pendingFriendRequests(req.params.userId, req.query.search),
         }).send(res);
     };
 
