@@ -125,6 +125,7 @@ const Chats = () => {
 
     const dispatch = useDispatch();
     const { conversations } = useSelector((state) => state.conversation);
+    const { friendRequests } = useSelector((state) => state.app);
 
     useEffect(() => {
         socket.emit('get_direct_conversations', { user_id }, (data) => {
@@ -163,7 +164,13 @@ const Chats = () => {
                                     handleOpenDialog();
                                 }}
                             >
-                                <Users />
+                                <Badge
+                                    color="error"
+                                    badgeContent={friendRequests.length}
+                                    invisible={friendRequests.length === 0}
+                                >
+                                    <Users />
+                                </Badge>
                             </IconButton>
                             <IconButton>
                                 <CircleDashed />

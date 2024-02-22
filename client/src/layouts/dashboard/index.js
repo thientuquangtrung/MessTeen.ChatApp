@@ -12,7 +12,7 @@ import { socket, connectSocket } from '../../socket';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from '../../redux/store';
 import { useDispatch } from 'react-redux';
-import { SelectConversation, showSnackbar } from '../../redux/app/appActionCreators';
+import { SelectConversation, UpdateFriendsRequestAction, showSnackbar } from '../../redux/app/appActionCreators';
 import {
     AddDirectConversation,
     AddDirectMessage,
@@ -134,6 +134,7 @@ const DashboardLayout = () => {
                         message: 'New friend request received',
                     }),
                 );
+                dispatch(UpdateFriendsRequestAction([{}]));
             });
 
             socket.on('request_accepted', (data) => {
