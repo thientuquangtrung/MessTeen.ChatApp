@@ -219,12 +219,6 @@ const Chats = () => {
                             flexGrow: 1,
                             overflowY: 'auto',
                             height: '100%',
-                            // '&::-webkit-scrollbar': {
-                            //     background: theme.palette.mode === 'light' ? 'F8FAFF' : theme.palette.background.paper,
-                            // },
-                            // '&::-webkit-scrollbar-thumb': {
-                            //     backgroundColor: theme.palette.mode === 'light' ? '#44b700' : '#709CE6', // Adjust colors based on your design
-                            // },
                         }}
                     >
                         {/* <SimpleBarStyle/> */}
