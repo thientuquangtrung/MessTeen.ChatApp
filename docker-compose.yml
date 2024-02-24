@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+    nosql-db:
+        image: mongo:latest
+        container_name: mongo-c
+        volumes:
+            - mongo-data:/data/db
+        ports:
+            - 27017:27017
+    server:
+        build: ./server
+        container_name: server-c
+        ports:
+            - 3051:3051
+        restart: always
+        depends_on:
+            - nosql-db
+        volumes:
+            - ./server:/app
+            - /app/node_modules
+        env_file:
+            - ./server/.env
+        # environment:
+        #     - PORT=3051
+        #     - REDIS_URL=localhost
+        #     - MONGO_DB_HOST=mongo
+        #     - MONGO_DB_PORT=27017
+        #     - MONGO_DB_NAME=messteenDEV
+    client:
+        build: ./client
+        container_name: client-c
+        ports:
+            - 3000:3000
+        stdin_open: true
+        tty: true
+        depends_on:
+            - server
+        volumes:
+            - ./client:/client
+            - /client/node_modules
+        env_file:
+            - ./client/.env
+
+volumes:
+    mongo-data:
