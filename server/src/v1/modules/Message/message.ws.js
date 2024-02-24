@@ -25,13 +25,20 @@ module.exports = {
 
         // get chatroom data
         const chatroom_data = await chatroomModel
-            .findByIdAndUpdate(conversation_id, {
-                room_last_msg: {
-                    sender_id: new_message.msg_sender_id,
-                    content: new_message.msg_content,
-                    timestamp: new_message.msg_timestamp,
+            .findByIdAndUpdate(
+                conversation_id,
+                {
+                    room_last_msg: {
+                        sender_id: new_message.msg_sender_id,
+                        content: new_message.msg_content,
+                        timestamp: new_message.msg_timestamp,
+                    },
                 },
-            })
+                {
+                    new: true,
+                    upsert: true,
+                },
+            )
             .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status');
 
         // emit incoming_message -> to user

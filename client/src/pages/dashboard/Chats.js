@@ -9,6 +9,7 @@ import { socket } from '../../socket';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectConversation } from '../../redux/app/appActionCreators';
 import { FetchDirectConversations } from '../../redux/conversation/convActionCreators';
+import { formatDate } from '../../utils/formatTime';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
     '& .MuiBadge-badge': {
@@ -42,6 +43,14 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 const ChatElement = ({ id, name, img, msg, time, unread, online }) => {
     const theme = useTheme();
     const dispatch = useDispatch();
+    const { room_id } = useSelector((state) => state.app);
+    const selectedChatId = room_id?.toString();
+
+    let isSelected = selectedChatId === id;
+
+    if (!selectedChatId) {
+        isSelected = false;
+    }
 
     return (
         <Box
@@ -51,7 +60,13 @@ const ChatElement = ({ id, name, img, msg, time, unread, online }) => {
             sx={{
                 width: '100%',
                 borderRadius: 1,
-                backgroundColor: theme.palette.mode === 'light' ? 'F8FAFF' : theme.palette.background.paper,
+                backgroundColor: isSelected
+                    ? theme.palette.mode === 'light'
+                        ? alpha(theme.palette.primary.main, 0.2)
+                        : theme.palette.primary.main
+                    : theme.palette.mode === 'light'
+                    ? '#fff'
+                    : theme.palette.background.paper,
             }}
             p={2}
         >
@@ -75,16 +90,16 @@ const ChatElement = ({ id, name, img, msg, time, unread, online }) => {
                     <Stack spacing={0.3}>
                         <Typography variant="subtitle2">{name}</Typography>
                         <Typography
-                            sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '140px'}}
+                            sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '140px' }}
                             variant="caption"
                         >
-                            {msg + `fcgcgcg fc gfcfgvfvghvfhcytf  fgv`}
+                            {msg}
                         </Typography>
                     </Stack>
                 </Stack>
                 <Stack spacing={2} alignItems={'center'}>
                     <Typography sx={{ fontWeight: '600' }} variant="caption">
-                        9:36
+                        {formatDate(time)}
                     </Typography>
                     <Badge color="primary" badgeContent={unread}></Badge>
                 </Stack>
@@ -202,14 +217,14 @@ const Chats = () => {
                         direction={'column'}
                         sx={{
                             flexGrow: 1,
-                            overflowY: 'scroll',
+                            overflowY: 'auto',
                             height: '100%',
-                            '&::-webkit-scrollbar': {
-                                background: theme.palette.mode === 'light' ? 'F8FAFF' : theme.palette.background.paper,
-                            },
-                            '&::-webkit-scrollbar-thumb': {
-                                backgroundColor: theme.palette.mode === 'light' ? '#44b700' : '#709CE6', // Adjust colors based on your design
-                            },
+                            // '&::-webkit-scrollbar': {
+                            //     background: theme.palette.mode === 'light' ? 'F8FAFF' : theme.palette.background.paper,
+                            // },
+                            // '&::-webkit-scrollbar-thumb': {
+                            //     backgroundColor: theme.palette.mode === 'light' ? '#44b700' : '#709CE6', // Adjust colors based on your design
+                            // },
                         }}
                     >
                         {/* <SimpleBarStyle/> */}
