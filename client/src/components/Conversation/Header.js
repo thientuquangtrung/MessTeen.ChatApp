@@ -37,17 +37,21 @@ const Header = () => {
                     sx={{ cursor: 'pointer' }}
                 >
                     <Box>
-                        <StyledBadge
-                            overlap="circular"
-                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                            variant="dot"
-                        >
+                        {current_conversation?.online ? (
+                            <StyledBadge
+                                overlap="circular"
+                                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                variant="dot"
+                            >
+                                <Avatar alt={current_conversation?.name} src={current_conversation?.img} />
+                            </StyledBadge>
+                        ) : (
                             <Avatar alt={current_conversation?.name} src={current_conversation?.img} />
-                        </StyledBadge>
+                        )}
                     </Box>
                     <Stack spacing={0.2}>
                         <Typography variant="subtitle2">{current_conversation?.name}</Typography>
-                        <Typography variant="caption">Online</Typography>
+                        <Typography variant="caption">{current_conversation?.online ? 'Online' : 'Offline'}</Typography>
                     </Stack>
                 </Stack>
                 <Stack direction="row" alignItems={'center'} spacing={3}>

@@ -110,7 +110,6 @@ const DashboardLayout = () => {
                         }),
                     );
                 }
-                // TODO: add new chatroom if not existing
                 const existing_conversation = conversations.find((el) => el?.id === data.conversation._id);
                 if (existing_conversation) {
                     // update direct conversation
@@ -139,17 +138,17 @@ const DashboardLayout = () => {
                 dispatch(
                     showSnackbar({
                         severity: 'success',
-                        message: 'New friend request received',
+                        message: data.message,
                     }),
                 );
-                dispatch(UpdateFriendsRequestAction([{}]));
+                dispatch(UpdateFriendsRequestAction(data.friendRequests));
             });
 
             socket.on('request_accepted', (data) => {
                 dispatch(
                     showSnackbar({
                         severity: 'success',
-                        message: 'Friend Request Accepted',
+                        message: data.message,
                     }),
                 );
             });
