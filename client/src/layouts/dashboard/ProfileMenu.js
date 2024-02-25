@@ -69,6 +69,7 @@ const ProfileMenu = () => {
                                         } else if (idx === 1) {
                                             navigate('/settings');
                                         } else {
+                                            // TODO: logout with provider
                                             dispatch(LogoutUser());
                                             socket.emit('end', { user_id });
                                         }
