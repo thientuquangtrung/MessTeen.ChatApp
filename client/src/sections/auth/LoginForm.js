@@ -22,12 +22,12 @@ const LoginForm = () => {
 
     const LoginSchema = Yup.object().shape({
         email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-        password: Yup.string().required('Password is required'),
+        password: Yup.string().required('Password is required').min(8),
     });
 
     const defaultValues = {
-        email: 'trung_test@gmail.com',
-        password: '1234567890',
+        email: '',
+        password: '',
     };
 
     const methods = useForm({

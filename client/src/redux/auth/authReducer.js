@@ -26,6 +26,8 @@ export const slice = createSlice({
             state.token = action.payload.token;
             state.refreshToken = action.payload.refreshToken;
             state.user_id = action.payload.user_id;
+            state.email = action.payload.email;
+            state.user = action.payload.user;
         },
         saveNewTokens(state, action) {
             state.token = action.payload.accessToken;
