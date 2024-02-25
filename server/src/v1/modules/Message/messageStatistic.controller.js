@@ -1,4 +1,4 @@
-const { OK } = require("../../core/success.response");
+const { OK } = require('../../core/success.response');
 const MessageStatisticService = require('./messageStatistic.service');
 
 class MessageStatisticController {

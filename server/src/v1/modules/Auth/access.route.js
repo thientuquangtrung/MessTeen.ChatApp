@@ -7,6 +7,7 @@ const router = express.Router();
 // sign up
 router.post('/signup', asyncHandler(accessController.signUp));
 router.post('/login', asyncHandler(accessController.login));
+router.post('/auth-with-provider', asyncHandler(accessController.authWithProvider));
 
 // authentication middleware //
 router.use(authenticate);

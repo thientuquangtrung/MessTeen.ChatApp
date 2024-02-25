@@ -25,6 +25,16 @@ export const showSnackbar =
         }, 4000);
     };
 
+export const toggleSidebar = () => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.toggleSidebar());
+    };
+};
+export const updatedSidebarType = (type) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.updatedSidebarType({ type }));
+    };
+};
 // export function ToggleSidebar() {
 //     return async (dispatch, getState) => {
 //         dispatch(slice.actions.toggleSideBar());
@@ -52,6 +62,12 @@ export function FetchUsers(searchQuery = '') {
             .catch((err) => {
                 console.log(err);
             });
+    };
+}
+
+export function UpdateUsersAction(userList) {
+    return (dispatch, getState) => {
+        dispatch(slice.actions.updateUsers({ users: userList }));
     };
 }
 // export function FetchAllUsers() {
@@ -89,6 +105,7 @@ export function FetchFriends(searchQuery = '') {
             });
     };
 }
+
 export function FetchFriendRequests(searchQuery = '') {
     return async (dispatch, getState) => {
         await axios
@@ -100,6 +117,12 @@ export function FetchFriendRequests(searchQuery = '') {
             .catch((err) => {
                 console.log(err);
             });
+    };
+}
+
+export function UpdateFriendsRequestAction(requestList) {
+    return (dispatch, getState) => {
+        dispatch(slice.actions.updateFriendRequests({ requests: requestList }));
     };
 }
 

@@ -1,8 +1,13 @@
-const ENV = require("../../../base.config");
+const ENV = require('../../../base.config');
+
+let MONGO_URI = '';
+
+if (ENV.NODE_ENV === 'prod') {
+    MONGO_URI = ENV.MONGODB_URI;
+} else {
+    MONGO_URI = ENV.MONGODB_URI || `mongodb://127.0.0.1:27017/messteenDEV`;
+}
 
 module.exports = {
-    host: ENV.MONGO_DB_HOST || "127.0.0.1",
-    port: ENV.MONGO_DB_PORT || 27017,
-    name: ENV.MONGO_DB_NAME || "messteenPROD",
+    MONGO_URI,
 };
-

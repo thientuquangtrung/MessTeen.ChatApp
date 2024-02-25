@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 class UserService {
     static async sendFriendRequest({ user_id, friend_id }) {
         const user = await UserModel.findById(user_id);
-        const friend = await UserModel.findById(friend_id);
+        const friend = await UserModel.findById(friend_id).populate('usr_pending_friends');
 
         if (!user || !friend) {
             throw new NotFoundError('User not found');
@@ -18,7 +18,7 @@ class UserService {
         friend.usr_pending_friends.push(user_id);
         await friend.save();
 
-        return { message: 'Friend request send' };
+        return friend.usr_pending_friends;
     }
 
     static async acceptFriendRequest({ user_id, friend_id }) {
@@ -102,6 +102,24 @@ class UserService {
         return { message: 'Friend remove successfully' };
     }
 
+    // static async getExploreUsers(userId, searchQuery = '') {
+    //     const user = await UserModel.findById(userId).lean();
+    //     if (!user) {
+    //         throw new NotFoundError('User not found');
+    //     }
+
+    //     const allUsers = await UserModel.find({
+    //         usr_enabled: true,
+    //         $or: [{ usr_name: new RegExp(searchQuery, 'i') }, { usr_email: new RegExp(searchQuery, 'i') }],
+    //     }).select('_id usr_name usr_email usr_avatar');
+
+    //     const remainingUsers = allUsers.filter(
+    //         (u) => u._id.toString() !== user._id.toString() && !user.usr_friends.includes(u._id),
+    //     );
+
+    //     return remainingUsers;
+    // }
+
     static async getExploreUsers(userId, searchQuery = '') {
         const user = await UserModel.findById(userId).lean();
         if (!user) {
@@ -111,17 +129,26 @@ class UserService {
         const allUsers = await UserModel.find({
             usr_enabled: true,
             $or: [{ usr_name: new RegExp(searchQuery, 'i') }, { usr_email: new RegExp(searchQuery, 'i') }],
-        }).select('_id usr_name usr_email usr_avatar');
+        }).select('_id usr_name usr_email usr_pending_friends usr_avatar');
+
+        const userFriendIds = user.usr_friends.map((friend) => friend.toString());
+        const userPendingFriendIds = user.usr_pending_friends.map((friend) => friend.toString());
 
         const remainingUsers = allUsers.filter(
-            (u) => u._id.toString() !== user._id.toString() && !user.usr_friends.includes(u._id),
+            (u) =>
+                u._id.toString() !== user._id.toString() &&
+                !userFriendIds.includes(u._id.toString()) &&
+                !userPendingFriendIds.includes(u._id.toString()),
         );
 
         return remainingUsers;
     }
 
-    static async friendsList(userId) {
-        const user = await UserModel.findById(userId).populate('usr_friends');
+    static async friendsList(userId, searchQuery = '') {
+        const user = await UserModel.findById(userId).populate({
+            path: 'usr_friends',
+            match: { $or: [{ usr_name: new RegExp(searchQuery, 'i') }, { usr_email: new RegExp(searchQuery, 'i') }] },
+        });
 
         if (!user) {
             throw new NotFoundError('User not found');
@@ -130,13 +157,18 @@ class UserService {
         return user.usr_friends;
     }
 
-    static async pendingFriendRequests(userId) {
-        const user = await UserModel.findById(userId).populate('usr_pending_friends');
+    static async pendingFriendRequests(userId, searchQuery = '') {
+        const user = await UserModel.findById(userId).populate({
+            path: 'usr_pending_friends',
+            match: { $or: [{ usr_name: new RegExp(searchQuery, 'i') }, { usr_email: new RegExp(searchQuery, 'i') }] },
+        });
 
         if (!user) {
             throw new NotFoundError('User not found');
         }
+
         console.log(user);
+
         return user.usr_pending_friends;
     }
 

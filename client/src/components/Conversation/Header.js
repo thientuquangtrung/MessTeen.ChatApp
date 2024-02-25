@@ -3,11 +3,13 @@ import { faker } from '@faker-js/faker';
 import React from 'react';
 import StyledBadge from '../settings/StyledBadge';
 import { CaretDown, Divide, MagnifyingGlass, Phone, VideoCamera } from 'phosphor-react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { dispatch } from '../../redux/store';
+import { toggleSidebar } from '../../redux/app/appActionCreators';
 
 const Header = () => {
     const theme = useTheme();
-
+    const dispatch = useDispatch();
     const { current_conversation } = useSelector((state) => state.conversation);
 
     return (
@@ -26,19 +28,30 @@ const Header = () => {
                 justifyContent={'space-between'}
                 sx={{ width: '100%', height: '100%' }}
             >
-                <Stack direction={'row'} spacing={2}>
+                <Stack
+                    onClick={() => {
+                        dispatch(toggleSidebar());
+                    }}
+                    direction={'row'}
+                    spacing={2}
+                    sx={{ cursor: 'pointer' }}
+                >
                     <Box>
-                        <StyledBadge
-                            overlap="circular"
-                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                            variant="dot"
-                        >
+                        {current_conversation?.online ? (
+                            <StyledBadge
+                                overlap="circular"
+                                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                variant="dot"
+                            >
+                                <Avatar alt={current_conversation?.name} src={current_conversation?.img} />
+                            </StyledBadge>
+                        ) : (
                             <Avatar alt={current_conversation?.name} src={current_conversation?.img} />
-                        </StyledBadge>
+                        )}
                     </Box>
                     <Stack spacing={0.2}>
                         <Typography variant="subtitle2">{current_conversation?.name}</Typography>
-                        <Typography variant="caption">Online</Typography>
+                        <Typography variant="caption">{current_conversation?.online ? 'Online' : 'Offline'}</Typography>
                     </Stack>
                 </Stack>
                 <Stack direction="row" alignItems={'center'} spacing={3}>
