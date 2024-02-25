@@ -25,7 +25,7 @@ const { app, handleSocketConnect } = require('./src/app');
 const { PORT } = require('./base.config');
 
 const server = app.listen(PORT, () => {
-    console.log('MessTeen server start with port 3051');
+    console.log(`MessTeen server start with port ${PORT}`);
 });
 
 // web socket
