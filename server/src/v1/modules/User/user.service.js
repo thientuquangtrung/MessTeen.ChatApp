@@ -1,6 +1,7 @@
 const { BadRequestError, NotFoundError } = require('../../core/error.response');
 const UserModel = require('../User/user.model');
 const bcrypt = require('bcrypt');
+const { escapeRegExp } = require('lodash');
 
 class UserService {
     static async sendFriendRequest({ user_id, friend_id }) {
@@ -128,7 +129,10 @@ class UserService {
 
         const allUsers = await UserModel.find({
             usr_enabled: true,
-            $or: [{ usr_name: new RegExp(searchQuery, 'i') }, { usr_email: new RegExp(searchQuery, 'i') }],
+            $or: [
+                { usr_name: new RegExp(escapeRegExp(searchQuery), 'i') },
+                { usr_email: new RegExp(escapeRegExp(searchQuery), 'i') },
+            ],
         }).select('_id usr_name usr_email usr_pending_friends usr_avatar');
 
         const userFriendIds = user.usr_friends.map((friend) => friend.toString());
@@ -147,7 +151,12 @@ class UserService {
     static async friendsList(userId, searchQuery = '') {
         const user = await UserModel.findById(userId).populate({
             path: 'usr_friends',
-            match: { $or: [{ usr_name: new RegExp(searchQuery, 'i') }, { usr_email: new RegExp(searchQuery, 'i') }] },
+            match: {
+                $or: [
+                    { usr_name: new RegExp(escapeRegExp(searchQuery), 'i') },
+                    { usr_email: new RegExp(escapeRegExp(searchQuery), 'i') },
+                ],
+            },
         });
 
         if (!user) {
@@ -160,7 +169,12 @@ class UserService {
     static async pendingFriendRequests(userId, searchQuery = '') {
         const user = await UserModel.findById(userId).populate({
             path: 'usr_pending_friends',
-            match: { $or: [{ usr_name: new RegExp(searchQuery, 'i') }, { usr_email: new RegExp(searchQuery, 'i') }] },
+            match: {
+                $or: [
+                    { usr_name: new RegExp(escapeRegExp(searchQuery), 'i') },
+                    { usr_email: new RegExp(escapeRegExp(searchQuery), 'i') },
+                ],
+            },
         });
 
         if (!user) {
