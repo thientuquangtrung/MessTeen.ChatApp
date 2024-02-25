@@ -95,7 +95,9 @@ export function UpdateUsersAction(userList) {
 export function FetchFriends(searchQuery = '') {
     return async (dispatch, getState) => {
         await axios
-            .get(`/users/friends-list/${getState().auth.user_id}?search=${searchQuery}`)
+            .get(`/users/friends-list/${getState().auth.user_id}`, {
+                params: { search: searchQuery },
+            })
             .then((response) => {
                 console.log(response);
                 dispatch(slice.actions.updateFriends({ friends: response.data.metadata }));
