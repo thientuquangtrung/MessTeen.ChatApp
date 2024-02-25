@@ -10,12 +10,11 @@ const {
     NotFoundError,
 } = require('../../core/error.response');
 class MessageService {
-    static async getAllMessages(msg_room_id, limit = 20) {
-        const messages = await MessageModel.find({ msg_room_id }).sort({ msg_timestamp: -1 }).skip(0).limit(limit);
+    static async getAllMessages(msg_room_id, skip = 0, limit = 20) {
+        const messages = await MessageModel.find({ msg_room_id }).sort({ msg_timestamp: -1 }).skip(skip).limit(limit);
 
         return messages;
     }
-
     static async sendMessage(messageData) {
         const message = new MessageModel(messageData);
         await message.save();
