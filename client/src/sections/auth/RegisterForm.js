@@ -20,13 +20,13 @@ const RegisterForm = () => {
     const RegisterSchema = Yup.object().shape({
         name: Yup.string().required('Your name is required'),
         email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-        password: Yup.string().required('Password is required'),
+        password: Yup.string().required('Password is required').min(8),
     });
 
     const defaultValues = {
-        name: 'your name',
-        email: 'demo@messteen.com',
-        password: 'demo1234',
+        name: '',
+        email: '',
+        password: '',
     };
 
     const methods = useForm({

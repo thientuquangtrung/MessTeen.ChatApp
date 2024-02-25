@@ -1,29 +1,36 @@
-const { CREATED, OK } = require("../../core/success.response");
-const AccessService = require("./access.service");
+const { CREATED, OK } = require('../../core/success.response');
+const AccessService = require('./access.service');
 
 class AccessController {
     handleRefreshToken = async (req, res, next) => {
         new OK({
-            message: "Get Token successfully!",
+            message: 'Get Token successfully!',
             metadata: await AccessService.handleRefreshToken(req.token),
         }).send(res);
     };
 
     logout = async (req, res, next) => {
         new OK({
-            message: "Logout successfully!",
+            message: 'Logout successfully!',
             metadata: await AccessService.logout(req.keyStore),
         }).send(res);
     };
 
     login = async (req, res, next) => {
-        new OK({ message: "Login successfully!", metadata: await AccessService.login(req.body) }).send(res);
+        new OK({ message: 'Login successfully!', metadata: await AccessService.login(req.body) }).send(res);
     };
 
     signUp = async (req, res, next) => {
         new CREATED({
-            message: "Registration successful!",
+            message: 'Registration successful!',
             metadata: await AccessService.signUp(req.body),
+        }).send(res);
+    };
+
+    authWithProvider = async (req, res, next) => {
+        new CREATED({
+            message: 'Authentication successful!',
+            metadata: await AccessService.authWithProvider(req.body),
         }).send(res);
     };
 }

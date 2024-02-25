@@ -85,6 +85,42 @@ export function LoginUser(formValues) {
                         token: response.data.metadata.tokens.accessToken,
                         refreshToken: response.data.metadata.tokens.refreshToken,
                         user_id: response.data.metadata.user._id,
+                        email: response.data.metadata.user.usr_email,
+                        user: response.data.metadata.user,
+                    }),
+                );
+                window.localStorage.setItem('user_id', response.data.metadata.user._id);
+                dispatch(showSnackbar({ severity: 'success', message: response.data.message }));
+                dispatch(slice.actions.updateIsLoading({ isLoading: false, error: false }));
+            })
+            .catch(function (error) {
+                console.log(error);
+                dispatch(showSnackbar({ severity: 'error', message: error.error.message }));
+                dispatch(slice.actions.updateIsLoading({ isLoading: false, error: true }));
+            });
+    };
+}
+
+export function AuthWithProvider(formValues) {
+    return async (dispatch, getState) => {
+        // Make API call here
+
+        dispatch(slice.actions.updateIsLoading({ isLoading: true, error: false }));
+
+        await axios
+            .post('/auth/auth-with-provider', {
+                ...formValues,
+            })
+            .then(function (response) {
+                console.log(`auth-with-provider`, response);
+                dispatch(
+                    slice.actions.logIn({
+                        isLoggedIn: true,
+                        token: response.data.metadata.tokens.accessToken,
+                        refreshToken: response.data.metadata.tokens.refreshToken,
+                        user_id: response.data.metadata.user._id,
+                        email: response.data.metadata.user.usr_email,
+                        user: response.data.metadata.user,
                     }),
                 );
                 window.localStorage.setItem('user_id', response.data.metadata.user._id);
@@ -143,6 +179,8 @@ export function RegisterUser(formValues) {
                         token: response.data.metadata.tokens.accessToken,
                         refreshToken: response.data.metadata.tokens.refreshToken,
                         user_id: response.data.metadata.user._id,
+                        email: response.data.metadata.user.usr_email,
+                        user: response.data.metadata.user,
                     }),
                 );
                 window.localStorage.setItem('user_id', response.data.metadata.user._id);

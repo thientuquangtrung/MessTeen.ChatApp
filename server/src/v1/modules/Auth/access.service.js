@@ -85,7 +85,7 @@ class AccessService {
 
         return {
             user: getInfoData({
-                fields: ['_id', 'usr_name', 'usr_email'],
+                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_provider_type'],
                 object: foundUser,
             }),
             tokens,
@@ -129,8 +129,59 @@ class AccessService {
 
         return {
             user: getInfoData({
-                fields: ['_id', 'usr_name', 'usr_email'],
+                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_provider_type'],
                 object: newUser,
+            }),
+            tokens,
+        };
+    };
+
+    static authWithProvider = async ({ usr_email, usr_name, usr_provider_type, usr_provider_id, usr_avatar = '' }) => {
+        // check existing email
+        let foundUser = await userModel.findOne({ usr_email }).lean();
+
+        if (foundUser) {
+            if (foundUser.usr_provider_id === usr_provider_id && foundUser.usr_provider_type === usr_provider_type) {
+                // login case
+            } else {
+                // login with different provider/method ==> Error
+                throw new ConflictRequestError('Error: Email already registered!');
+            }
+        } else {
+            // sign up case
+            const newUser = await userModel.create({
+                usr_email,
+                usr_name,
+                usr_provider_id,
+                usr_provider_type,
+                usr_avatar,
+            });
+            if (!newUser) {
+                throw new InternalError('Cannot create new user');
+            }
+
+            foundUser = newUser;
+        }
+
+        // create public key and private key
+        const { publicKey, privateKey } = generatePubPriKey();
+
+        const publicKeyObject = await KeyTokenService.savePublicKeyToDB({
+            userId: foundUser._id,
+            publicKey,
+        });
+
+        if (!publicKeyObject) {
+            throw new BadRequestError('publicKeyString error');
+        }
+
+        // create tokens
+        const tokens = await createTokenPair({ usr_id: foundUser._id, usr_email }, publicKeyObject, privateKey);
+
+        return {
+            user: getInfoData({
+                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_provider_type'],
+                object: foundUser,
             }),
             tokens,
         };
