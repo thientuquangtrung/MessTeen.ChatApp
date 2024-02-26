@@ -127,6 +127,12 @@ class AccessService {
         // create tokens
         const tokens = await createTokenPair({ usr_id: newUser._id, usr_email }, publicKeyObject, privateKey);
 
+        await KeyTokenService.savePublicKeyToDB({
+            userId: newUser._id,
+            refreshToken: tokens.refreshToken,
+            publicKey,
+        });
+
         return {
             user: getInfoData({
                 fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_provider_type'],
@@ -177,6 +183,12 @@ class AccessService {
 
         // create tokens
         const tokens = await createTokenPair({ usr_id: foundUser._id, usr_email }, publicKeyObject, privateKey);
+
+        await KeyTokenService.savePublicKeyToDB({
+            userId: foundUser._id,
+            refreshToken: tokens.refreshToken,
+            publicKey,
+        });
 
         return {
             user: getInfoData({
