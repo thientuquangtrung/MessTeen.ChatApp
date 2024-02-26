@@ -33,7 +33,7 @@ class AccessService {
 
         const holderToken = await KeyTokenService.findByRefreshToken(refreshToken);
         if (!holderToken) {
-            throw new AuthFailureError(`User has not registered`);
+            throw new AuthFailureError(`Token not found! Please try again.`);
         }
 
         const { usr_id, usr_email } = JWT.verify(refreshToken, crypto.createPublicKey(holderToken.publicKey));
