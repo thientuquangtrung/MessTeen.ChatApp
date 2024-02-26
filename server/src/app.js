@@ -325,16 +325,25 @@ const handleSocketConnect = async (socket) => {
     // -------------- HANDLE SOCKET DISCONNECTION ----------------- //
 
     socket.on('end', async (data) => {
-        // Find user by ID and set status as offline
+        // // Find user by ID and set status as offline
 
-        if (data.user_id) {
-            await UserModel.findByIdAndUpdate(data.user_id, { usr_status: 'OFFLINE' });
-        }
+        // if (data.user_id) {
+        //     await UserModel.findByIdAndUpdate(data.user_id, { usr_status: 'OFFLINE' });
+        // }
 
-        // broadcast to all conversation rooms of this user that this user is offline (disconnected)
+        // // broadcast to all conversation rooms of this user that this user is offline (disconnected)
 
         console.log('closing connection');
         socket.disconnect(0);
+    });
+
+    socket.on('disconnect', async () => {
+        // Find user by ID and set status as offline
+        await UserModel.findByIdAndUpdate(user_id, { usr_status: 'OFFLINE' });
+
+        // TODO: broadcast to all conversation rooms of this user that this user is offline (disconnected)
+
+        console.log(`user disconnected:::::::::::`, user_id);
     });
 };
 
