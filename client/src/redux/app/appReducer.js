@@ -15,13 +15,13 @@ const initialState = {
         message: null,
     },
     users: [], // all users of app who are not friends and not requested yet
-    // all_users: [],
+    all_users: [],
     friends: [], // all friends
     friendRequests: [], // all friend requests
     blockedFriends: [],
     // chat_type: null,
     room_id: null,
-    // call_logs: [],
+    call_logs: [],
 
     //slidebar
     sidebar: {

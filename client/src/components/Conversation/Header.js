@@ -6,6 +6,9 @@ import { CaretDown, Divide, MagnifyingGlass, Phone, VideoCamera } from 'phosphor
 import { useDispatch, useSelector } from 'react-redux';
 import { dispatch } from '../../redux/store';
 import { toggleSidebar } from '../../redux/app/appActionCreators';
+import { StartVideoCall } from '../../redux/videoCall/videoCallActionCreators';
+
+const user_id = window.localStorage.getItem('user_id');
 
 const Header = () => {
     const theme = useTheme();
@@ -83,10 +86,18 @@ const Header = () => {
                     </Stack>
                 </Stack>
                 <Stack direction="row" alignItems={'center'} spacing={3}>
-                    <IconButton>
+                    <IconButton
+                        onClick={() => {
+                            dispatch(StartVideoCall(user_id, current_conversation.user_id));
+                        }}
+                    >
                         <VideoCamera />
                     </IconButton>
-                    <IconButton>
+                    <IconButton
+                        onClick={() => {
+                            // dispatch(StartAudioCall(current_conversation.user_id));
+                        }}
+                    >
                         <Phone />
                     </IconButton>
                     <IconButton>
