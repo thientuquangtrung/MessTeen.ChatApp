@@ -48,7 +48,6 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userList }) => {
     const theme = useTheme();
     const isRequested = usr_pending_friends.includes(user_id);
-    // const [isRequested, setIsRequested] = useState(usr_pending_friends.includes(user_id));
 
     return (
         <StyledChatBox
@@ -78,7 +77,17 @@ const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userLi
                     )}
 
                     <Stack spacing={0.3}>
-                        <Typography variant="subtitle2">{usr_name}</Typography>
+                        <Typography
+                            style={{
+                                maxWidth: '150px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}
+                            variant="subtitle2"
+                        >
+                            {usr_name}
+                        </Typography>
                     </Stack>
                 </Stack>
                 <Stack direction={'row'} spacing={2} alignItems={'center'}>
@@ -87,14 +96,27 @@ const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userLi
                             socket.emit('friend_request', { to: _id, from: user_id }, () => {
                                 alert('request sent');
                             });
-                            // TODO: dispatch action to update explore users in store
+
                             const newUsersList = userList.map((u) => {
                                 if (u._id === _id) {
-                                    return {
-                                        ...u,
-                                        usr_pending_friends: [...u.usr_pending_friends, user_id],
-                                    };
+                                    const index = u.usr_pending_friends.indexOf(user_id);
+                                    if (index > -1) {
+                                        const newUserPendingList = [...u.usr_pending_friends];
+
+                                        newUserPendingList.splice(index, 1);
+
+                                        return {
+                                            ...u,
+                                            usr_pending_friends: newUserPendingList,
+                                        };
+                                    } else {
+                                        return {
+                                            ...u,
+                                            usr_pending_friends: [...u.usr_pending_friends, user_id],
+                                        };
+                                    }
                                 }
+
                                 return u;
                             });
                             dispatch(UpdateUsersAction(newUsersList));
@@ -138,7 +160,17 @@ const FriendRequestComponent = ({ usr_name, _id, online, img, friendsRequestList
                         <Avatar alt={usr_name} src={img} />
                     )}
                     <Stack spacing={0.3}>
-                        <Typography variant="subtitle2">{usr_name}</Typography>
+                        <Typography
+                            style={{
+                                maxWidth: '150px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}
+                            variant="subtitle2"
+                        >
+                            {usr_name}
+                        </Typography>
                     </Stack>
                 </Stack>
                 <Stack direction={'row'} spacing={2} alignItems={'center'}>
@@ -196,7 +228,17 @@ const FriendComponent = ({ img, usr_name, online, _id, handleCloseDialog }) => {
                         <Avatar alt={usr_name} src={faker.image.avatar()} />
                     )}
                     <Stack spacing={0.3}>
-                        <Typography variant="subtitle2">{usr_name}</Typography>
+                        <Typography
+                            style={{
+                                maxWidth: '150px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}
+                            variant="subtitle2"
+                        >
+                            {usr_name}
+                        </Typography>
                     </Stack>
                 </Stack>
                 <Stack direction={'row'} spacing={2} alignItems={'center'}>
