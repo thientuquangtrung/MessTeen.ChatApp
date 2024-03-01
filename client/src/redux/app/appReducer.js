@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    // user: {},
+    user: {},
     // sideBar: {
     //     open: false,
     //     type: "CONTACT", // can be CONTACT, STARRED, SHARED
@@ -38,9 +38,9 @@ export const slice = createSlice({
         // fetchUser(state, action) {
         //     state.user = action.payload.user;
         // },
-        // updateUser(state, action) {
-        //     state.user = action.payload.user;
-        // },
+        updateUser(state, action) {
+            state.user = action.payload.user;
+        },
         // // Toggle Sidebar
         // toggleSideBar(state) {
         //     state.sideBar.open = !state.sideBar.open;

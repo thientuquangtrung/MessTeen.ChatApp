@@ -190,9 +190,10 @@ class UserService {
         const user = await UserModel.findByIdAndUpdate(
             userId,
             {
-                usr_name: updatedUserData.usr_name,
-                usr_password: updatedUserData.usr_password,
-                usr_avatar: updatedUserData.usr_avatar,
+                usr_name: updatedUserData.fullName,
+                // usr_password: updatedUserData.usr_password,
+                usr_bio: updatedUserData.about,
+                usr_avatar: updatedUserData.avatar,
             },
             { new: true },
         );
