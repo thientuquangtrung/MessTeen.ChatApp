@@ -1,10 +1,11 @@
 import axios from '../../utils/axios';
 // import S3 from "../../utils/s3";
-// import { v4 } from "uuid";
+import { v4 } from 'uuid';
 // import S3 from "../../utils/s3";
 // import { S3_BUCKET_NAME } from "../../config";
 import { slice } from './appReducer';
-// ----------------------------------------------------------------------
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { storage } from '../../utils/firebase';
 
 export const closeSnackBar = () => async (dispatch, getState) => {
     dispatch(slice.actions.closeSnackBar());
@@ -170,45 +171,96 @@ export const SelectConversation = ({ room_id }) => {
 //             });
 //     };
 // };
+
 // export const UpdateUserProfile = (formValues) => {
 //     return async (dispatch, getState) => {
 //         const file = formValues.avatar;
-
 //         const key = v4();
+//         const storageRef = firebase.storage().ref();
+
+//         const fileRef = storageRef.child(`avatars/${key}`);
+//         await fileRef.put(file);
+
+//         const downloadURL = await fileRef.getDownloadURL();
 
 //         try {
-//             S3.getSignedUrl("putObject", { Bucket: S3_BUCKET_NAME, Key: key, ContentType: `image/${file.type}` }, async (_err, presignedURL) => {
-//                 await fetch(presignedURL, {
-//                     method: "PUT",
-
-//                     body: file,
-
-//                     headers: {
-//                         "Content-Type": file.type,
-//                     },
+//             await firebase
+//                 .firestore()
+//                 .collection('users')
+//                 .doc(getState().auth.userId)
+//                 .update({
+//                     ...formValues,
+//                     avatar: downloadURL,
 //                 });
-//             });
+
+//             const updatedUserData = (
+//                 await firebase.firestore().collection('users').doc(getState().auth.userId).get()
+//             ).data();
+//             dispatch(slice.actions.updateUser({ user: updatedUserData }));
 //         } catch (error) {
-//             console.log(error);
+//             console.error('Error updating user profile:', error);
 //         }
 
-//         axios
-//             .patch(
-//                 "/user/update-me",
-//                 { ...formValues, avatar: key },
-//                 {
-//                     headers: {
-//                         "Content-Type": "application/json",
-//                         Authorization: `Bearer ${getState().auth.token}`,
-//                     },
-//                 },
-//             )
-//             .then((response) => {
-//                 console.log(response);
-//                 dispatch(slice.actions.updateUser({ user: response.data.data }));
-//             })
-//             .catch((err) => {
-//                 console.log(err);
-//             });
+// axios
+//     .patch(
+//         '/user/update-me',
+//         { ...formValues, avatar: key },
+//         {
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 Authorization: `Bearer ${getState().auth.token}`,
+//             },
+//         },
+//     )
+//     .then((response) => {
+//         console.log(response);
+//         dispatch(slice.actions.updateUser({ user: response.data.data }));
+//     })
+//     .catch((err) => {
+//         console.log(err);
+//     });
 //     };
 // };
+export const UpdateUserProfile = (formValues) => {
+    return async (dispatch, getState) => {
+        const file = formValues.avatar;
+        const key = v4();
+        const storageRef = ref(storage, `avatars/${key}`);
+
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+                // Handle progress
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log('Upload is ' + progress + '% done');
+            },
+            (error) => {
+                // Handle unsuccessful uploads
+                console.error('Error uploading file:', error);
+            },
+            async () => {
+                // Handle successful uploads
+                console.log('File uploaded successfully');
+
+                // Get the download URL of the uploaded file
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+                console.log('downloadURL::::::::::::', downloadURL);
+                axios
+                    .put(`/users/update-profile-user/${getState().auth.user_id}`, {
+                        ...formValues,
+                        avatar: downloadURL,
+                    })
+                    .then((response) => {
+                        console.log(response);
+                        dispatch(slice.actions.updateUser({ user: response.data.metadata }));
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            },
+        );
+    };
+};

@@ -25,7 +25,7 @@ const rootPersistConfig = {
             },
         }),
     ],
-    whitelist: ['auth'],
+    whitelist: ['auth', 'app'],
     blacklist: ['conversation'],
 };
 
