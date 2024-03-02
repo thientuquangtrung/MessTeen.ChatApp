@@ -128,7 +128,7 @@ export function BlockedFriendAction(friendId) {
         await axios
             .post('/users/block-friend', {
                 usr_id_1: getState().auth.user_id,
-                usr_id_2: friendId
+                usr_id_2: friendId,
             })
             .then((response) => {
                 console.log(response);
@@ -145,7 +145,7 @@ export function UnblockedFriendAction(friendId) {
         await axios
             .post('/users/unblock-friend', {
                 usr_id_1: getState().auth.user_id,
-                usr_id_2: friendId
+                usr_id_2: friendId,
             })
             .then((response) => {
                 console.log(response);
@@ -247,5 +247,11 @@ export const UpdateUserProfile = (formValues) => {
                     });
             },
         );
+    };
+};
+
+export const SetUser = (userData) => {
+    return (dispatch, getState) => {
+        dispatch(slice.actions.updateUser({ user: userData }));
     };
 };

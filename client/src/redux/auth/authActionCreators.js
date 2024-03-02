@@ -1,6 +1,6 @@
 import axios from '../../utils/axios';
 import { slice } from './authReducer';
-import { showSnackbar } from '../app/appActionCreators';
+import { SetUser, showSnackbar } from '../app/appActionCreators';
 
 // export function NewPassword(formValues) {
 //     return async (dispatch, getState) => {
@@ -89,6 +89,7 @@ export function LoginUser(formValues) {
                         user: response.data.metadata.user,
                     }),
                 );
+                dispatch(SetUser(response.data.metadata.user));
                 window.localStorage.setItem('user_id', response.data.metadata.user._id);
                 dispatch(showSnackbar({ severity: 'success', message: response.data.message }));
                 dispatch(slice.actions.updateIsLoading({ isLoading: false, error: false }));

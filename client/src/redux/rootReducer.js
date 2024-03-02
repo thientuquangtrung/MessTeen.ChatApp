@@ -25,8 +25,8 @@ const rootPersistConfig = {
             },
         }),
     ],
-    whitelist: ['auth', 'app'],
-    blacklist: ['conversation'],
+    whitelist: ['auth', 'app', 'conversation'],
+    // blacklist: ['conversation'],
 };
 
 const rootReducer = combineReducers({

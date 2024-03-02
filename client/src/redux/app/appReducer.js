@@ -18,7 +18,7 @@ const initialState = {
     friends: [], // all friends
     friendRequests: [], // all friend requests
     blockedFriends: [],
-    chat_type: null,
+    // chat_type: null,
     room_id: null,
     // call_logs: [],
 
@@ -80,7 +80,7 @@ export const slice = createSlice({
             state.blockedFriends = action.payload.listBlockedFriends;
         },
         selectConversation(state, action) {
-            state.chat_type = 'individual';
+            // state.chat_type = 'individual';
             state.room_id = action.payload.room_id;
         },
 

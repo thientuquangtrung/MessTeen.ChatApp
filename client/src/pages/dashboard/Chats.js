@@ -128,7 +128,12 @@ const ChatElement = ({ id, name, img, msg, time, unread, online, type }) => {
                     )}
 
                     <Stack spacing={0.3}>
-                        <Typography sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '140px' }} variant="subtitle2">{name}</Typography>
+                        <Typography
+                            sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '140px' }}
+                            variant="subtitle2"
+                        >
+                            {name}
+                        </Typography>
                         <Typography
                             sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '140px' }}
                             variant="caption"
@@ -190,9 +195,6 @@ const Chats = () => {
 
     useEffect(() => {
         socket.emit('get_direct_conversations', { user_id }, (data) => {
-            console.log(data); // this data is the list of conversations
-            // dispatch action
-
             dispatch(FetchDirectConversations({ conversations: data }));
         });
     }, []);
@@ -225,7 +227,7 @@ const Chats = () => {
                             style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
                             variant="h5"
                         >
-                            🙌 {user.usr_name}!
+                            🙌 {user?.usr_name}!
                         </Typography>
 
                         <Stack direction="row" alignItems="center" spacing={1}>
