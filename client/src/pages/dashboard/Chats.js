@@ -1,5 +1,18 @@
-import { Avatar, Badge, Box, Button, Divider, IconButton, InputBase, Stack, Typography, useTheme } from '@mui/material';
-import { ArchiveBox, CircleDashed, MagnifyingGlass, Users } from 'phosphor-react';
+import {
+    Avatar,
+    AvatarGroup,
+    Badge,
+    Box,
+    Button,
+    Divider,
+    IconButton,
+    InputBase,
+    Link,
+    Stack,
+    Typography,
+    useTheme,
+} from '@mui/material';
+import { ArchiveBox, CircleDashed, MagnifyingGlass, Plus, Users } from 'phosphor-react';
 import React, { useEffect, useState } from 'react';
 import { styled, alpha } from '@mui/material';
 import { faker } from '@faker-js/faker';
@@ -10,6 +23,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { SelectConversation } from '../../redux/app/appActionCreators';
 import { FetchDirectConversations } from '../../redux/conversation/convActionCreators';
 import { formatDate } from '../../utils/formatTime';
+import CreateGroup from '../../sections/main/CreateGroup';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
     '& .MuiBadge-badge': {
@@ -40,7 +54,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     },
 }));
 
-const ChatElement = ({ id, name, img, msg, time, unread, online }) => {
+const ChatElement = ({ id, name, img, msg, time, unread, online, type }) => {
     const theme = useTheme();
     const dispatch = useDispatch();
     const { room_id } = useSelector((state) => state.app);
@@ -51,6 +65,8 @@ const ChatElement = ({ id, name, img, msg, time, unread, online }) => {
     if (!selectedChatId) {
         isSelected = false;
     }
+
+    const isGroup = type === 'GROUP';
 
     return (
         <Box
@@ -81,14 +97,38 @@ const ChatElement = ({ id, name, img, msg, time, unread, online }) => {
                             }}
                             variant="dot"
                         >
-                            <Avatar src={faker.image.avatar()} />
+                            <AvatarGroup
+                                spacing={20}
+                                max={3}
+                                sx={{
+                                    '.MuiAvatarGroup-avatar': !isGroup
+                                        ? { width: 40, height: 40 }
+                                        : { width: 24, height: 24 },
+                                }}
+                            >
+                                {img.map((i) => (
+                                    <Avatar src={i} />
+                                ))}
+                            </AvatarGroup>
                         </StyledBadge>
                     ) : (
-                        <Avatar src={faker.image.avatar()} />
+                        <AvatarGroup
+                            spacing={20}
+                            max={3}
+                            sx={{
+                                '.MuiAvatarGroup-avatar': !isGroup
+                                    ? { width: 40, height: 40 }
+                                    : { width: 24, height: 24 },
+                            }}
+                        >
+                            {img.map((i) => (
+                                <Avatar src={i} />
+                            ))}
+                        </AvatarGroup>
                     )}
 
                     <Stack spacing={0.3}>
-                        <Typography variant="subtitle2">{name}</Typography>
+                        <Typography sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '140px' }} variant="subtitle2">{name}</Typography>
                         <Typography
                             sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '140px' }}
                             variant="caption"
@@ -141,6 +181,7 @@ const user_id = window.localStorage.getItem('user_id');
 
 const Chats = () => {
     const [openDialog, setOpenDialog] = useState(false);
+    const [openDialogGroup, setOpenDialogGroup] = useState(false);
     const theme = useTheme();
 
     const dispatch = useDispatch();
@@ -158,6 +199,10 @@ const Chats = () => {
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
+    };
+
+    const handleCloseDialogGroup = () => {
+        setOpenDialogGroup(false);
     };
 
     const handleOpenDialog = () => {
@@ -207,6 +252,19 @@ const Chats = () => {
                             <StyledInputBase placeholder="Search..." inputProps={{ 'aria-label': 'search' }} />
                         </Search>
                     </Stack>
+                    <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
+                        <Typography variant="subtitle2" component={Link}>
+                            Create New Group
+                        </Typography>
+                        <IconButton
+                            onClick={() => {
+                                setOpenDialogGroup(true);
+                            }}
+                        >
+                            <Plus style={{ color: theme.palette.primary.main }} />
+                        </IconButton>
+                    </Stack>
+                    {openDialogGroup && <CreateGroup open={openDialogGroup} handleClose={handleCloseDialogGroup} />}
                     <Stack spacing={1}>
                         <Stack direction={'row'} alignItems={'center'} spacing={1.5}>
                             <ArchiveBox size={24} />
@@ -224,23 +282,21 @@ const Chats = () => {
                         }}
                     >
                         {/* <SimpleBarStyle/> */}
-                        <Stack spacing={2.4}>
+                        {/* <Stack spacing={2.4}>
                             <Typography variant="subtitle2" sx={{ color: '#676767' }}>
                                 Pinned
                             </Typography>
                             {ChatList.filter((el) => el.pinned).map((el) => {
                                 return <ChatElement {...el} />;
                             })}
-                        </Stack>
+                        </Stack> */}
                         <Stack spacing={2.4}>
                             <Typography variant="subtitle2" sx={{ color: '#676767' }}>
                                 All Chats
                             </Typography>
-                            {conversations
-                                .filter((el) => !el.pinned)
-                                .map((el) => {
-                                    return <ChatElement {...el} />;
-                                })}
+                            {conversations.map((el) => {
+                                return <ChatElement {...el} />;
+                            })}
                         </Stack>
                     </Stack>
                 </Stack>

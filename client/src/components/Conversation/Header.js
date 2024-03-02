@@ -1,4 +1,4 @@
-import { Box, useTheme, Stack, Avatar, Typography, IconButton, Divider } from '@mui/material';
+import { Box, useTheme, Stack, Avatar, Typography, IconButton, Divider, AvatarGroup } from '@mui/material';
 import { faker } from '@faker-js/faker';
 import React from 'react';
 import StyledBadge from '../settings/StyledBadge';
@@ -11,6 +11,8 @@ const Header = () => {
     const theme = useTheme();
     const dispatch = useDispatch();
     const { current_conversation } = useSelector((state) => state.conversation);
+    const img = current_conversation?.img || [];
+    const isGroup = current_conversation?.type === 'GROUP';
 
     return (
         <Box
@@ -43,10 +45,36 @@ const Header = () => {
                                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                                 variant="dot"
                             >
-                                <Avatar alt={current_conversation?.name} src={current_conversation?.img} />
+                                {/* <Avatar alt={current_conversation?.name} src={current_conversation?.img} /> */}
+                                <AvatarGroup
+                                    spacing={20}
+                                    max={3}
+                                    sx={{
+                                        '.MuiAvatarGroup-avatar': isGroup
+                                            ? { width: 24, height: 24 }
+                                            : { width: 40, height: 40 },
+                                    }}
+                                >
+                                    {img.map((src) => (
+                                        <Avatar src={src} />
+                                    ))}
+                                </AvatarGroup>
                             </StyledBadge>
                         ) : (
-                            <Avatar alt={current_conversation?.name} src={current_conversation?.img} />
+                            // <Avatar alt={current_conversation?.name} src={current_conversation?.img} />
+                            <AvatarGroup
+                                    spacing={20}
+                                    max={3}
+                                    sx={{
+                                        '.MuiAvatarGroup-avatar': isGroup
+                                            ? { width: 24, height: 24 }
+                                            : { width: 40, height: 40 },
+                                    }}
+                                >
+                                    {img.map((src) => (
+                                        <Avatar src={src} />
+                                    ))}
+                                </AvatarGroup>
                         )}
                     </Box>
                     <Stack spacing={0.2}>

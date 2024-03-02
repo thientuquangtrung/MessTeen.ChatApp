@@ -25,29 +25,45 @@ export const slice = createSlice({
     reducers: {
         fetchDirectConversations(state, action) {
             const list = action.payload.conversations.map((el) => {
-                const user = el.room_participant_ids.find((elm) => elm._id.toString() !== user_id);
-                return {
-                    id: el._id,
-                    user_id: user?._id,
-                    name: `${user?.usr_name}`,
-                    online: user?.usr_status === 'ONLINE',
-                    // img: `https://${S3_BUCKET_NAME}.s3.${AWS_S3_REGION}.amazonaws.com/${user?.avatar}`,
-                    // msg: el.messages.slice(-1)[0].text,
-                    img: faker.image.avatar(),
-                    msg: el.room_last_msg.content,
-                    time: el.room_last_msg.timestamp,
-                    unread: 0,
-                    pinned: false,
-                    about: user?.about,
-                    isBeingBlocked: user.usr_blocked_people.includes(user_id),
-                };
+                if (el.room_type === 'PRIVATE') {
+                    const user = el.room_participant_ids.find((elm) => elm._id.toString() !== user_id);
+                    return {
+                        id: el._id,
+                        user_id: user?._id,
+                        name: `${user?.usr_name}`,
+                        online: user?.usr_status === 'ONLINE',
+                        img: [faker.image.avatar()],
+                        msg: el.room_last_msg.content,
+                        time: el.room_last_msg.timestamp,
+                        unread: 0,
+                        pinned: false,
+                        about: user?.about,
+                        type: el.room_type,
+                        isBeingBlocked: user.usr_blocked_people.includes(user_id),
+                    };
+                } else {
+                    return {
+                        id: el._id,
+                        name: el.room_title,
+                        online: el.room_participant_ids.some((user) => user.usr_status === 'ONLINE'),
+                        img: el.room_participant_ids.map((user) => faker.image.avatar()),
+                        msg: el.room_last_msg.content,
+                        time: el.room_last_msg.timestamp,
+                        unread: 0,
+                        pinned: false,
+                        type: el.room_type,
+                        participant_ids: el.room_participant_ids.map((participant) => participant._id)
+                    };
+                }
             });
 
             state.conversations = list.sort((a, b) => new Date(b.time) - new Date(a.time)); // Sort by time in descending order
         },
+
         updateDirectConversation(state, action) {
             const this_conversation = action.payload.conversation;
             console.log(this_conversation);
+
             state.conversations = state.conversations
                 .map((el) => {
                     if (el?.id !== this_conversation._id) {
@@ -56,37 +72,76 @@ export const slice = createSlice({
                         const user = this_conversation.room_participant_ids.find(
                             (elm) => elm._id.toString() !== user_id,
                         );
-                        return {
-                            id: this_conversation._id,
-                            user_id: user?._id,
-                            name: `${user?.usr_name}`,
-                            online: user?.usr_status === 'ONLINE',
-                            img: faker.image.avatar(),
-                            msg: this_conversation.room_last_msg.content,
-                            time: this_conversation.room_last_msg.timestamp,
-                            unread: 0,
-                            pinned: false,
-                        };
+
+                        // PRIVATE
+                        if (this_conversation.room_type === 'PRIVATE') {
+                            return {
+                                id: this_conversation._id,
+                                user_id: user?._id,
+                                name: `${user?.usr_name}`,
+                                online: user?.usr_status === 'ONLINE',
+                                img: [faker.image.avatar()],
+                                msg: this_conversation.room_last_msg.content,
+                                time: this_conversation.room_last_msg.timestamp,
+                                unread: 0,
+                                pinned: false,
+                                type: this_conversation.room_type
+                            };
+                        } else {
+                            // GROUP
+                            return {
+                                id: this_conversation._id,
+                                name: this_conversation.room_title,
+                                online: this_conversation.room_participant_ids.some(
+                                    (user) => user.usr_status === 'ONLINE',
+                                ),
+                                img: this_conversation.room_participant_ids.map((user) => faker.image.avatar()),
+                                msg: this_conversation.room_last_msg.content,
+                                time: this_conversation.room_last_msg.timestamp,
+                                unread: 0,
+                                pinned: false,
+                                type: this_conversation.room_type,
+                                participant_ids: this_conversation.room_participant_ids.map((participant) => participant._id)
+                            };
+                        }
                     }
                 })
-                .sort((a, b) => new Date(b.time) - new Date(a.time)); // Sort by time in descending order
+                .sort((a, b) => new Date(b.time) - new Date(a.time));
         },
+
         addDirectConversation(state, action) {
             const this_conversation = action.payload.conversation;
-            const user = this_conversation.room_participant_ids.find((elm) => elm._id.toString() !== user_id);
             state.conversations = state.conversations.filter((el) => el?.id !== this_conversation._id);
-            state.conversations.push({
-                id: this_conversation._id,
-                user_id: user?._id,
-                name: `${user?.usr_name}`,
-                online: user?.usr_status === 'ONLINE',
-                img: faker.image.avatar(),
-                msg: this_conversation.room_last_msg.content,
-                time: this_conversation.room_last_msg.timestamp,
-                unread: 0,
-                pinned: false,
-            });
-            state.conversations.sort((a, b) => new Date(b.time) - new Date(a.time)); // Sort by time in descending order
+
+            if (this_conversation.room_type === 'PRIVATE') {
+                const user = this_conversation.room_participant_ids.find((elm) => elm._id.toString() !== user_id);
+                state.conversations.push({
+                    id: this_conversation._id,
+                    user_id: user?._id,
+                    name: `${user?.usr_name}`,
+                    online: user?.usr_status === 'ONLINE',
+                    img: [faker.image.avatar()], 
+                    msg: this_conversation.room_last_msg.content,
+                    time: this_conversation.room_last_msg.timestamp,
+                    unread: 0,
+                    pinned: false,
+                    type: this_conversation.room_type
+                });
+            } else {
+                state.conversations.push({
+                    id: this_conversation._id,
+                    name: this_conversation.room_title,
+                    online: this_conversation.room_participant_ids.some((user) => user.usr_status === 'ONLINE'),
+                    img: this_conversation.room_participant_ids.map((user) => faker.image.avatar()),
+                    msg: this_conversation.room_last_msg.content,
+                    time: this_conversation.room_last_msg.timestamp,
+                    unread: 0,
+                    pinned: false,
+                    type: this_conversation.room_type,
+                    participant_ids: this_conversation.room_participant_ids.map((participant) => participant._id)
+                });
+            }
+            state.conversations.sort((a, b) => new Date(b.time) - new Date(a.time)); 
         },
         setCurrentConversation(state, action) {
             state.current_conversation = action.payload;
