@@ -1,3 +1,4 @@
+const { getInfoData } = require('../../utils');
 const userModel = require('../User/user.model');
 const callModel = require('./call.model');
 
@@ -16,11 +17,14 @@ module.exports = {
 
         // send notification to receiver of call
         _io.to(to_user?.usr_socket_id).emit('video_call_notification', {
-            from: from_user,
+            from: getInfoData({
+                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar'],
+                object: from_user,
+            }),
             roomID,
             streamID: from,
             userID: to,
-            userName: to,
+            // userName: to,
         });
     },
 

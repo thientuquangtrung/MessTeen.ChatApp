@@ -244,16 +244,16 @@ const handleSocketConnect = async (socket) => {
     socket.on('start_video_call', withErrorHandling(socket, startVideoCallWS));
 
     // // handle video_call_not_picked
-    socket.on('video_call_not_picked', videoCallNotPickedWS);
+    socket.on('video_call_not_picked', withErrorHandling(socket, videoCallNotPickedWS));
 
     // handle video_call_accepted
-    socket.on('video_call_accepted', videoCallAcceptedWS);
+    socket.on('video_call_accepted', withErrorHandling(socket, videoCallAcceptedWS));
 
     // handle video_call_denied
-    socket.on('video_call_denied', videoCallDeniedWS);
+    socket.on('video_call_denied', withErrorHandling(socket, videoCallDeniedWS));
 
     // handle user_is_busy_video_call
-    socket.on('user_is_busy_video_call', videoCallBusyWS);
+    socket.on('user_is_busy_video_call', withErrorHandling(socket, videoCallBusyWS));
 
     // -------------- HANDLE SOCKET DISCONNECTION ----------------- //
 
