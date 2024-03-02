@@ -16,7 +16,9 @@ import { SelectConversation, UpdateFriendsRequestAction, showSnackbar } from '..
 import {
     AddDirectConversation,
     AddDirectMessage,
+    UpdateBlockedConversation,
     UpdateDirectConversation,
+    UpdateUnblockedConversation,
 } from '../../redux/conversation/convActionCreators';
 
 const AntSwitch = styled(Switch)(({ theme }) => ({
@@ -132,6 +134,15 @@ const DashboardLayout = () => {
                     dispatch(AddDirectConversation({ conversation: data }));
                 }
                 dispatch(SelectConversation({ room_id: data._id }));
+            });
+
+            socket.on('friend_blocked', (data) => {
+                dispatch(
+                    UpdateBlockedConversation({
+                        id: data.id,
+                        blocked: data.blocked,
+                    }),
+                );
             });
 
             socket.on('new_friend_request', (data) => {

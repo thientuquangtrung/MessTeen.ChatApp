@@ -131,7 +131,7 @@ module.exports = {
             .find({
                 room_participant_ids: { $all: [user_id] },
             })
-            .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status');
+            .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status usr_blocked_people');
 
         console.log(existing_conversations);
 

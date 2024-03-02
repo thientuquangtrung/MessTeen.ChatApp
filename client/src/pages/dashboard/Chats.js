@@ -186,7 +186,7 @@ const Chats = () => {
 
     const dispatch = useDispatch();
     const { conversations } = useSelector((state) => state.conversation);
-    const { friendRequests } = useSelector((state) => state.app);
+    const { user, friendRequests } = useSelector((state) => state.app);
 
     useEffect(() => {
         socket.emit('get_direct_conversations', { user_id }, (data) => {
@@ -221,7 +221,12 @@ const Chats = () => {
             >
                 <Stack p={3} spacing={2} sx={{ height: '100vh' }}>
                     <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-                        <Typography variant="h5">Chats</Typography>
+                        <Typography
+                            style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                            variant="h5"
+                        >
+                            🙌 {user.usr_name}!
+                        </Typography>
 
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <IconButton
@@ -236,9 +241,6 @@ const Chats = () => {
                                 >
                                     <Users />
                                 </Badge>
-                            </IconButton>
-                            <IconButton>
-                                <CircleDashed />
                             </IconButton>
                         </Stack>
                     </Stack>

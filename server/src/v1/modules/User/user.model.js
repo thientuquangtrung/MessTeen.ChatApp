@@ -33,6 +33,9 @@ const UserSchema = new Schema(
         usr_provider_id: {
             type: 'String',
         },
+        usr_bio: {
+            type: 'String',
+        },
         usr_avatar: {
             type: 'String',
         },

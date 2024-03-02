@@ -38,7 +38,8 @@ export const slice = createSlice({
                         unread: 0,
                         pinned: false,
                         about: user?.about,
-                        type: el.room_type
+                        type: el.room_type,
+                        isBeingBlocked: user.usr_blocked_people.includes(user_id),
                     };
                 } else {
                     return {
@@ -163,6 +164,21 @@ export const slice = createSlice({
         },
         addDirectMessage(state, action) {
             state.current_messages.push(action.payload.message);
+        },
+        updateBlockedConversation(state, action) {
+            const id = action.payload.id;
+            const blocked = action.payload.blocked;
+
+            if (id === state.current_conversation.id) {
+                state.current_conversation.isBeingBlocked = blocked;
+            }
+
+            state.conversations = state.conversations.map((conversation) => {
+                if (conversation.id === id) {
+                    conversation.isBeingBlocked = blocked;
+                }
+                return conversation;
+            });
         },
     },
 });
