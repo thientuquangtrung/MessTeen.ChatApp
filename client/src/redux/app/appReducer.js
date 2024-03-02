@@ -17,6 +17,7 @@ const initialState = {
     // all_users: [],
     friends: [], // all friends
     friendRequests: [], // all friend requests
+    blockedFriends: [],
     chat_type: null,
     room_id: null,
     // call_logs: [],
@@ -74,6 +75,9 @@ export const slice = createSlice({
         },
         updateFriendRequests(state, action) {
             state.friendRequests = action.payload.requests;
+        },
+        updateBlockedFriends(state, action) {
+            state.blockedFriends = action.payload.listBlockedFriends;
         },
         selectConversation(state, action) {
             state.chat_type = 'individual';

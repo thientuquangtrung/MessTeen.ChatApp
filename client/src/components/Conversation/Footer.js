@@ -1,4 +1,4 @@
-import { Fab, Tooltip, useTheme } from '@mui/material';
+import { Fab, Tooltip, Typography, useTheme } from '@mui/material';
 import { Box, IconButton, InputAdornment, TextField, Stack } from '@mui/material';
 import { Camera, File, Image, LinkSimple, PaperPlaneTilt, Smiley, Sticker, User } from 'phosphor-react';
 import React, { useRef, useState } from 'react';
@@ -8,6 +8,9 @@ import Picker from '@emoji-mart/react';
 import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import { useSelector } from 'react-redux';
 import { socket } from '../../socket';
+import { dispatch } from '../../redux/store';
+import { FetchDirectConversations } from '../../redux/conversation/convActionCreators';
+import { showSnackbar } from '../../redux/app/appActionCreators';
 
 const StyledInput = styled(TextField)(({ theme }) => ({
     '& .MuiInputBase-input': {
@@ -142,29 +145,37 @@ function containsUrl(text) {
     return urlRegex.test(text);
 }
 
+const user_id = window.localStorage.getItem('user_id');
+
 const Footer = () => {
     const theme = useTheme();
     const [openPicker, setOpenPicker] = useState(false);
     const [value, setValue] = useState('');
     const { current_conversation } = useSelector((state) => state.conversation);
+    const { blockedFriends } = useSelector((state) => state.app);
+    const isBlocked = blockedFriends.includes(current_conversation?.user_id);
+
     const { sideBar, room_id } = useSelector((state) => state.app);
-    const user_id = window.localStorage.getItem('user_id');
     const inputRef = useRef(null);
     const handleEmojiSelect = (emoji) => {
         setValue(value + emoji.native);
     };
     const sendMessage = () => {
-        let messageToSend = value.trim();
-        if (messageToSend !== '') {
-            socket.emit('text_message', {
-                message: linkify(messageToSend),
-                conversation_id: room_id,
-                from: user_id,
-                to: current_conversation.user_id,
-                type: containsUrl(messageToSend) ? 'LINK' : 'TEXT',
-            });
-            setValue('');
-            inputRef.current.focus();
+        if (current_conversation.isBeingBlocked) {
+            dispatch(showSnackbar({ severity: 'info', message: ' You cannot text or call in this chat.' }));
+        } else {
+            let messageToSend = value.trim();
+            if (messageToSend !== '') {
+                socket.emit('text_message', {
+                    message: linkify(messageToSend),
+                    conversation_id: room_id,
+                    from: user_id,
+                    to: current_conversation.user_id,
+                    type: containsUrl(messageToSend) ? 'LINK' : 'TEXT',
+                });
+                setValue('');
+                inputRef.current.focus();
+            }
         }
     };
 
@@ -181,51 +192,57 @@ const Footer = () => {
                 boxShadow: '0px 0px 2px rgba(0,0,0,0.25)',
             }}
         >
-            <Stack direction="row" alignItems={'center'} spacing={3}>
-                <Stack sx={{ width: '100%' }}>
-                    <ClickAwayListener mouseEvent="onMouseDown" onClickAway={handleClickAwayPicker}>
-                        <Box
-                            sx={{
-                                display: openPicker ? 'inline' : 'none',
-                                zIndex: 10,
-                                position: 'fixed',
-                                bottom: 81,
-                                right: 100,
-                            }}
-                        >
-                            <Picker
-                                theme={theme.palette.mode}
-                                data={data}
-                                onEmojiSelect={(emoji) => handleEmojiSelect(emoji)}
-                            />
-                        </Box>
-                    </ClickAwayListener>
-                    <ChatInput
-                        openPicker={openPicker}
-                        setOpenPicker={setOpenPicker}
-                        value={value}
-                        setValue={setValue}
-                        sendMessage={sendMessage}
-                        inputRef={inputRef}
-                    />
-                </Stack>
-
-                <Box
-                    sx={{
-                        height: 48,
-                        width: 48,
-                        backgroundColor: theme.palette.primary.main,
-                        borderRadius: 1.5,
-                    }}
-                >
-                    <Stack sx={{ height: '100%', width: '100%' }} alignItems="center" justifyContent="center">
-                        {' '}
-                        <IconButton onClick={sendMessage}>
-                            <PaperPlaneTilt color="white" />
-                        </IconButton>
+            {isBlocked ? (
+                <Typography variant="body1" color="textSecondary" style={{ textAlign: 'center', fontStyle: 'italic' }}>
+                    You cannot text or call in this chat.
+                </Typography>
+            ) : (
+                <Stack direction="row" alignItems={'center'} spacing={3}>
+                    <Stack sx={{ width: '100%' }}>
+                        <ClickAwayListener mouseEvent="onMouseDown" onClickAway={handleClickAwayPicker}>
+                            <Box
+                                sx={{
+                                    display: openPicker ? 'inline' : 'none',
+                                    zIndex: 10,
+                                    position: 'fixed',
+                                    bottom: 81,
+                                    right: 100,
+                                }}
+                            >
+                                <Picker
+                                    theme={theme.palette.mode}
+                                    data={data}
+                                    onEmojiSelect={(emoji) => handleEmojiSelect(emoji)}
+                                />
+                            </Box>
+                        </ClickAwayListener>
+                        <ChatInput
+                            openPicker={openPicker}
+                            setOpenPicker={setOpenPicker}
+                            value={value}
+                            setValue={setValue}
+                            sendMessage={sendMessage}
+                            inputRef={inputRef}
+                        />
                     </Stack>
-                </Box>
-            </Stack>
+
+                    <Box
+                        sx={{
+                            height: 48,
+                            width: 48,
+                            backgroundColor: theme.palette.primary.main,
+                            borderRadius: 1.5,
+                        }}
+                    >
+                        <Stack sx={{ height: '100%', width: '100%' }} alignItems="center" justifyContent="center">
+                            {' '}
+                            <IconButton onClick={sendMessage}>
+                                <PaperPlaneTilt color="white" />
+                            </IconButton>
+                        </Stack>
+                    </Box>
+                </Stack>
+            )}
         </Box>
     );
 };

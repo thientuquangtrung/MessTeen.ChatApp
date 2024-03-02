@@ -1,13 +1,28 @@
 import { Avatar, Box, Button, Divider, IconButton, Stack, Typography, useTheme } from '@mui/material';
-import React from 'react';
+import React, { useState } from 'react';
 import { Bell, CaretRight, Phone, Prohibit, Star, Trash, VideoCamera, X } from 'phosphor-react';
 import { faker } from '@faker-js/faker';
 import AntSwitch from './AntSwitch';
-import { useDispatch } from 'react-redux';
-import { toggleSidebar } from '../redux/app/appActionCreators';
+import { useDispatch, useSelector } from 'react-redux';
+import { BlockedFriendAction, UnblockedFriendAction, toggleSidebar } from '../redux/app/appActionCreators';
+
+const user_id = window.localStorage.getItem('user_id');
+
 const Contact = () => {
     const theme = useTheme();
     const dispatch = useDispatch();
+    const { current_conversation } = useSelector((state) => state.conversation);
+    const { blockedFriends } = useSelector((state) => state.app);
+    const isBlocked = blockedFriends.includes(current_conversation?.user_id);
+
+    const handleFriendAction = () => {
+        if (isBlocked) {
+            dispatch(UnblockedFriendAction(current_conversation?.user_id));
+        } else {
+            dispatch(BlockedFriendAction(current_conversation?.user_id));
+        }
+    };
+
     return (
         <Box sx={{ width: 320, height: '100vh' }}>
             <Stack sx={{ height: '100%' }}>
@@ -39,16 +54,25 @@ const Contact = () => {
                 >
                     <Stack alignItems={'center'} direction="row" spacing={2}>
                         <Avatar
-                            src={faker.image.avatar()}
-                            alt={faker.name.firstName()}
+                            src={current_conversation?.img}
+                            alt={current_conversation?.name}
                             sx={{ height: 64, width: 64 }}
                         />
                         <Stack spacing={0.5}>
                             <Typography variant="article" fontWeight={600}>
-                                {faker.name.fullName()}
+                                {current_conversation?.name}
                             </Typography>
-                            <Typography variant="body2" fontWeight={600}>
-                                {'+91 729 2829 2992'}
+                            <Typography
+                                variant="body2"
+                                fontWeight={600}
+                                style={{
+                                    maxWidth: '180px',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                }}
+                            >
+                                {current_conversation?.email}
                             </Typography>
                         </Stack>
                     </Stack>
@@ -69,7 +93,14 @@ const Contact = () => {
                     <Divider />
                     <Stack spacing={0.5}>
                         <Typography variant="article">About</Typography>
-                        <Typography variant="body2">Hi there</Typography>
+                        {current_conversation?.about ? (
+                            <Typography variant="body2">{current_conversation?.about}</Typography>
+                        ) : (
+                            <Typography variant="body2" color="textSecondary" style={{ fontStyle: 'italic' }}>
+                                User has not provided information in the About section.
+                            </Typography>
+                        )}
+                        {/* <Typography variant="body2">{current_conversation.about}</Typography> */}
                     </Stack>
                     <Divider />
                     <Stack direction={'row'} alignItems={'center'} justifyContent="space-between">
@@ -111,8 +142,8 @@ const Contact = () => {
                         </Stack>
                     </Stack>
                     <Stack direction="row" alignItems="center" spacing={2}>
-                        <Button fullWidth variant="outlined" startIcon={<Prohibit />}>
-                            Block
+                        <Button fullWidth variant="outlined" startIcon={<Prohibit />} onClick={handleFriendAction}>
+                            {isBlocked ? 'Unblock' : 'Block'}
                         </Button>
                         <Button fullWidth variant="outlined" startIcon={<Trash />}>
                             Delete
