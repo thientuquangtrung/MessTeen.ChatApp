@@ -1,13 +1,41 @@
 import { Avatar, Box, Button, Divider, IconButton, Stack, Typography, useTheme } from '@mui/material';
-import React from 'react';
-import { Bell, CaretRight, Phone, Prohibit, Star, Trash, VideoCamera, X } from 'phosphor-react';
+import React, { useState } from 'react';
+import {
+    Bell,
+    CaretRight,
+    Phone,
+    Prohibit,
+    SignOut,
+    Star,
+    Trash,
+    UserCirclePlus,
+    VideoCamera,
+    X,
+} from 'phosphor-react';
 import { faker } from '@faker-js/faker';
 import AntSwitch from './AntSwitch';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { toggleSidebar } from '../redux/app/appActionCreators';
+import AddFriendToGroup from '../sections/main/AddFriendsToGroup';
+import LeaveGroup from '../sections/main/LeaveGroup';
 const Contact = () => {
     const theme = useTheme();
     const dispatch = useDispatch();
+    const { current_conversation } = useSelector((state) => state.conversation);
+    const isGroup = current_conversation?.type === 'GROUP';
+
+    const [openDialog, setOpenDialog] = useState(false);
+    const [openDialogGroup, setOpenDialogGroup] = useState(false);
+    const [openDialogLeaveGroup, setOpenDialogLeaveGroup] = useState(false);
+
+    const handleCloseDialogGroup = () => {
+        setOpenDialogGroup(false)
+    };
+
+    const handleCloseDialogLeaveGroup = () => {
+        setOpenDialogLeaveGroup(false)
+    };
+
     return (
         <Box sx={{ width: 320, height: '100vh' }}>
             <Stack sx={{ height: '100%' }}>
@@ -102,22 +130,57 @@ const Contact = () => {
                         <AntSwitch />
                     </Stack>
                     <Divider />
-                    <Typography>1 group in common</Typography>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                        <Avatar src={faker.image.avatar()} alt={faker.name.fullName()} />
-                        <Stack spacing={0.5}>
-                            <Typography variant="subtitle2">Duck Nghia</Typography>
-                            <Typography variant="caption">Banana</Typography>
-                        </Stack>
-                    </Stack>
-                    <Stack direction="row" alignItems="center" spacing={2}>
-                        <Button fullWidth variant="outlined" startIcon={<Prohibit />}>
-                            Block
-                        </Button>
-                        <Button fullWidth variant="outlined" startIcon={<Trash />}>
-                            Delete
-                        </Button>
-                    </Stack>
+
+                    {/* Private */}
+                    {!isGroup ? (
+                        <>
+                            <Typography>1 group in common</Typography>
+                            <Stack direction="row" spacing={2} alignItems="center">
+                                <Avatar src={faker.image.avatar()} alt={faker.name.fullName()} />
+                                <Stack spacing={0.5}>
+                                    <Typography variant="subtitle2">Duck Nghia</Typography>
+                                    <Typography variant="caption">Banana</Typography>
+                                </Stack>
+                            </Stack>
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                                <Button fullWidth variant="outlined" startIcon={<Prohibit />}>
+                                    Block
+                                </Button>
+                                <Button fullWidth variant="outlined" startIcon={<Trash />}>
+                                    Delete
+                                </Button>
+                            </Stack>
+                        </>
+                    ) : (
+                        <>
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                                <Button
+                                    sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                                    fullWidth
+                                    variant="outlined"
+                                    startIcon={<UserCirclePlus />}
+                                    onClick={() => {
+                                        setOpenDialogGroup(true);
+                                    }}
+                                >
+                                    Add Friend
+                                </Button>
+                                {openDialogGroup && <AddFriendToGroup open={openDialogGroup} handleClose={handleCloseDialogGroup} />}
+                                <Button
+                                    sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                                    fullWidth
+                                    variant="outlined"
+                                    startIcon={<SignOut />}
+                                    onClick={() => {
+                                        setOpenDialogLeaveGroup(true);
+                                    }}
+                                >
+                                    Leave Group
+                                </Button>
+                                {openDialogLeaveGroup && <LeaveGroup open={openDialogLeaveGroup} handleClose={handleCloseDialogLeaveGroup} />}
+                            </Stack>
+                        </>
+                    )}
                 </Stack>
             </Stack>
         </Box>
