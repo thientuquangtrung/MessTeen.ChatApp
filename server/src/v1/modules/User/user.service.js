@@ -1,4 +1,5 @@
 const { BadRequestError, NotFoundError } = require('../../core/error.response');
+const chatroomModel = require('../ChatRoom/chatroom.model');
 const UserModel = require('../User/user.model');
 const bcrypt = require('bcrypt');
 const { escapeRegExp } = require('lodash');
@@ -62,17 +63,48 @@ class UserService {
         return { message: 'Friend request rejected' };
     }
 
+    // static async blockFriend({ usr_id_1, usr_id_2 }) {
+    //     const friend = await UserModel.findById(usr_id_2);
+    //     if (!friend) {
+    //         throw new NotFoundError('Friend not found');
+    //     }
+
+    //     const user = await UserModel.findByIdAndUpdate(usr_id_1, {
+    //         $addToSet: { usr_blocked_people: usr_id_2 },
+    //     }, {
+    //         new: true,
+    //     });
+
+    //     return user.usr_blocked_people;
+    // }
+
     static async blockFriend({ usr_id_1, usr_id_2 }) {
         const friend = await UserModel.findById(usr_id_2);
         if (!friend) {
             throw new NotFoundError('Friend not found');
         }
 
-        await UserModel.findByIdAndUpdate(usr_id_1, {
-            $addToSet: { usr_blocked_people: usr_id_2 },
-        });
+        const user = await UserModel.findByIdAndUpdate(
+            usr_id_1,
+            { $addToSet: { usr_blocked_people: usr_id_2 } },
+            { new: true },
+        );
 
-        return { message: 'Friend blocked successfully' };
+        // check if there is any existing conversation
+        const existing_conversations = await chatroomModel
+            .find({
+                room_participant_ids: { $size: 2, $all: [usr_id_1, usr_id_2] },
+                room_type: 'PRIVATE',
+            })
+
+        if(existing_conversations.length > 0) {
+            _io.to(friend.usr_socket_id).emit('friend_blocked', {
+                id: existing_conversations[0]._id,
+                blocked: true,
+            });
+        }
+
+        return user.usr_blocked_people;
     }
 
     static async unBlockFriend({ usr_id_1, usr_id_2 }) {
@@ -81,11 +113,31 @@ class UserService {
             throw new NotFoundError('Friend not found');
         }
 
-        await UserModel.findByIdAndUpdate(usr_id_1, {
-            $pull: { usr_blocked_people: usr_id_2 },
-        });
+        const user = await UserModel.findByIdAndUpdate(
+            usr_id_1,
+            {
+                $pull: { usr_blocked_people: usr_id_2 },
+            },
+            {
+                new: true,
+            },
+        );
 
-        return { message: 'Friend unblocked successfully' };
+        // check if there is any existing conversation
+        const existing_conversations = await chatroomModel
+            .find({
+                room_participant_ids: { $size: 2, $all: [usr_id_1, usr_id_2] },
+                room_type: 'PRIVATE',
+            })
+
+        if(existing_conversations.length > 0) {
+            _io.to(friend.usr_socket_id).emit('friend_blocked', {
+                id: existing_conversations[0]._id,
+                blocked: false,
+            });
+        }
+
+        return user.usr_blocked_people;
     }
 
     static async removeFriend({ usr_id_1, usr_id_2 }) {

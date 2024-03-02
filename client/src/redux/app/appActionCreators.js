@@ -123,6 +123,40 @@ export function FetchFriendRequests(searchQuery = '') {
     };
 }
 
+export function BlockedFriendAction(friendId) {
+    return async (dispatch, getState) => {
+        await axios
+            .post('/users/block-friend', {
+                usr_id_1: getState().auth.user_id,
+                usr_id_2: friendId
+            })
+            .then((response) => {
+                console.log(response);
+                dispatch(slice.actions.updateBlockedFriends({ listBlockedFriends: response.data.metadata }));
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+}
+
+export function UnblockedFriendAction(friendId) {
+    return async (dispatch, getState) => {
+        await axios
+            .post('/users/unblock-friend', {
+                usr_id_1: getState().auth.user_id,
+                usr_id_2: friendId
+            })
+            .then((response) => {
+                console.log(response);
+                dispatch(slice.actions.updateBlockedFriends({ listBlockedFriends: response.data.metadata }));
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+}
+
 export function UpdateFriendsRequestAction(requestList) {
     return (dispatch, getState) => {
         dispatch(slice.actions.updateFriendRequests({ requests: requestList }));
@@ -172,55 +206,6 @@ export const SelectConversation = ({ room_id }) => {
 //     };
 // };
 
-// export const UpdateUserProfile = (formValues) => {
-//     return async (dispatch, getState) => {
-//         const file = formValues.avatar;
-//         const key = v4();
-//         const storageRef = firebase.storage().ref();
-
-//         const fileRef = storageRef.child(`avatars/${key}`);
-//         await fileRef.put(file);
-
-//         const downloadURL = await fileRef.getDownloadURL();
-
-//         try {
-//             await firebase
-//                 .firestore()
-//                 .collection('users')
-//                 .doc(getState().auth.userId)
-//                 .update({
-//                     ...formValues,
-//                     avatar: downloadURL,
-//                 });
-
-//             const updatedUserData = (
-//                 await firebase.firestore().collection('users').doc(getState().auth.userId).get()
-//             ).data();
-//             dispatch(slice.actions.updateUser({ user: updatedUserData }));
-//         } catch (error) {
-//             console.error('Error updating user profile:', error);
-//         }
-
-// axios
-//     .patch(
-//         '/user/update-me',
-//         { ...formValues, avatar: key },
-//         {
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 Authorization: `Bearer ${getState().auth.token}`,
-//             },
-//         },
-//     )
-//     .then((response) => {
-//         console.log(response);
-//         dispatch(slice.actions.updateUser({ user: response.data.data }));
-//     })
-//     .catch((err) => {
-//         console.log(err);
-//     });
-//     };
-// };
 export const UpdateUserProfile = (formValues) => {
     return async (dispatch, getState) => {
         const file = formValues.avatar;
