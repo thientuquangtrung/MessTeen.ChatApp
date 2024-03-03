@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { faker } from '@faker-js/faker';
-// import { AWS_S3_REGION, S3_BUCKET_NAME } from '../../config';
+import { revertAll } from '../globalActions';
 
 const user_id = window.localStorage.getItem('user_id');
 
@@ -52,7 +52,7 @@ export const slice = createSlice({
                         unread: 0,
                         pinned: false,
                         type: el.room_type,
-                        participant_ids: el.room_participant_ids.map((participant) => participant._id)
+                        participant_ids: el.room_participant_ids.map((participant) => participant._id),
                     };
                 }
             });
@@ -85,7 +85,7 @@ export const slice = createSlice({
                                 time: this_conversation.room_last_msg.timestamp,
                                 unread: 0,
                                 pinned: false,
-                                type: this_conversation.room_type
+                                type: this_conversation.room_type,
                             };
                         } else {
                             // GROUP
@@ -101,7 +101,9 @@ export const slice = createSlice({
                                 unread: 0,
                                 pinned: false,
                                 type: this_conversation.room_type,
-                                participant_ids: this_conversation.room_participant_ids.map((participant) => participant._id)
+                                participant_ids: this_conversation.room_participant_ids.map(
+                                    (participant) => participant._id,
+                                ),
                             };
                         }
                     }
@@ -120,12 +122,12 @@ export const slice = createSlice({
                     user_id: user?._id,
                     name: `${user?.usr_name}`,
                     online: user?.usr_status === 'ONLINE',
-                    img: [faker.image.avatar()], 
+                    img: [faker.image.avatar()],
                     msg: this_conversation.room_last_msg.content,
                     time: this_conversation.room_last_msg.timestamp,
                     unread: 0,
                     pinned: false,
-                    type: this_conversation.room_type
+                    type: this_conversation.room_type,
                 });
             } else {
                 state.conversations.push({
@@ -138,10 +140,10 @@ export const slice = createSlice({
                     unread: 0,
                     pinned: false,
                     type: this_conversation.room_type,
-                    participant_ids: this_conversation.room_participant_ids.map((participant) => participant._id)
+                    participant_ids: this_conversation.room_participant_ids.map((participant) => participant._id),
                 });
             }
-            state.conversations.sort((a, b) => new Date(b.time) - new Date(a.time)); 
+            state.conversations.sort((a, b) => new Date(b.time) - new Date(a.time));
         },
         setCurrentConversation(state, action) {
             state.current_conversation = action.payload;
@@ -181,6 +183,7 @@ export const slice = createSlice({
             });
         },
     },
+    extraReducers: (builder) => builder.addCase(revertAll, () => initialState),
 });
 
 // Reducer

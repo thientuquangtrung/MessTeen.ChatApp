@@ -1,6 +1,7 @@
 import axios from '../../utils/axios';
 import { slice } from './authReducer';
 import { SetUser, showSnackbar } from '../app/appActionCreators';
+import { revertAll } from '../globalActions';
 
 // export function NewPassword(formValues) {
 //     return async (dispatch, getState) => {
@@ -124,6 +125,7 @@ export function AuthWithProvider(formValues) {
                         user: response.data.metadata.user,
                     }),
                 );
+                dispatch(SetUser(response.data.metadata.user));
                 window.localStorage.setItem('user_id', response.data.metadata.user._id);
                 dispatch(showSnackbar({ severity: 'success', message: response.data.message }));
                 dispatch(slice.actions.updateIsLoading({ isLoading: false, error: false }));
@@ -152,7 +154,8 @@ export function LogoutUser() {
             .post('/auth/logout')
             .then((response) => {
                 window.localStorage.removeItem('user_id');
-                dispatch(slice.actions.signOut());
+                // dispatch(slice.actions.signOut());
+                dispatch(revertAll());
                 dispatch(slice.actions.updateIsLoading({ isLoading: false, error: false }));
             })
             .catch(function (error) {
@@ -184,6 +187,7 @@ export function RegisterUser(formValues) {
                         user: response.data.metadata.user,
                     }),
                 );
+                dispatch(SetUser(response.data.metadata.user));
                 window.localStorage.setItem('user_id', response.data.metadata.user._id);
                 dispatch(showSnackbar({ severity: 'success', message: response.data.message }));
                 dispatch(slice.actions.updateIsLoading({ isLoading: false, error: false }));
