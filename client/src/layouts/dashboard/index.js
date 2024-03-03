@@ -60,7 +60,6 @@ const DashboardLayout = () => {
 
             socket.on('new_message', (data) => {
                 const message = data.message;
-                console.log('AWDwadwa', current_conversation, data);
                 // check if msg we got is from currently selected conversation
                 if (current_conversation?.id === data.conversation._id) {
                     dispatch(
@@ -69,9 +68,10 @@ const DashboardLayout = () => {
                             type: 'msg',
                             subtype: message.msg_parent_id ? 'reply' : message.msg_type,
                             message: message.msg_content,
-                            incoming: message.msg_sender_id !== user_id,
-                            outgoing: message.msg_sender_id === user_id,
+                            incoming: message.msg_sender_id._id !== user_id,
+                            outgoing: message.msg_sender_id._id === user_id,
                             msgReply: message.msg_parent_id,
+                            user_name: message.msg_sender_id.usr_name,
                         }),
                     );
                 }
@@ -86,12 +86,12 @@ const DashboardLayout = () => {
             });
 
             socket.on('get_reaction', (data) => {
-                console.log('Reaction Data', data.message);
                 const message = data.message;
                 if (current_conversation?.id === data.conversation_id) {
                     dispatch(AddMessageReaction({ message }));
                 }
             });
+
 
             socket.on('start_chat', ({ chatroom, message }) => {
                 // add / update to conversation list
@@ -106,7 +106,6 @@ const DashboardLayout = () => {
             });
 
             socket.on('leave_group', ({ chatroom, message }) => {
-                console.log(chatroom);
                 const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
                 if (existing_conversation !== -1) {
                     dispatch(RemoveDirectConversation({ id: chatroom._id }));
@@ -162,6 +161,9 @@ const DashboardLayout = () => {
             socket?.off('new_message');
             socket?.off('audio_call_notification');
             socket?.off('error');
+            socket?.off('get_reaction');
+            socket?.off('friend_blocked');
+            socket?.off('leave_group');
         };
     }, [isLoggedIn, socket, conversations, current_conversation, user_id]);
     //#endregion hooks

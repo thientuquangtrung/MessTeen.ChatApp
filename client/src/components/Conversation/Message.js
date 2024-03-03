@@ -8,11 +8,9 @@ import { DocMsg, LinkMsg, MediaMsg, ReplyMsg, TextMsg, Timeline } from './MsgTyp
 
 const Message = () => {
     const dispatch = useDispatch();
-    const messagesEndRef = useRef(null); // Tham chiếu đến phần tử cuối cùng của Stack
+    const messagesEndRef = useRef(null);
 
-    const { conversations, current_messages } = useSelector((state) => state.conversation);
-    // console.log(':::::::::::::::::::::::', current_messages);
-    console.log(':::::::::::::::::::::::', conversations);
+    const { conversations, current_messages, messsage_react } = useSelector((state) => state.conversation);
     const { room_id } = useSelector((state) => state.app);
     useEffect(() => {
         const current = conversations.find((el) => el?.id === room_id);
@@ -51,14 +49,8 @@ const Message = () => {
                                 case 'reply':
                                     return <ReplyMsg el={el} key={el.id} />;
                                 default:
-                                    return (
-                                        <Stack>
-                                            {}
-                                            <TextMsg el={el} key={el.id} />;
-                                        </Stack>
-                                    );
+                                    return <TextMsg el={el} key={el.id} />;
                             }
-
                         default:
                             return <React.Fragment key={el.id} />;
                     }

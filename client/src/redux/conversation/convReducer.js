@@ -171,11 +171,12 @@ export const slice = createSlice({
                 type: 'msg',
                 subtype: el.msg_parent_id ? 'reply' : el.msg_type,
                 message: el.msg_content,
-                incoming: el.msg_sender_id !== user_id,
-                outgoing: el.msg_sender_id === user_id,
+                incoming: el.msg_sender_id._id !== user_id,
+                outgoing: el.msg_sender_id_id === user_id,
                 timestamp: el.msg_timestamp,
                 reactions: el.msg_reactions.map((reaction) => reaction.reaction),
                 msgReply: el.msg_parent_id,
+                user_name: el.msg_sender_id.usr_name,
             }));
             formatted_messages.sort((a, b) => {
                 return new Date(a.timestamp) - new Date(b.timestamp);
@@ -193,18 +194,19 @@ export const slice = createSlice({
 
             if (messageIndex !== -1) {
                 // Create a copy of the current_messages array
-                console.log('message', messageUpdate.msg_reactions);
                 const updatedMessages = [...state.current_messages];
                 // Replace the message at the found index with the updated message
                 updatedMessages[messageIndex] = {
                     id: messageUpdate._id,
                     type: 'msg',
-                    subtype: messageUpdate.msg_type,
+                    subtype: messageUpdate.msg_parent_id ? 'reply' : messageUpdate.msg_type,
                     message: messageUpdate.msg_content,
-                    incoming: messageUpdate.msg_sender_id !== user_id,
-                    outgoing: messageUpdate.msg_sender_id === user_id,
+                    incoming: messageUpdate.msg_sender_id._id !== user_id,
+                    outgoing: messageUpdate.msg_sender_id._id === user_id,
                     timestamp: messageUpdate.msg_timestamp,
                     reactions: messageUpdate.msg_reactions.map((reaction) => reaction.reaction),
+                    msgReply: messageUpdate.msg_parent_id,
+                    user_name: messageUpdate.msg_sender_id.usr_name,
                 };
 
                 // Update the state with the new array of messages

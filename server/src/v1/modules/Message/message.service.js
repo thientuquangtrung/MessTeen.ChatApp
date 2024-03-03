@@ -15,7 +15,8 @@ class MessageService {
             .sort({ msg_timestamp: -1 })
             .skip(skip)
             .limit(limit)
-            .populate('msg_parent_id', 'msg_content _id');
+            .populate('msg_parent_id', 'msg_content _id')
+            .populate('msg_sender_id', 'usr_name usr_avatar _id');
 
         return messages;
     }
@@ -49,7 +50,10 @@ class MessageService {
         return messages;
     }
     static async reactOnMessage(messageId, msg_reaction) {
-        const message = await MessageModel.findById(messageId);
+        const message = await MessageModel.findById(messageId)
+            .populate('msg_parent_id', 'msg_content _id')
+            .populate('msg_sender_id', 'usr_name usr_avatar');
+
         if (!message) {
             throw new NotFoundError('Message not found.');
         }
