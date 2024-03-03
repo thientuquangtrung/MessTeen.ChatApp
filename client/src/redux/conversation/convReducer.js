@@ -18,7 +18,6 @@ const initialState = {
     current_conversation: null,
     current_messages: [],
     replyMsg: null,
-    messsage_react: [],
 };
 
 export const slice = createSlice({
@@ -113,6 +112,20 @@ export const slice = createSlice({
                 .sort((a, b) => new Date(b.time) - new Date(a.time));
         },
 
+        removeDirectConversation(state, action) {
+            const this_conversation_id = action.payload.id;
+
+            state.conversations = state.conversations
+                .filter((el) => {
+                    return el?.id !== this_conversation_id;
+                })
+                .sort((a, b) => new Date(b.time) - new Date(a.time));
+
+            // if(state.current_conversation.id === this_conversation_id){
+            //     state.current_conversation = null
+            // }
+        },
+
         addDirectConversation(state, action) {
             const this_conversation = action.payload.conversation;
             state.conversations = state.conversations.filter((el) => el?.id !== this_conversation._id);
@@ -181,7 +194,6 @@ export const slice = createSlice({
 
             if (messageIndex !== -1) {
                 // Create a copy of the current_messages array
-                // console.log('message', messageUpdate.msg_reactions);
                 const updatedMessages = [...state.current_messages];
                 // Replace the message at the found index with the updated message
                 updatedMessages[messageIndex] = {
@@ -196,7 +208,7 @@ export const slice = createSlice({
                     msgReply: messageUpdate.msg_parent_id,
                     user_name: messageUpdate.msg_sender_id.usr_name,
                 };
-                console.log('message', updatedMessages[messageIndex]);
+
                 // Update the state with the new array of messages
                 state.current_messages = updatedMessages;
             }

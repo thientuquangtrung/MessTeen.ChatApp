@@ -53,6 +53,7 @@ class MessageService {
         const message = await MessageModel.findById(messageId)
             .populate('msg_parent_id', 'msg_content _id')
             .populate('msg_sender_id', 'usr_name usr_avatar');
+
         if (!message) {
             throw new NotFoundError('Message not found.');
         }

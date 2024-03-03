@@ -19,6 +19,7 @@ import {
     AddMessageReaction,
     UpdateBlockedConversation,
     UpdateDirectConversation,
+    RemoveDirectConversation,
 } from '../../redux/conversation/convActionCreators';
 import AntSwitch from '../../components/AntSwitch';
 
@@ -59,7 +60,6 @@ const DashboardLayout = () => {
 
             socket.on('new_message', (data) => {
                 const message = data.message;
-                console.log('AWDwadwa', current_conversation, data);
                 // check if msg we got is from currently selected conversation
                 if (current_conversation?.id === data.conversation._id) {
                     dispatch(
@@ -86,25 +86,33 @@ const DashboardLayout = () => {
             });
 
             socket.on('get_reaction', (data) => {
-                console.log('Reaction Data', data.message);
                 const message = data.message;
                 if (current_conversation?.id === data.conversation_id) {
                     dispatch(AddMessageReaction({ message }));
                 }
             });
 
-            socket.on('start_chat', (data) => {
-                console.log(data);
+
+            socket.on('start_chat', ({ chatroom, message }) => {
                 // add / update to conversation list
-                const existing_conversation = conversations.find((el) => el?.id === data._id);
+                const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
                 if (existing_conversation) {
-                    // update direct conversation
-                    dispatch(UpdateDirectConversation({ conversation: data }));
+                    dispatch(UpdateDirectConversation({ conversation: chatroom }));
                 } else {
-                    // add direct conversation
-                    dispatch(AddDirectConversation({ conversation: data }));
+                    dispatch(AddDirectConversation({ conversation: chatroom }));
                 }
-                dispatch(SelectConversation({ room_id: data._id }));
+                dispatch(SelectConversation({ room_id: chatroom._id }));
+                dispatch(showSnackbar({ severity: 'info', message }));
+            });
+
+            socket.on('leave_group', ({ chatroom, message }) => {
+                const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
+                if (existing_conversation !== -1) {
+                    dispatch(RemoveDirectConversation({ id: chatroom._id }));
+                    dispatch(showSnackbar({ severity: 'info', message }));
+                } else {
+                    dispatch(showSnackbar({ severity: 'error', message: 'Error: Conversation not found.' }));
+                }
             });
 
             socket.on('friend_blocked', (data) => {
@@ -153,6 +161,9 @@ const DashboardLayout = () => {
             socket?.off('new_message');
             socket?.off('audio_call_notification');
             socket?.off('error');
+            socket?.off('get_reaction');
+            socket?.off('friend_blocked');
+            socket?.off('leave_group');
         };
     }, [isLoggedIn, socket, conversations, current_conversation, user_id]);
     //#endregion hooks
