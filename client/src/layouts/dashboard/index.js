@@ -94,9 +94,8 @@ const DashboardLayout = () => {
             });
 
             socket.on('start_chat', ({ chatroom, message }) => {
-                console.log(data);
                 // add / update to conversation list
-                const existing_conversation = conversations.find((el) => el?.id === data._id);
+                const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
                 if (existing_conversation) {
                     dispatch(UpdateDirectConversation({ conversation: chatroom }));
                 } else {
@@ -111,7 +110,7 @@ const DashboardLayout = () => {
                 const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
                 if (existing_conversation !== -1) {
                     dispatch(RemoveDirectConversation({ id: chatroom._id }));
-                    dispatch(showSnackbar({ severity: 'warning', message }));
+                    dispatch(showSnackbar({ severity: 'info', message }));
                 } else {
                     dispatch(showSnackbar({ severity: 'error', message: 'Error: Conversation not found.' }));
                 }
