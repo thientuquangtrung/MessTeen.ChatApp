@@ -16,49 +16,11 @@ import { SelectConversation, UpdateFriendsRequestAction, showSnackbar } from '..
 import {
     AddDirectConversation,
     AddDirectMessage,
+    UpdateBlockedConversation,
     UpdateDirectConversation,
 } from '../../redux/conversation/convActionCreators';
+import AntSwitch from '../../components/AntSwitch';
 
-const AntSwitch = styled(Switch)(({ theme }) => ({
-    width: 40,
-    height: 20,
-    padding: 0,
-    display: 'flex',
-    '&:active': {
-        '& .MuiSwitch-thumb': {
-            width: 15,
-        },
-        '& .MuiSwitch-switchBase.Mui-checked': {
-            transform: 'translateX(9px)',
-        },
-    },
-    '& .MuiSwitch-switchBase': {
-        padding: 2,
-        '&.Mui-checked': {
-            transform: 'translateX(20px)',
-            color: '#fff',
-            '& + .MuiSwitch-track': {
-                opacity: 1,
-                backgroundColor: theme.palette.mode === 'dark' ? '#177ddc' : '#1890ff',
-            },
-        },
-    },
-    '& .MuiSwitch-thumb': {
-        boxShadow: '0 2px 4px 0 rgb(0 35 11 / 20%)',
-        width: 16,
-        height: 16,
-        borderRadius: 8,
-        transition: theme.transitions.create(['width'], {
-            duration: 200,
-        }),
-    },
-    '& .MuiSwitch-track': {
-        borderRadius: 20 / 2,
-        opacity: 1,
-        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.25)',
-        boxSizing: 'border-box',
-    },
-}));
 const DashboardLayout = () => {
     //#region hooks
     const navigate = useNavigate();
@@ -134,6 +96,15 @@ const DashboardLayout = () => {
                 dispatch(SelectConversation({ room_id: data._id }));
             });
 
+            socket.on('friend_blocked', (data) => {
+                dispatch(
+                    UpdateBlockedConversation({
+                        id: data.id,
+                        blocked: data.blocked,
+                    }),
+                );
+            });
+
             socket.on('new_friend_request', (data) => {
                 dispatch(
                     showSnackbar({
@@ -180,7 +151,7 @@ const DashboardLayout = () => {
         navigate('/settings');
     };
 
-    console.log(theme);
+    // console.log(theme);
 
     if (!isLoggedIn) {
         return <Navigate to={'/auth/login'} />;

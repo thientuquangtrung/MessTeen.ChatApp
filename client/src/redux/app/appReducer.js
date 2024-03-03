@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    // user: {},
+    user: {},
     // sideBar: {
     //     open: false,
     //     type: "CONTACT", // can be CONTACT, STARRED, SHARED
@@ -17,7 +17,8 @@ const initialState = {
     // all_users: [],
     friends: [], // all friends
     friendRequests: [], // all friend requests
-    chat_type: null,
+    blockedFriends: [],
+    // chat_type: null,
     room_id: null,
     // call_logs: [],
 
@@ -38,9 +39,9 @@ export const slice = createSlice({
         // fetchUser(state, action) {
         //     state.user = action.payload.user;
         // },
-        // updateUser(state, action) {
-        //     state.user = action.payload.user;
-        // },
+        updateUser(state, action) {
+            state.user = action.payload.user;
+        },
         // // Toggle Sidebar
         // toggleSideBar(state) {
         //     state.sideBar.open = !state.sideBar.open;
@@ -75,8 +76,11 @@ export const slice = createSlice({
         updateFriendRequests(state, action) {
             state.friendRequests = action.payload.requests;
         },
+        updateBlockedFriends(state, action) {
+            state.blockedFriends = action.payload.listBlockedFriends;
+        },
         selectConversation(state, action) {
-            state.chat_type = 'individual';
+            // state.chat_type = 'individual';
             state.room_id = action.payload.room_id;
         },
 

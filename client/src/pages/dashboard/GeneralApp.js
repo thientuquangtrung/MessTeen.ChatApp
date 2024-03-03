@@ -4,7 +4,7 @@ import { Box, Stack, Typography, useTheme } from '@mui/material';
 import Conversation from '../../components/Conversation';
 import Contact from '../../components/Contact';
 import { useSelector } from 'react-redux';
-import NoChatSVG from "../../assets/Illustration/NoChat"
+import NoChatSVG from '../../assets/Illustration/NoChat';
 import NoChat from '../../assets/Illustration/NoChat';
 
 const GeneralApp = () => {
@@ -23,7 +23,7 @@ const GeneralApp = () => {
                     backgroundColor: theme.palette.mode === 'light' ? '#fff' : theme.palette.background.paper,
                 }}
             >
-                {room_id !== null && chat_type === 'individual' ? (
+                {room_id !== null ? (
                     <Conversation />
                 ) : (
                     <Stack
@@ -32,8 +32,8 @@ const GeneralApp = () => {
                         alignItems={'center'}
                         justifyContent={'center'}
                     >
-                        <NoChatSVG/>
-                        <Typography variant='subtitle2'>Select a conversation or start new one</Typography>
+                        <NoChatSVG />
+                        <Typography variant="subtitle2">Select a conversation or start new one</Typography>
                     </Stack>
                 )}
                 {/* conversations */}

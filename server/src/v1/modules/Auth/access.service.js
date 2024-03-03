@@ -85,7 +85,7 @@ class AccessService {
 
         return {
             user: getInfoData({
-                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_provider_type'],
+                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_bio', 'usr_provider_type'],
                 object: foundUser,
             }),
             tokens,
@@ -135,7 +135,7 @@ class AccessService {
 
         return {
             user: getInfoData({
-                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_provider_type'],
+                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_bio', 'usr_provider_type'],
                 object: newUser,
             }),
             tokens,
@@ -192,7 +192,7 @@ class AccessService {
 
         return {
             user: getInfoData({
-                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_provider_type'],
+                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_bio', 'usr_provider_type'],
                 object: foundUser,
             }),
             tokens,

@@ -7,7 +7,13 @@ const compression = require('compression');
 const UserModel = require('./v1/modules/User/user.model');
 const withErrorHandling = require('./v1/helpers/socketAsyncHandler');
 const { sendFriendRequestWS, acceptRequestWS } = require('./v1/modules/User/user.ws');
-const { startConversationWS, getDirectConversationsWS } = require('./v1/modules/ChatRoom/chatroom.ws');
+const {
+    startConversationWS,
+    getDirectConversationsWS,
+    groupConversationWS,
+    addMemberToGroupWS,
+    leaveGroupWS,
+} = require('./v1/modules/ChatRoom/chatroom.ws');
 const { sendMesssageWS, getMessagesWS } = require('./v1/modules/Message/message.ws');
 
 //init dbs
@@ -75,6 +81,12 @@ const handleSocketConnect = async (socket) => {
     socket.on('get_direct_conversations', withErrorHandling(socket, getDirectConversationsWS));
 
     socket.on('start_conversation', withErrorHandling(socket, startConversationWS));
+
+    socket.on('group_conversation', withErrorHandling(socket, groupConversationWS));
+
+    socket.on('add_member_to_group', withErrorHandling(socket, addMemberToGroupWS));
+
+    socket.on('leave_group', withErrorHandling(socket, leaveGroupWS));
 
     // socket.on('get_messages', async (data, callback) => {
     //     try {

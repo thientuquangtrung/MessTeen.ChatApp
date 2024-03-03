@@ -1,3 +1,4 @@
+import { dispatch } from '../store';
 import { slice } from './convReducer';
 
 export const FetchDirectConversations = ({ conversations }) => {
@@ -33,5 +34,11 @@ export const FetchCurrentMessages = ({ messages }) => {
 export const AddDirectMessage = (message) => {
     return async (dispatch, getState) => {
         dispatch(slice.actions.addDirectMessage({ message }));
+    };
+};
+
+export const UpdateBlockedConversation = ({ id, blocked }) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.updateBlockedConversation({ id, blocked }));
     };
 };

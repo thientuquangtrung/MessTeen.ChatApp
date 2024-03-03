@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 // import { AWS_S3_REGION, S3_BUCKET_NAME } from "../../config";
 
 const ProfileMenu = () => {
-    // const { user } = useSelector((state) => state.app);
+    const { user } = useSelector((state) => state.app);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -24,9 +24,6 @@ const ProfileMenu = () => {
     };
 
     const user_id = window.localStorage.getItem('user_id');
-    const user_name = 'Trung';
-    // const user_img = `https://${S3_BUCKET_NAME}.s3.${AWS_S3_REGION}.amazonaws.com/${user?.avatar}`;
-    const user_img = faker.image.avatar();
 
     return (
         <>
@@ -35,8 +32,8 @@ const ProfileMenu = () => {
                 aria-controls={openMenu ? 'profile-positioned-menu' : undefined}
                 aria-haspopup="true"
                 aria-expanded={openMenu ? 'true' : undefined}
-                alt={user_name}
-                src={user_img}
+                alt={user?.usr_name}
+                src={user?.usr_avatar}
                 onClick={handleClick}
             />
             <Menu
