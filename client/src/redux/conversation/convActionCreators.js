@@ -19,6 +19,12 @@ export const UpdateDirectConversation = ({ conversation }) => {
     };
 };
 
+export const UpdateConversationStatus = (updatedConversations) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.updateConversationStatus(updatedConversations));
+    };
+};
+
 export const SetCurrentConversation = (current_conversation) => {
     return async (dispatch, getState) => {
         dispatch(slice.actions.setCurrentConversation(current_conversation));

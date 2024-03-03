@@ -68,6 +68,16 @@ const handleSocketConnect = async (socket) => {
                 usr_socket_id: socket.id,
                 usr_status: 'ONLINE',
             });
+
+            const user = await UserModel.findById(user_id).populate('usr_friends', 'usr_socket_id usr_status');
+
+            const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status === 'ONLINE');
+
+            onlineFriends.forEach((friend) => {
+                if (friend.usr_socket_id) {
+                    _io.to(friend.usr_socket_id).emit('friend-online', { userId: user_id, status: true });
+                }
+            });
         } catch (e) {
             console.log(e);
         }
@@ -351,11 +361,19 @@ const handleSocketConnect = async (socket) => {
 
     socket.on('disconnect', async () => {
         // Find user by ID and set status as offline
-        await UserModel.findByIdAndUpdate(user_id, { usr_status: 'OFFLINE' });
+        const user = await UserModel.findByIdAndUpdate(user_id, { usr_status: 'OFFLINE' }).populate('usr_friends', 'usr_socket_id usr_status');
 
         // TODO: broadcast to all conversation rooms of this user that this user is offline (disconnected)
 
         console.log(`user disconnected:::::::::::`, user_id);
+
+        const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status === 'ONLINE');
+
+        onlineFriends.forEach((friend) => {
+            if (friend.usr_socket_id) {
+                _io.to(friend.usr_socket_id).emit('friend-online', { userId: user_id, status: false });
+            }
+        });
     });
 };
 

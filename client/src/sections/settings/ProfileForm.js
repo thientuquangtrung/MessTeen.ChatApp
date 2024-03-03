@@ -42,7 +42,7 @@ const ProfileForm = () => {
     } = methods;
 
     const values = watch();
-    
+
     const onSubmit = async (data) => {
         try {
             //   Send API request
@@ -69,7 +69,7 @@ const ProfileForm = () => {
             });
 
             if (file) {
-                setValue('avatar', newFile, { shouldValidate: true });
+                setValue('avatar', newFile, { shouldValidate: true, shouldDirty: true });
             }
         },
         [setValue],
@@ -100,7 +100,7 @@ const ProfileForm = () => {
                         type="submit"
                         variant="outlined"
                         // loading={isSubmitSuccessful || isSubmitting}
-                        // disabled={!isDirty}
+                        disabled={!isDirty}
                     >
                         Save
                     </LoadingButton>
