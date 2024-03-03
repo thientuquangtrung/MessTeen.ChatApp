@@ -16,9 +16,11 @@ import { SelectConversation, UpdateFriendsRequestAction, showSnackbar } from '..
 import {
     AddDirectConversation,
     AddDirectMessage,
+    AddMessageReaction,
     UpdateBlockedConversation,
     UpdateConversationStatus,
     UpdateDirectConversation,
+    RemoveDirectConversation,
 } from '../../redux/conversation/convActionCreators';
 import AntSwitch from '../../components/AntSwitch';
 
@@ -59,17 +61,18 @@ const DashboardLayout = () => {
 
             socket.on('new_message', (data) => {
                 const message = data.message;
-                console.log(current_conversation, data);
                 // check if msg we got is from currently selected conversation
                 if (current_conversation?.id === data.conversation._id) {
                     dispatch(
                         AddDirectMessage({
                             id: message._id,
                             type: 'msg',
-                            subtype: message.msg_type,
+                            subtype: message.msg_parent_id ? 'reply' : message.msg_type,
                             message: message.msg_content,
-                            incoming: message.msg_sender_id !== user_id,
-                            outgoing: message.msg_sender_id === user_id,
+                            incoming: message.msg_sender_id._id !== user_id,
+                            outgoing: message.msg_sender_id._id === user_id,
+                            msgReply: message.msg_parent_id,
+                            user_name: message.msg_sender_id.usr_name,
                         }),
                     );
                 }
@@ -83,18 +86,34 @@ const DashboardLayout = () => {
                 }
             });
 
-            socket.on('start_chat', (data) => {
-                console.log(data);
-                // add / update to conversation list
-                const existing_conversation = conversations.find((el) => el?.id === data._id);
-                if (existing_conversation) {
-                    // update direct conversation
-                    dispatch(UpdateDirectConversation({ conversation: data }));
-                } else {
-                    // add direct conversation
-                    dispatch(AddDirectConversation({ conversation: data }));
+            socket.on('get_reaction', (data) => {
+                const message = data.message;
+                if (current_conversation?.id === data.conversation_id) {
+                    dispatch(AddMessageReaction({ message }));
                 }
-                dispatch(SelectConversation({ room_id: data._id }));
+            });
+
+
+            socket.on('start_chat', ({ chatroom, message }) => {
+                // add / update to conversation list
+                const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
+                if (existing_conversation) {
+                    dispatch(UpdateDirectConversation({ conversation: chatroom }));
+                } else {
+                    dispatch(AddDirectConversation({ conversation: chatroom }));
+                }
+                dispatch(SelectConversation({ room_id: chatroom._id }));
+                dispatch(showSnackbar({ severity: 'info', message }));
+            });
+
+            socket.on('leave_group', ({ chatroom, message }) => {
+                const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
+                if (existing_conversation !== -1) {
+                    dispatch(RemoveDirectConversation({ id: chatroom._id }));
+                    dispatch(showSnackbar({ severity: 'info', message }));
+                } else {
+                    dispatch(showSnackbar({ severity: 'error', message: 'Error: Conversation not found.' }));
+                }
             });
 
             socket.on('friend_blocked', (data) => {
@@ -163,6 +182,9 @@ const DashboardLayout = () => {
             socket?.off('audio_call_notification');
             socket?.off('error');
             socket?.off('friend-online');
+            socket?.off('get_reaction');
+            socket?.off('friend_blocked');
+            socket?.off('leave_group');
         };
     }, [isLoggedIn, socket, conversations, current_conversation, user_id]);
     //#endregion hooks
