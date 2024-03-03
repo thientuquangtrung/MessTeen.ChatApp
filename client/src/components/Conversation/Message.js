@@ -1,17 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { Box, Stack } from '@mui/material';
+import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Chat_History } from '../../data';
 import { FetchCurrentMessages, SetCurrentConversation } from '../../redux/conversation/convActionCreators';
 import { socket } from '../../socket';
-import { Box, Stack } from '@mui/material';
 import { DocMsg, LinkMsg, MediaMsg, ReplyMsg, TextMsg, Timeline } from './MsgTypes';
 
 const Message = () => {
     const dispatch = useDispatch();
-    const messagesEndRef = useRef(null);
+    const messagesEndRef = useRef(null); // Tham chiếu đến phần tử cuối cùng của Stack
 
     const { conversations, current_messages } = useSelector((state) => state.conversation);
+    // console.log(':::::::::::::::::::::::', current_messages);
+    console.log(':::::::::::::::::::::::', conversations);
     const { room_id } = useSelector((state) => state.app);
-
     useEffect(() => {
         const current = conversations.find((el) => el?.id === room_id);
 
@@ -25,6 +27,7 @@ const Message = () => {
     }, [room_id]);
 
     useEffect(() => {
+        // Kéo thanh cuộn xuống dưới khi có tin nhắn mới
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
@@ -48,7 +51,12 @@ const Message = () => {
                                 case 'reply':
                                     return <ReplyMsg el={el} key={el.id} />;
                                 default:
-                                    return <TextMsg el={el} key={el.id} />;
+                                    return (
+                                        <Stack>
+                                            {}
+                                            <TextMsg el={el} key={el.id} />;
+                                        </Stack>
+                                    );
                             }
 
                         default:
