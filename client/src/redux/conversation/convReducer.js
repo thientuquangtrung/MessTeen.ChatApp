@@ -32,7 +32,7 @@ export const slice = createSlice({
                         id: el._id,
                         user_id: user?._id,
                         name: `${user?.usr_name}`,
-                        online: user?.usr_status === 'ONLINE',
+                        online: user.usr_status === 'ONLINE',
                         img: [faker.image.avatar()],
                         msg: el.room_last_msg.content,
                         time: el.room_last_msg.timestamp,
@@ -41,6 +41,7 @@ export const slice = createSlice({
                         about: user?.about,
                         type: el.room_type,
                         isBeingBlocked: user.usr_blocked_people.includes(user_id),
+                        participant_ids: el.room_participant_ids.map((participant) => participant._id),
                     };
                 } else {
                     return {
@@ -80,13 +81,16 @@ export const slice = createSlice({
                                 id: this_conversation._id,
                                 user_id: user?._id,
                                 name: `${user?.usr_name}`,
-                                online: user?.usr_status === 'ONLINE',
+                                online: user.usr_status === 'ONLINE',
                                 img: [faker.image.avatar()],
                                 msg: this_conversation.room_last_msg.content,
                                 time: this_conversation.room_last_msg.timestamp,
                                 unread: 0,
                                 pinned: false,
                                 type: this_conversation.room_type,
+                                participant_ids: this_conversation.room_participant_ids.map(
+                                    (participant) => participant._id,
+                                ),
                             };
                         } else {
                             // GROUP
@@ -112,6 +116,10 @@ export const slice = createSlice({
                 .sort((a, b) => new Date(b.time) - new Date(a.time));
         },
 
+        updateConversationStatus(state, action) {
+            state.conversations = action.payload;
+        },
+                                 
         removeDirectConversation(state, action) {
             const this_conversation_id = action.payload.id;
 
@@ -135,14 +143,14 @@ export const slice = createSlice({
                 state.conversations.push({
                     id: this_conversation._id,
                     user_id: user?._id,
-                    name: `${user?.usr_name}`,
-                    online: user?.usr_status === 'ONLINE',
+                    name: user.usr_status === 'ONLINE',
                     img: [faker.image.avatar()],
                     msg: this_conversation.room_last_msg.content,
                     time: this_conversation.room_last_msg.timestamp,
                     unread: 0,
                     pinned: false,
                     type: this_conversation.room_type,
+                    participant_ids: this_conversation.room_participant_ids.map((participant) => participant._id),
                 });
             } else {
                 state.conversations.push({

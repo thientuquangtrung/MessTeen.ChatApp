@@ -18,6 +18,7 @@ import {
     AddDirectMessage,
     AddMessageReaction,
     UpdateBlockedConversation,
+    UpdateConversationStatus,
     UpdateDirectConversation,
     RemoveDirectConversation,
 } from '../../redux/conversation/convActionCreators';
@@ -147,6 +148,25 @@ const DashboardLayout = () => {
                 dispatch(showSnackbar({ severity: 'success', message: data.message }));
             });
 
+            socket.on('friend-online', (data) => {
+                const friendId = data.userId; // Assuming you receive friend's user ID from data
+                const conversationsToUpdate = conversations.map((conversation) => {
+                    const hasParticipant =
+                        conversation.participant_ids?.includes(user_id) &&
+                        conversation.participant_ids?.includes(friendId);
+                    console.log(conversation);
+                    if (hasParticipant) {
+                        return {
+                            ...conversation,
+                            online: data.status,
+                        };
+                    }
+
+                    return conversation;
+                });
+                dispatch(UpdateConversationStatus(conversationsToUpdate));
+            });
+
             socket.on('error', (data) => {
                 dispatch(showSnackbar({ severity: 'error', message: data.message }));
             });
@@ -161,6 +181,7 @@ const DashboardLayout = () => {
             socket?.off('new_message');
             socket?.off('audio_call_notification');
             socket?.off('error');
+            socket?.off('friend-online');
             socket?.off('get_reaction');
             socket?.off('friend_blocked');
             socket?.off('leave_group');

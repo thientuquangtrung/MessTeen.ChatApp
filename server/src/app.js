@@ -65,9 +65,16 @@ const handleSocketConnect = async (socket) => {
 
     if (user_id != null && Boolean(user_id)) {
         try {
-            await UserModel.findByIdAndUpdate(user_id, {
+            const user = await UserModel.findByIdAndUpdate(user_id, {
                 usr_socket_id: socket.id,
                 usr_status: 'ONLINE',
+            }).populate('usr_friends', 'usr_socket_id usr_status');
+
+            const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status === 'ONLINE');
+            onlineFriends.forEach((friend) => {
+                if (friend.usr_socket_id) {
+                    _io.to(friend.usr_socket_id).emit('friend-online', { userId: user_id, status: true });
+                }
             });
 
             await joinGroupSocketWS(socket, user_id);
@@ -91,14 +98,6 @@ const handleSocketConnect = async (socket) => {
 
     socket.on('leave_group', withErrorHandling(socket, leaveGroupWS));
 
-    // socket.on('get_messages', async (data, callback) => {
-    //     try {
-    //         const { messages } = await OneToOneMessage.findById(data.conversation_id).select('messages');
-    //         callback(messages);
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // });
     socket.on('get_messages', withErrorHandling(socket, getMessagesWS));
 
     // // Handle incoming text/link messages
@@ -341,25 +340,23 @@ const handleSocketConnect = async (socket) => {
     // -------------- HANDLE SOCKET DISCONNECTION ----------------- //
 
     socket.on('end', async (data) => {
-        // // Find user by ID and set status as offline
-
-        // if (data.user_id) {
-        //     await UserModel.findByIdAndUpdate(data.user_id, { usr_status: 'OFFLINE' });
-        // }
-
-        // // broadcast to all conversation rooms of this user that this user is offline (disconnected)
-
         console.log('closing connection');
         socket.disconnect(0);
     });
 
     socket.on('disconnect', async () => {
         // Find user by ID and set status as offline
-        await UserModel.findByIdAndUpdate(user_id, { usr_status: 'OFFLINE' });
+        const user = await UserModel.findByIdAndUpdate(user_id, { usr_status: 'OFFLINE' }).populate('usr_friends', 'usr_socket_id usr_status');
 
-        // TODO: broadcast to all conversation rooms of this user that this user is offline (disconnected)
-
+        // broadcast to all conversation rooms of this user that this user is offline (disconnected)
         console.log(`user disconnected:::::::::::`, user_id);
+
+        const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status === 'ONLINE');
+        onlineFriends.forEach((friend) => {
+            if (friend.usr_socket_id) {
+                _io.to(friend.usr_socket_id).emit('friend-online', { userId: user_id, status: false });
+            }
+        });
     });
 };
 

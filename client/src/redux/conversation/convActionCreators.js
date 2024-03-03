@@ -19,6 +19,12 @@ export const UpdateDirectConversation = ({ conversation }) => {
     };
 };
 
+export const UpdateConversationStatus = (updatedConversations) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.updateConversationStatus(updatedConversations));
+    };
+};
+
 export const RemoveDirectConversation = ({ id }) => {
     return async (dispatch, getState) => {
         dispatch(slice.actions.removeDirectConversation({ id }));
