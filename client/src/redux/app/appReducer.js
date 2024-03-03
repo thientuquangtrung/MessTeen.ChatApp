@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { revertAll } from '../globalActions';
 
 const initialState = {
     user: {},
@@ -91,6 +92,7 @@ export const slice = createSlice({
             state.sidebar.type = action.payload.type;
         },
     },
+    extraReducers: (builder) => builder.addCase(revertAll, () => initialState),
 });
 
 // Reducer
