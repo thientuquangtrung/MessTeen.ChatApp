@@ -47,9 +47,7 @@ module.exports = {
             )
             .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status');
 
-        const chatroom = await chatroomModel.findById(conversation_id);
-        console.log(new_message);
-        if (chatroom && chatroom.room_type === 'GROUP') {
+        if (chatroom_data.room_type === 'GROUP') {
             // If the chat room exists and is a group chat room
             _io.to(conversation_id).emit('new_message', {
                 message: new_message,

@@ -8,10 +8,10 @@ import { DocMsg, LinkMsg, MediaMsg, ReplyMsg, TextMsg, Timeline } from './MsgTyp
 
 const Message = () => {
     const dispatch = useDispatch();
-    const messagesEndRef = useRef(null); // Tham chiếu đến phần tử cuối cùng của Stack
+    const messagesEndRef = useRef(null);
 
-    const { conversations, current_messages } = useSelector((state) => state.conversation);
-    // console.log(':::::::::::::::::::::::', current_messages);
+    const { conversations, current_messages, messsage_react } = useSelector((state) => state.conversation);
+    console.log(':::::::::::::::::::::::', current_messages);
     // console.log(':::::::::::::::::::::::', conversations);
     const { room_id } = useSelector((state) => state.app);
     useEffect(() => {
