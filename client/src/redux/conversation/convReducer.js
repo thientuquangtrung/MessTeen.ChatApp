@@ -111,6 +111,20 @@ export const slice = createSlice({
                 .sort((a, b) => new Date(b.time) - new Date(a.time));
         },
 
+        removeDirectConversation(state, action) {
+            const this_conversation_id = action.payload.id;
+
+            state.conversations = state.conversations
+                .filter((el) => {
+                    return el?.id !== this_conversation_id;
+                })
+                .sort((a, b) => new Date(b.time) - new Date(a.time));
+
+            // if(state.current_conversation.id === this_conversation_id){
+            //     state.current_conversation = null
+            // }
+        },
+
         addDirectConversation(state, action) {
             const this_conversation = action.payload.conversation;
             state.conversations = state.conversations.filter((el) => el?.id !== this_conversation._id);

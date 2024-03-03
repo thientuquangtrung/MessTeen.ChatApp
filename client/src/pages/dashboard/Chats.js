@@ -20,7 +20,7 @@ import { ChatList } from '../../data';
 import Friends from '../../sections/main/Friends';
 import { socket } from '../../socket';
 import { useDispatch, useSelector } from 'react-redux';
-import { SelectConversation } from '../../redux/app/appActionCreators';
+import { FetchFriendRequests, FetchFriends, SelectConversation } from '../../redux/app/appActionCreators';
 import { FetchDirectConversations } from '../../redux/conversation/convActionCreators';
 import { formatDate } from '../../utils/formatTime';
 import CreateGroup from '../../sections/main/CreateGroup';
@@ -197,6 +197,10 @@ const Chats = () => {
         socket.emit('get_direct_conversations', { user_id }, (data) => {
             dispatch(FetchDirectConversations({ conversations: data }));
         });
+
+        dispatch(FetchFriends());
+
+        dispatch(FetchFriendRequests());
     }, []);
 
     const handleCloseDialog = () => {

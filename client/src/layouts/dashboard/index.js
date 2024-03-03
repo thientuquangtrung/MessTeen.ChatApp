@@ -18,6 +18,7 @@ import {
     AddDirectMessage,
     UpdateBlockedConversation,
     UpdateDirectConversation,
+    RemoveDirectConversation
 } from '../../redux/conversation/convActionCreators';
 import AntSwitch from '../../components/AntSwitch';
 
@@ -82,18 +83,27 @@ const DashboardLayout = () => {
                 }
             });
 
-            socket.on('start_chat', (data) => {
-                console.log(data);
-                // add / update to conversation list
-                const existing_conversation = conversations.find((el) => el?.id === data._id);
+            socket.on('start_chat', ({ chatroom, message }) => {
+                console.log(chatroom);
+                const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
                 if (existing_conversation) {
-                    // update direct conversation
-                    dispatch(UpdateDirectConversation({ conversation: data }));
+                    dispatch(UpdateDirectConversation({ conversation: chatroom }));
                 } else {
-                    // add direct conversation
-                    dispatch(AddDirectConversation({ conversation: data }));
+                    dispatch(AddDirectConversation({ conversation: chatroom }));
                 }
-                dispatch(SelectConversation({ room_id: data._id }));
+                dispatch(SelectConversation({ room_id: chatroom._id }));
+                dispatch(showSnackbar({ severity: 'info', message }));
+            });
+
+            socket.on('leave_group', ({ chatroom, message }) => {
+                console.log(chatroom);
+                const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
+                if (existing_conversation !== -1) {
+                    dispatch(RemoveDirectConversation({ id: chatroom._id }));
+                    dispatch(showSnackbar({ severity: 'warning', message }));
+                } else {
+                    dispatch(showSnackbar({ severity: 'error', message: 'Error: Conversation not found.' }));
+                }
             });
 
             socket.on('friend_blocked', (data) => {
