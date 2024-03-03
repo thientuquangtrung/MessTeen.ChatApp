@@ -71,6 +71,7 @@ const DashboardLayout = () => {
                             incoming: message.msg_sender_id !== user_id,
                             outgoing: message.msg_sender_id === user_id,
                             msgReply: message.msg_parent_id,
+                            user_name: message.msg_sender_id.usr_name,
                         }),
                     );
                 }

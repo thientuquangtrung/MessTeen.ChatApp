@@ -12,7 +12,7 @@ const Message = () => {
 
     const { conversations, current_messages } = useSelector((state) => state.conversation);
     // console.log(':::::::::::::::::::::::', current_messages);
-    console.log(':::::::::::::::::::::::', conversations);
+    // console.log(':::::::::::::::::::::::', conversations);
     const { room_id } = useSelector((state) => state.app);
     useEffect(() => {
         const current = conversations.find((el) => el?.id === room_id);
@@ -51,12 +51,7 @@ const Message = () => {
                                 case 'reply':
                                     return <ReplyMsg el={el} key={el.id} />;
                                 default:
-                                    return (
-                                        <Stack>
-                                            {}
-                                            <TextMsg el={el} key={el.id} />;
-                                        </Stack>
-                                    );
+                                    return <TextMsg el={el} key={el.id} />;
                             }
 
                         default:

@@ -162,6 +162,7 @@ export const slice = createSlice({
                 timestamp: el.msg_timestamp,
                 reactions: el.msg_reactions.map((reaction) => reaction.reaction),
                 msgReply: el.msg_parent_id,
+                user_name: el.msg_sender_id.usr_name,
             }));
             formatted_messages.sort((a, b) => {
                 return new Date(a.timestamp) - new Date(b.timestamp);
