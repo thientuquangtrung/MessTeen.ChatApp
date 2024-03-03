@@ -12,7 +12,12 @@ import { socket, connectSocket } from '../../socket';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from '../../redux/store';
 import { useDispatch } from 'react-redux';
-import { SelectConversation, UpdateFriendsRequestAction, showSnackbar } from '../../redux/app/appActionCreators';
+import {
+    SelectConversation,
+    UpdateFriendsRequestAction,
+    showSnackbar,
+    toggleSidebar,
+} from '../../redux/app/appActionCreators';
 import {
     AddDirectConversation,
     AddDirectMessage,
@@ -93,7 +98,6 @@ const DashboardLayout = () => {
                 }
             });
 
-
             socket.on('start_chat', ({ chatroom, message }) => {
                 // add / update to conversation list
                 const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
@@ -110,6 +114,8 @@ const DashboardLayout = () => {
                 const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
                 if (existing_conversation !== -1) {
                     dispatch(RemoveDirectConversation({ id: chatroom._id }));
+                    dispatch(SelectConversation({ room_id: null }));
+                    dispatch(toggleSidebar());
                     dispatch(showSnackbar({ severity: 'info', message }));
                 } else {
                     dispatch(showSnackbar({ severity: 'error', message: 'Error: Conversation not found.' }));

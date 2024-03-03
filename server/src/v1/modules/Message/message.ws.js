@@ -24,11 +24,10 @@ module.exports = {
             msg_parent_id: msg_parent_id,
         });
 
-        await new_message.populate('msg_parent_id', 'msg_content _id').populate(
+        (await new_message.populate('msg_parent_id', 'msg_content _id')).populate(
             'msg_sender_id',
             'usr_name usr_avatar',
         );
-
 
         // get chatroom data
         const chatroom_data = await chatroomModel

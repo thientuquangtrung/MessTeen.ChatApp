@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, Dialog, DialogContent, DialogTitle, Slide, Stack } from '@mui/material';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
 import * as Yup from 'yup';
@@ -20,7 +20,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const AddFriendToGroupForm = ({ handleClose }) => {
     const { friends } = useSelector((state) => state.app);
-    const { current_conversation } = useSelector((state) => state.conversation)
+    const { current_conversation } = useSelector((state) => state.conversation);
     const dispatch = useDispatch();
 
     const NewGroupSchema = Yup.object().shape({
@@ -37,11 +37,9 @@ const AddFriendToGroupForm = ({ handleClose }) => {
     });
 
     const {
-        reset,
-        watch,
-        setError,
+        getValues,
         handleSubmit,
-        formState: { errors, isSubmitting, isSubmitSuccessful, isValid },
+        formState: { isValid },
     } = methods;
 
     const onSubmit = async (data) => {
@@ -51,14 +49,32 @@ const AddFriendToGroupForm = ({ handleClose }) => {
             const member_ids = data.members.map((member) => member.id);
             const user_id = window.localStorage.getItem('user_id');
 
-            socket.emit('add_member_to_group', { to: member_ids, from: user_id, conversation_id: current_conversation.id }, ({ message }) => {
-                dispatch(showSnackbar({severity: "success", message}))
-            });
+            socket.emit(
+                'add_member_to_group',
+                { to: member_ids, from: user_id, conversation_id: current_conversation.id },
+                ({ message }) => {
+                    dispatch(showSnackbar({ severity: 'success', message }));
+                },
+            );
         } catch (error) {
             console.log('error', error);
         }
         handleClose();
     };
+
+    const options = useMemo(
+        () =>
+            friends
+                .filter((friend) => !current_conversation.participant_ids.includes(friend._id))
+                .map((option) => ({ id: option._id, label: option.usr_name })),
+        [friends, current_conversation],
+    );
+    const filteredOptions = options.filter(
+        (option) =>
+            !getValues('members')
+                .map((v) => v.id)
+                .includes(option.id),
+    );
 
     return (
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -68,8 +84,7 @@ const AddFriendToGroupForm = ({ handleClose }) => {
                     label="Members"
                     multiple
                     freeSolo
-                    options={friends.filter(friend => !current_conversation.participant_ids.includes(friend._id))
-                        .map((option) => ({ id: option._id, label: option.usr_name }))}
+                    options={filteredOptions}
                     ChipProps={{ size: 'medium' }}
                 />
                 <Stack spacing={2} direction={'row'} alignItems={'center'} justifyContent={'end'}>

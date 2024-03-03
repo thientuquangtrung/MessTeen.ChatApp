@@ -1,4 +1,3 @@
-import { dispatch } from '../store';
 import { slice } from './convReducer';
 
 export const FetchDirectConversations = ({ conversations }) => {
