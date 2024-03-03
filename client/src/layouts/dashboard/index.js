@@ -19,7 +19,7 @@ import {
     AddMessageReaction,
     UpdateBlockedConversation,
     UpdateDirectConversation,
-    RemoveDirectConversation
+    RemoveDirectConversation,
 } from '../../redux/conversation/convActionCreators';
 import AntSwitch from '../../components/AntSwitch';
 
@@ -93,7 +93,7 @@ const DashboardLayout = () => {
                 }
             });
 
-            socket.on('start_chat', (data) => {
+            socket.on('start_chat', ({ chatroom, message }) => {
                 console.log(data);
                 // add / update to conversation list
                 const existing_conversation = conversations.find((el) => el?.id === data._id);
