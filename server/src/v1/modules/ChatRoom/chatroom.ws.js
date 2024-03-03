@@ -43,9 +43,13 @@ module.exports = {
 
         // get socket id
         const fromSocketId = await userModel.findById(data.from).select('usr_socket_id');
+        const toSocketId = await userModel.findById(data.to).select('usr_socket_id');
+
         // send conversation details as payload
         _io.to(fromSocketId.usr_socket_id).emit('start_chat', chatroom);
-        console.log(fromSocketId.usr_socket_id);
+        _io.to(toSocketId.usr_socket_id).emit('start_chat', chatroom);
+
+        console.log(fromSocketId.usr_socket_id, toSocketId.usr_socket_id);
     },
 
     groupConversationWS: async (data) => {
@@ -75,11 +79,24 @@ module.exports = {
             await user.save();
         }
 
-        // get socket id
-        const fromSocketId = await userModel.findById(data.from).select('usr_socket_id');
-        // send conversation details as payload
-        _io.to(fromSocketId.usr_socket_id).emit('start_chat', chatroom);
-        console.log(fromSocketId.usr_socket_id);
+        // Emit to all members
+        const participantSocketIds = await userModel
+            .find({
+                _id: { $in: [...to, from] },
+            })
+            .select('usr_socket_id');
+
+        participantSocketIds.forEach((participant) => {
+            const socket = _io.sockets.sockets.get(participant.usr_socket_id);
+            if (socket) {
+                socket.join(chatroom._id.toString());
+            }
+        });
+
+        _io.to(chatroom._id.toString()).emit('start_chat', {
+            message: `You have been added to a new group chat: ${title}`,
+            chatroom,
+        });
     },
 
     leaveGroupWS: async (data) => {
@@ -99,6 +116,16 @@ module.exports = {
                 usr_room_ids: conversation_id,
             },
         });
+
+        // Lấy socket id của user và leave group
+        const socket = _io.sockets.sockets.get(user.usr_socket_id);
+        if (socket) {
+            socket.leave(chatroom._id.toString());
+            socket.emit('leave_group', {
+                message: `${user.usr_name} has left the group.`,
+                chatroom,
+            });
+        }
     },
 
     addMemberToGroupWS: async (data, callback) => {
@@ -114,13 +141,22 @@ module.exports = {
             .findByIdAndUpdate(conversation_id, {
                 $push: { room_participant_ids: { $each: to } },
             })
-            .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status');
+            .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status usr_socket_id');
 
         // Add the new chatroom id to usr_room_ids of each user
-        for (const participantId of chatroom.room_participant_ids) {
+        for (const participantId of to) {
             const user = await UserService.getUserById(participantId);
             user.usr_room_ids.push(chatroom._id);
             await user.save();
+
+            const socket = _io.sockets.sockets.get(user.usr_socket_id);
+            if (socket) {
+                socket.join(chatroom._id.toString());
+                socket.emit('start_chat', {
+                    message: `New members have been added to the group chat: ${chatroom.room_title}`,
+                    chatroom,
+                });
+            }
         }
 
         callback({ message: 'Add member successfully' });
