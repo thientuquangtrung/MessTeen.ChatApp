@@ -10,12 +10,15 @@ const {
     NotFoundError,
 } = require('../../core/error.response');
 class MessageService {
-    static async getAllMessages(msg_room_id, limit = 20) {
-        const messages = await MessageModel.find({ msg_room_id }).sort({ msg_timestamp: -1 }).skip(0).limit(limit);
+    static async getAllMessages(msg_room_id, skip = 0, limit = 20) {
+        const messages = await MessageModel.find({ msg_room_id })
+            .sort({ msg_timestamp: -1 })
+            .skip(skip)
+            .limit(limit)
+            .populate('msg_parent_id', 'msg_content _id');
 
         return messages;
     }
-
     static async sendMessage(messageData) {
         const message = new MessageModel(messageData);
         await message.save();
@@ -44,6 +47,29 @@ class MessageService {
             msg_content: RegExp(msg_content, 'i'),
         });
         return messages;
+    }
+    static async reactOnMessage(messageId, msg_reaction) {
+        const message = await MessageModel.findById(messageId);
+        if (!message) {
+            throw new NotFoundError('Message not found.');
+        }
+
+        const existingReactionIndex = message.msg_reactions.findIndex(
+            (reaction) => reaction.usr_react.toString() === msg_reaction.usr_react.toString(),
+        );
+
+        if (existingReactionIndex !== -1) {
+            if (message.msg_reactions[existingReactionIndex].reaction !== msg_reaction.reaction) {
+                message.msg_reactions.push(msg_reaction);
+            }
+            message.msg_reactions.splice(existingReactionIndex, 1);
+        } else {
+            // Otherwise, add the new reaction
+            message.msg_reactions.push(msg_reaction);
+        }
+        await message.save();
+
+        return message;
     }
 }
 

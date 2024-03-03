@@ -1,13 +1,14 @@
 import { Fab, Tooltip, Typography, useTheme } from '@mui/material';
 import { Box, IconButton, InputAdornment, TextField, Stack } from '@mui/material';
-import { Camera, File, Image, LinkSimple, PaperPlaneTilt, Smiley, Sticker, User } from 'phosphor-react';
-import React, { useRef, useState } from 'react';
+import { Camera, File, Image, LinkSimple, PaperPlaneTilt, Smiley, Sticker, User, X } from 'phosphor-react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import { useSelector } from 'react-redux';
 import { socket } from '../../socket';
+import { CloseReplyMessage, FetchCurrentMessages } from '../../redux/conversation/convActionCreators';
 import { dispatch } from '../../redux/store';
 import { FetchDirectConversations } from '../../redux/conversation/convActionCreators';
 import { showSnackbar } from '../../redux/app/appActionCreators';
@@ -152,6 +153,8 @@ const Footer = () => {
     const [openPicker, setOpenPicker] = useState(false);
     const [value, setValue] = useState('');
     const { current_conversation } = useSelector((state) => state.conversation);
+
+    const { replyMsg } = useSelector((state) => state.conversation);
     const { blockedFriends } = useSelector((state) => state.app);
     const isBlocked = blockedFriends.includes(current_conversation?.user_id);
 
@@ -160,19 +163,32 @@ const Footer = () => {
     const handleEmojiSelect = (emoji) => {
         setValue(value + emoji.native);
     };
+
     const sendMessage = () => {
         if (current_conversation.isBeingBlocked) {
             dispatch(showSnackbar({ severity: 'info', message: ' You cannot text or call in this chat.' }));
         } else {
             let messageToSend = value.trim();
             if (messageToSend !== '') {
-                socket.emit('text_message', {
-                    message: linkify(messageToSend),
-                    conversation_id: room_id,
-                    from: user_id,
-                    to: current_conversation.user_id,
-                    type: containsUrl(messageToSend) ? 'LINK' : 'TEXT',
-                });
+                if (replyMsg) {
+                    socket.emit('text_message', {
+                        message: linkify(messageToSend),
+                        conversation_id: room_id,
+                        from: user_id,
+                        to: current_conversation.user_id,
+                        type: containsUrl(messageToSend) ? 'LINK' : 'TEXT',
+                        msg_parent_id: replyMsg.id,
+                    });
+                    dispatch(CloseReplyMessage());
+                } else {
+                    socket.emit('text_message', {
+                        message: linkify(messageToSend),
+                        conversation_id: room_id,
+                        from: user_id,
+                        to: current_conversation.user_id,
+                        type: containsUrl(messageToSend) ? 'LINK' : 'TEXT',
+                    });
+                }
                 setValue('');
                 inputRef.current.focus();
             }
@@ -197,51 +213,79 @@ const Footer = () => {
                     You cannot text or call in this chat.
                 </Typography>
             ) : (
-                <Stack direction="row" alignItems={'center'} spacing={3}>
-                    <Stack sx={{ width: '100%' }}>
-                        <ClickAwayListener mouseEvent="onMouseDown" onClickAway={handleClickAwayPicker}>
-                            <Box
-                                sx={{
-                                    display: openPicker ? 'inline' : 'none',
-                                    zIndex: 10,
-                                    position: 'fixed',
-                                    bottom: 81,
-                                    right: 100,
-                                }}
-                            >
-                                <Picker
-                                    theme={theme.palette.mode}
-                                    data={data}
-                                    onEmojiSelect={(emoji) => handleEmojiSelect(emoji)}
-                                />
-                            </Box>
-                        </ClickAwayListener>
-                        <ChatInput
-                            openPicker={openPicker}
-                            setOpenPicker={setOpenPicker}
-                            value={value}
-                            setValue={setValue}
-                            sendMessage={sendMessage}
-                            inputRef={inputRef}
-                        />
-                    </Stack>
+                <>
+                    {replyMsg && (
+                        <Stack
+                            sx={{
+                                backgroundColor: 'white',
+                                width: '100%',
+                                height: 'auto',
+                                padding: '10px',
+                                marginBottom: '5px',
+                            }}
+                        >
+                            <Stack direction={'row-reverse'} justifyContent="space-between" height={'auto'}>
+                                <IconButton
+                                    style={{ display: 'flex', justifyContent: 'center' }}
+                                    onClick={() => dispatch(CloseReplyMessage())}
+                                >
+                                    <X fontSize={16} />
+                                </IconButton>
+                                <Typography variant="h6" style={{ fontSize: '14px' }}>
+                                    Đang trả lời ...
+                                </Typography>
+                            </Stack>
 
-                    <Box
-                        sx={{
-                            height: 48,
-                            width: 48,
-                            backgroundColor: theme.palette.primary.main,
-                            borderRadius: 1.5,
-                        }}
-                    >
-                        <Stack sx={{ height: '100%', width: '100%' }} alignItems="center" justifyContent="center">
-                            {' '}
-                            <IconButton onClick={sendMessage}>
-                                <PaperPlaneTilt color="white" />
-                            </IconButton>
+                            <Typography>{replyMsg?.content}</Typography>
                         </Stack>
-                    </Box>
-                </Stack>
+                    )}
+
+                    <Stack direction="row" alignItems={'center'} spacing={3}>
+                        <Stack sx={{ width: '100%' }}>
+                            <ClickAwayListener mouseEvent="onMouseDown" onClickAway={handleClickAwayPicker}>
+                                <Box
+                                    sx={{
+                                        display: openPicker ? 'inline' : 'none',
+                                        zIndex: 10,
+                                        position: 'fixed',
+                                        bottom: 81,
+                                        right: 100,
+                                    }}
+                                >
+                                    <Picker
+                                        theme={theme.palette.mode}
+                                        data={data}
+                                        onEmojiSelect={(emoji) => handleEmojiSelect(emoji)}
+                                    />
+                                </Box>
+                            </ClickAwayListener>
+                            <ChatInput
+                                openPicker={openPicker}
+                                setOpenPicker={setOpenPicker}
+                                value={value}
+                                setValue={setValue}
+                                sendMessage={sendMessage}
+                                inputRef={inputRef}
+                            />
+                        </Stack>
+
+                        <Box
+                            sx={{
+                                height: 48,
+                                width: 48,
+                                backgroundColor: theme.palette.primary.main,
+                                borderRadius: 1.5,
+                            }}
+                        >
+                            <Stack sx={{ height: '100%', width: '100%' }} alignItems="center" justifyContent="center">
+                                {' '}
+                                <IconButton onClick={sendMessage}>
+                                    <PaperPlaneTilt color="white" />
+                                </IconButton>
+                            </Stack>
+                        </Box>
+                    </Stack>
+                </>
             )}
         </Box>
     );
