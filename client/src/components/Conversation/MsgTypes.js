@@ -365,7 +365,7 @@ const MediaMsg = ({ el }) => {
 };
 const TextMsg = ({ el }) => {
     const theme = useTheme();
-    const [showResponse, setShowResponse] = useState(false);\
+    const [showResponse, setShowResponse] = useState(false);
   
     return (
         <Stack
