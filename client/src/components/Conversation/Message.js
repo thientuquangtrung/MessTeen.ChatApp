@@ -11,6 +11,8 @@ const Message = () => {
     const messagesEndRef = useRef(null); // Tham chiếu đến phần tử cuối cùng của Stack
 
     const { conversations, current_messages } = useSelector((state) => state.conversation);
+    // console.log(':::::::::::::::::::::::', current_messages);
+    console.log(':::::::::::::::::::::::', conversations);
     const { room_id } = useSelector((state) => state.app);
     useEffect(() => {
         const current = conversations.find((el) => el?.id === room_id);
@@ -37,27 +39,31 @@ const Message = () => {
                 {current_messages.map((el) => {
                     switch (el.type) {
                         case 'divider':
-                            return <Timeline el={el} />;
+                            return <Timeline el={el} key={el.id} />;
                         case 'msg':
                             switch (el.subtype) {
                                 case 'img':
-                                    return <MediaMsg el={el} />;
+                                    return <MediaMsg el={el} key={el.id} />;
                                 case 'doc':
-                                    return <DocMsg el={el} />;
+                                    return <DocMsg el={el} key={el.id} />;
                                 case 'link':
-                                    return <LinkMsg el={el} />;
+                                    return <LinkMsg el={el} key={el.id} />;
                                 case 'reply':
-                                    return <ReplyMsg el={el} />;
+                                    return <ReplyMsg el={el} key={el.id} />;
                                 default:
-                                    //text msg
-                                    return <TextMsg el={el} />;
+                                    return (
+                                        <Stack>
+                                            {}
+                                            <TextMsg el={el} key={el.id} />;
+                                        </Stack>
+                                    );
                             }
 
                         default:
-                            return <></>;
+                            return <React.Fragment key={el.id} />;
                     }
                 })}
-                <div ref={messagesEndRef} /> {/* Phần tử cuối cùng của Stack */}
+                <div ref={messagesEndRef} />
             </Stack>
         </Box>
     );

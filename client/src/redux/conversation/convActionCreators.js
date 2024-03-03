@@ -42,6 +42,21 @@ export const AddDirectMessage = (message) => {
         dispatch(slice.actions.addDirectMessage({ message }));
     };
 };
+export const AddMessageReaction = ({ message }) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.addMessageReaction({ message }));
+    };
+};
+export const SetReplyMessage = (payload) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.setReplyMessage(payload));
+    };
+};
+export const CloseReplyMessage = (payload) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.closeReplyMessage(payload));
+    };
+};
 
 export const UpdateBlockedConversation = ({ id, blocked }) => {
     return async (dispatch, getState) => {

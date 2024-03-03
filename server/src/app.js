@@ -13,8 +13,9 @@ const {
     groupConversationWS,
     addMemberToGroupWS,
     leaveGroupWS,
+    joinGroupSocketWS,
 } = require('./v1/modules/ChatRoom/chatroom.ws');
-const { sendMesssageWS, getMessagesWS } = require('./v1/modules/Message/message.ws');
+const { sendMesssageWS, getMessagesWS, reactMessageWS } = require('./v1/modules/Message/message.ws');
 
 //init dbs
 require('./v1/databases/init.mongodb');
@@ -68,6 +69,8 @@ const handleSocketConnect = async (socket) => {
                 usr_socket_id: socket.id,
                 usr_status: 'ONLINE',
             });
+
+            await joinGroupSocketWS(socket, user_id);
         } catch (e) {
             console.log(e);
         }
@@ -100,6 +103,7 @@ const handleSocketConnect = async (socket) => {
 
     // // Handle incoming text/link messages
     socket.on('text_message', withErrorHandling(socket, sendMesssageWS));
+    socket.on('react_message', withErrorHandling(socket, reactMessageWS));
 
     // // handle Media/Document Message
     // socket.on('file_message', (data) => {

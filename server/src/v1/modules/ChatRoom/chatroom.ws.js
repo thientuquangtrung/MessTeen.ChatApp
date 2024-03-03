@@ -173,4 +173,12 @@ module.exports = {
 
         callback(existing_conversations);
     },
+    joinGroupSocketWS: async (socket, user_id) => {
+        const group_chat = await chatroomModel.find({ room_participant_ids: { $all: [user_id] }, room_type: 'GROUP' });
+        group_chat.forEach((group) => {
+            console.log('Join socket ::::::::::::::', group._id);
+
+            socket.join(group._id.toString());
+        });
+    },
 };

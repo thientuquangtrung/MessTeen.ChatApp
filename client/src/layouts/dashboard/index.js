@@ -16,6 +16,7 @@ import { SelectConversation, UpdateFriendsRequestAction, showSnackbar } from '..
 import {
     AddDirectConversation,
     AddDirectMessage,
+    AddMessageReaction,
     UpdateBlockedConversation,
     UpdateDirectConversation,
     RemoveDirectConversation
@@ -59,17 +60,18 @@ const DashboardLayout = () => {
 
             socket.on('new_message', (data) => {
                 const message = data.message;
-                console.log(current_conversation, data);
+                console.log('AWDwadwa', current_conversation, data);
                 // check if msg we got is from currently selected conversation
                 if (current_conversation?.id === data.conversation._id) {
                     dispatch(
                         AddDirectMessage({
                             id: message._id,
                             type: 'msg',
-                            subtype: message.msg_type,
+                            subtype: message.msg_parent_id ? 'reply' : message.msg_type,
                             message: message.msg_content,
                             incoming: message.msg_sender_id !== user_id,
                             outgoing: message.msg_sender_id === user_id,
+                            msgReply: message.msg_parent_id,
                         }),
                     );
                 }
@@ -83,9 +85,18 @@ const DashboardLayout = () => {
                 }
             });
 
-            socket.on('start_chat', ({ chatroom, message }) => {
-                console.log(chatroom);
-                const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
+            socket.on('get_reaction', (data) => {
+                console.log('Reaction Data', data.message);
+                const message = data.message;
+                if (current_conversation?.id === data.conversation_id) {
+                    dispatch(AddMessageReaction({ message }));
+                }
+            });
+
+            socket.on('start_chat', (data) => {
+                console.log(data);
+                // add / update to conversation list
+                const existing_conversation = conversations.find((el) => el?.id === data._id);
                 if (existing_conversation) {
                     dispatch(UpdateDirectConversation({ conversation: chatroom }));
                 } else {
