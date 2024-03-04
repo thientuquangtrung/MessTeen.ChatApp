@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Divider, IconButton, Stack, Typography, useTheme } from '@mui/material';
+import { Avatar, AvatarGroup, Box, Button, Divider, IconButton, Stack, Typography, useTheme } from '@mui/material';
 import React, { useState } from 'react';
 import {
     Bell,
@@ -34,12 +34,12 @@ const Contact = () => {
     const [openDialogLeaveGroup, setOpenDialogLeaveGroup] = useState(false);
 
     const handleCloseDialogGroup = () => {
-        setOpenDialogGroup(false)
+        setOpenDialogGroup(false);
     };
 
     const handleCloseDialogLeaveGroup = () => {
-        setOpenDialogLeaveGroup(false)
-    }
+        setOpenDialogLeaveGroup(false);
+    };
 
     const handleFriendAction = () => {
         if (isBlocked) {
@@ -79,11 +79,19 @@ const Contact = () => {
                     spacing={3}
                 >
                     <Stack alignItems={'center'} direction="row" spacing={2}>
-                        <Avatar
-                            src={current_conversation?.img}
-                            alt={current_conversation?.name}
-                            sx={{ height: 64, width: 64 }}
-                        />
+                        <AvatarGroup
+                            spacing={20}
+                            max={3}
+                            sx={{
+                                '.MuiAvatarGroup-avatar': isGroup
+                                    ? { width: 40, height: 40 }
+                                    : { width: 64, height: 64 },
+                            }}
+                        >
+                            {current_conversation?.img?.map((src) => (
+                                <Avatar src={src} />
+                            ))}
+                        </AvatarGroup>
                         <Stack spacing={0.5}>
                             <Typography variant="article" fontWeight={600}>
                                 {current_conversation?.name}
@@ -171,7 +179,12 @@ const Contact = () => {
                                 </Stack>
                             </Stack>
                             <Stack direction="row" alignItems="center" spacing={2}>
-                                <Button fullWidth variant="outlined" startIcon={<Prohibit />} onClick={handleFriendAction}>
+                                <Button
+                                    fullWidth
+                                    variant="outlined"
+                                    startIcon={<Prohibit />}
+                                    onClick={handleFriendAction}
+                                >
                                     {isBlocked ? 'Unblock' : 'Block'}
                                 </Button>
                                 <Button fullWidth variant="outlined" startIcon={<Trash />}>
@@ -193,7 +206,9 @@ const Contact = () => {
                                 >
                                     Add Friend
                                 </Button>
-                                {openDialogGroup && <AddFriendToGroup open={openDialogGroup} handleClose={handleCloseDialogGroup} />}
+                                {openDialogGroup && (
+                                    <AddFriendToGroup open={openDialogGroup} handleClose={handleCloseDialogGroup} />
+                                )}
                                 <Button
                                     sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
                                     fullWidth
@@ -205,7 +220,9 @@ const Contact = () => {
                                 >
                                     Leave Group
                                 </Button>
-                                {openDialogLeaveGroup && <LeaveGroup open={openDialogLeaveGroup} handleClose={handleCloseDialogLeaveGroup} />}
+                                {openDialogLeaveGroup && (
+                                    <LeaveGroup open={openDialogLeaveGroup} handleClose={handleCloseDialogLeaveGroup} />
+                                )}
                             </Stack>
                         </>
                     )}

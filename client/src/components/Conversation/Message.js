@@ -8,10 +8,11 @@ import { DocMsg, LinkMsg, MediaMsg, ReplyMsg, TextMsg, Timeline } from './MsgTyp
 
 const Message = () => {
     const dispatch = useDispatch();
-    const messagesEndRef = useRef(null); // Tham chiếu đến phần tử cuối cùng của Stack
-
     const { conversations, current_messages } = useSelector((state) => state.conversation);
     const { room_id } = useSelector((state) => state.app);
+
+    const messagesRef = useRef(current_messages);
+    const messagesEndRef = useRef(null);
     useEffect(() => {
         const current = conversations.find((el) => el?.id === room_id);
 
@@ -26,8 +27,9 @@ const Message = () => {
 
     useEffect(() => {
         // Kéo thanh cuộn xuống dưới khi có tin nhắn mới
-        if (messagesEndRef.current) {
+        if (messagesEndRef.current && current_messages?.length > messagesRef.current?.length) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+            messagesRef.current = current_messages;
         }
     }, [current_messages]);
 
@@ -37,27 +39,25 @@ const Message = () => {
                 {current_messages.map((el) => {
                     switch (el.type) {
                         case 'divider':
-                            return <Timeline el={el} />;
+                            return <Timeline el={el} key={el.id} />;
                         case 'msg':
                             switch (el.subtype) {
                                 case 'img':
-                                    return <MediaMsg el={el} />;
+                                    return <MediaMsg el={el} key={el.id} />;
                                 case 'doc':
-                                    return <DocMsg el={el} />;
+                                    return <DocMsg el={el} key={el.id} />;
                                 case 'link':
-                                    return <LinkMsg el={el} />;
+                                    return <LinkMsg el={el} key={el.id} />;
                                 case 'reply':
-                                    return <ReplyMsg el={el} />;
+                                    return <ReplyMsg el={el} key={el.id} />;
                                 default:
-                                    //text msg
-                                    return <TextMsg el={el} />;
+                                    return <TextMsg el={el} key={el.id} />;
                             }
-
                         default:
-                            return <></>;
+                            return <React.Fragment key={el.id} />;
                     }
                 })}
-                <div ref={messagesEndRef} /> {/* Phần tử cuối cùng của Stack */}
+                <div ref={messagesEndRef} />
             </Stack>
         </Box>
     );

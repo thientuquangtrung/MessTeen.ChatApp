@@ -12,12 +12,21 @@ import { socket, connectSocket } from '../../socket';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from '../../redux/store';
 import { useDispatch } from 'react-redux';
-import { SelectConversation, UpdateFriendsRequestAction, showSnackbar } from '../../redux/app/appActionCreators';
+import {
+    SelectConversation,
+    UpdateFriendsRequestAction,
+    showSnackbar,
+    toggleSidebar,
+} from '../../redux/app/appActionCreators';
 import {
     AddDirectConversation,
     AddDirectMessage,
+    AddMessageReaction,
     UpdateBlockedConversation,
+    UpdateConversationStatus,
     UpdateDirectConversation,
+    RemoveDirectConversation,
+    SetCurrentConversation,
 } from '../../redux/conversation/convActionCreators';
 import AntSwitch from '../../components/AntSwitch';
 
@@ -41,7 +50,11 @@ const DashboardLayout = () => {
             };
 
             window.onload();
+        }
+    }, [isLoggedIn]);
 
+    useEffect(() => {
+        if (isLoggedIn) {
             if (!socket) {
                 connectSocket(user_id);
             }
@@ -58,17 +71,18 @@ const DashboardLayout = () => {
 
             socket.on('new_message', (data) => {
                 const message = data.message;
-                console.log(current_conversation, data);
                 // check if msg we got is from currently selected conversation
                 if (current_conversation?.id === data.conversation._id) {
                     dispatch(
                         AddDirectMessage({
                             id: message._id,
                             type: 'msg',
-                            subtype: message.msg_type,
+                            subtype: message.msg_parent_id ? 'reply' : message.msg_type,
                             message: message.msg_content,
-                            incoming: message.msg_sender_id !== user_id,
-                            outgoing: message.msg_sender_id === user_id,
+                            incoming: message.msg_sender_id._id !== user_id,
+                            outgoing: message.msg_sender_id._id === user_id,
+                            msgReply: message.msg_parent_id,
+                            user_name: message.msg_sender_id.usr_name,
                         }),
                     );
                 }
@@ -82,18 +96,35 @@ const DashboardLayout = () => {
                 }
             });
 
-            socket.on('start_chat', (data) => {
-                console.log(data);
-                // add / update to conversation list
-                const existing_conversation = conversations.find((el) => el?.id === data._id);
-                if (existing_conversation) {
-                    // update direct conversation
-                    dispatch(UpdateDirectConversation({ conversation: data }));
-                } else {
-                    // add direct conversation
-                    dispatch(AddDirectConversation({ conversation: data }));
+            socket.on('get_reaction', (data) => {
+                const message = data.message;
+                if (current_conversation?.id === data.conversation_id) {
+                    dispatch(AddMessageReaction({ message }));
                 }
-                dispatch(SelectConversation({ room_id: data._id }));
+            });
+
+            socket.on('start_chat', ({ chatroom, message }) => {
+                // add / update to conversation list
+                const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
+                if (existing_conversation) {
+                    dispatch(UpdateDirectConversation({ conversation: chatroom }));
+                } else {
+                    dispatch(AddDirectConversation({ conversation: chatroom }));
+                }
+                dispatch(SelectConversation({ room_id: chatroom._id }));
+                message && dispatch(showSnackbar({ severity: 'info', message }));
+            });
+
+            socket.on('leave_group', ({ chatroom, message }) => {
+                const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
+                if (existing_conversation !== -1) {
+                    dispatch(RemoveDirectConversation({ id: chatroom._id }));
+                    dispatch(SelectConversation({ room_id: null }));
+                    dispatch(toggleSidebar());
+                    dispatch(showSnackbar({ severity: 'info', message }));
+                } else {
+                    dispatch(showSnackbar({ severity: 'error', message: 'Error: Conversation not found.' }));
+                }
             });
 
             socket.on('friend_blocked', (data) => {
@@ -128,6 +159,32 @@ const DashboardLayout = () => {
                 dispatch(showSnackbar({ severity: 'success', message: data.message }));
             });
 
+            socket.on('friend-online', (data) => {
+                const friendId = data.userId; // Assuming you receive friend's user ID from data
+                const conversationsToUpdate = conversations.map((conversation) => {
+                    const hasParticipant =
+                        conversation.participant_ids?.length === 2 &&
+                        conversation.participant_ids?.includes(user_id) &&
+                        conversation.participant_ids?.includes(friendId);
+
+                    if (hasParticipant) {
+                        const newConvStatus = {
+                            ...conversation,
+                            online: data.status,
+                        };
+
+                        if (newConvStatus.id === current_conversation.id) {
+                            dispatch(SetCurrentConversation(newConvStatus));
+                        }
+
+                        return newConvStatus;
+                    }
+
+                    return conversation;
+                });
+                dispatch(UpdateConversationStatus(conversationsToUpdate));
+            });
+
             socket.on('error', (data) => {
                 dispatch(showSnackbar({ severity: 'error', message: data.message }));
             });
@@ -142,6 +199,10 @@ const DashboardLayout = () => {
             socket?.off('new_message');
             socket?.off('audio_call_notification');
             socket?.off('error');
+            socket?.off('friend-online');
+            socket?.off('get_reaction');
+            socket?.off('friend_blocked');
+            socket?.off('leave_group');
         };
     }, [isLoggedIn, socket, conversations, current_conversation, user_id]);
     //#endregion hooks

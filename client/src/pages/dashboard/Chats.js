@@ -20,7 +20,7 @@ import { ChatList } from '../../data';
 import Friends from '../../sections/main/Friends';
 import { socket } from '../../socket';
 import { useDispatch, useSelector } from 'react-redux';
-import { SelectConversation } from '../../redux/app/appActionCreators';
+import { FetchFriendRequests, FetchFriends, SelectConversation } from '../../redux/app/appActionCreators';
 import { FetchDirectConversations } from '../../redux/conversation/convActionCreators';
 import { formatDate } from '../../utils/formatTime';
 import CreateGroup from '../../sections/main/CreateGroup';
@@ -197,6 +197,10 @@ const Chats = () => {
         socket.emit('get_direct_conversations', { user_id }, (data) => {
             dispatch(FetchDirectConversations({ conversations: data }));
         });
+
+        dispatch(FetchFriends());
+
+        dispatch(FetchFriendRequests());
     }, []);
 
     const handleCloseDialog = () => {
@@ -268,10 +272,10 @@ const Chats = () => {
                     </Stack>
                     {openDialogGroup && <CreateGroup open={openDialogGroup} handleClose={handleCloseDialogGroup} />}
                     <Stack spacing={1}>
-                        <Stack direction={'row'} alignItems={'center'} spacing={1.5}>
+                        {/* <Stack direction={'row'} alignItems={'center'} spacing={1.5}>
                             <ArchiveBox size={24} />
                             <Button>Archive</Button>
-                        </Stack>
+                        </Stack> */}
                         <Divider />
                     </Stack>
                     <Stack

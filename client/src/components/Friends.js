@@ -45,7 +45,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     },
 }));
 
-const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userList }) => {
+const UserComponent = ({ usr_name, _id, usr_status, usr_avatar, usr_pending_friends, userList }) => {
     const theme = useTheme();
     const isRequested = usr_pending_friends.includes(user_id);
 
@@ -61,7 +61,7 @@ const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userLi
             <Stack direction="row" alignItems={'center'} justifyContent="space-between">
                 <Stack direction="row" alignItems={'center'} spacing={2}>
                     {/* {" "} */}
-                    {online ? (
+                    {usr_status === 'ONLINE' ? (
                         <StyledBadge
                             overlap="circular"
                             anchorOrigin={{
@@ -70,10 +70,10 @@ const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userLi
                             }}
                             variant="dot"
                         >
-                            <Avatar alt={usr_name} src={faker.image.avatar()} />
+                            <Avatar alt={usr_name} src={usr_avatar} />
                         </StyledBadge>
                     ) : (
-                        <Avatar alt={usr_name} src={faker.image.avatar()} />
+                        <Avatar alt={usr_name} src={usr_avatar} />
                     )}
 
                     <Stack spacing={0.3}>
@@ -130,7 +130,7 @@ const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userLi
     );
 };
 
-const FriendRequestComponent = ({ usr_name, _id, online, img, friendsRequestList }) => {
+const FriendRequestComponent = ({ usr_name, _id, usr_status, usr_avatar, friendsRequestList }) => {
     const theme = useTheme();
 
     return (
@@ -145,7 +145,7 @@ const FriendRequestComponent = ({ usr_name, _id, online, img, friendsRequestList
             <Stack direction="row" alignItems={'center'} justifyContent="space-between">
                 <Stack direction="row" alignItems={'center'} spacing={2}>
                     {' '}
-                    {online ? (
+                    {usr_status === 'ONLINE' ? (
                         <StyledBadge
                             overlap="circular"
                             anchorOrigin={{
@@ -154,10 +154,10 @@ const FriendRequestComponent = ({ usr_name, _id, online, img, friendsRequestList
                             }}
                             variant="dot"
                         >
-                            <Avatar alt={usr_name} src={faker.image.avatar()} />
+                            <Avatar alt={usr_name} src={usr_avatar} />
                         </StyledBadge>
                     ) : (
-                        <Avatar alt={usr_name} src={img} />
+                        <Avatar alt={usr_name} src={usr_avatar} />
                     )}
                     <Stack spacing={0.3}>
                         <Typography
@@ -198,7 +198,7 @@ const FriendRequestComponent = ({ usr_name, _id, online, img, friendsRequestList
     );
 };
 
-const FriendComponent = ({ img, usr_name, online, _id, handleCloseDialog }) => {
+const FriendComponent = ({ usr_avatar, usr_name, usr_status, _id, handleCloseDialog }) => {
     const theme = useTheme();
 
     return (
@@ -213,7 +213,7 @@ const FriendComponent = ({ img, usr_name, online, _id, handleCloseDialog }) => {
             <Stack direction="row" alignItems={'center'} justifyContent="space-between">
                 <Stack direction="row" alignItems={'center'} spacing={2}>
                     {' '}
-                    {online ? (
+                    {usr_status === 'ONLINE' ? (
                         <StyledBadge
                             overlap="circular"
                             anchorOrigin={{
@@ -222,10 +222,10 @@ const FriendComponent = ({ img, usr_name, online, _id, handleCloseDialog }) => {
                             }}
                             variant="dot"
                         >
-                            <Avatar alt={usr_name} src={faker.image.avatar()} />
+                            <Avatar alt={usr_name} src={usr_avatar} />
                         </StyledBadge>
                     ) : (
-                        <Avatar alt={usr_name} src={faker.image.avatar()} />
+                        <Avatar alt={usr_name} src={usr_avatar} />
                     )}
                     <Stack spacing={0.3}>
                         <Typography

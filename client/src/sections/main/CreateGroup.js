@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, Dialog, DialogContent, DialogTitle, Slide, Stack } from '@mui/material';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
 import * as Yup from 'yup';
@@ -19,7 +19,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const CreateGroupForm = ({ handleClose }) => {
     const { friends } = useSelector((state) => state.app);
-    console.log(friends);
 
     const NewGroupSchema = Yup.object().shape({
         title: Yup.string().required('Title is required'),
@@ -37,11 +36,9 @@ const CreateGroupForm = ({ handleClose }) => {
     });
 
     const {
-        reset,
-        watch,
-        setError,
+        getValues,
         handleSubmit,
-        formState: { errors, isSubmitting, isSubmitSuccessful, isValid },
+        formState: { isValid },
     } = methods;
 
     const onSubmit = async (data) => {
@@ -59,6 +56,14 @@ const CreateGroupForm = ({ handleClose }) => {
         handleClose();
     };
 
+    const options = useMemo(() => friends.map((option) => ({ id: option._id, label: option.usr_name })), [friends]);
+    const filteredOptions = options.filter(
+        (option) =>
+            !getValues('members')
+                .map((v) => v.id)
+                .includes(option.id),
+    );
+
     return (
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={3}>
@@ -68,12 +73,13 @@ const CreateGroupForm = ({ handleClose }) => {
                     label="Members"
                     multiple
                     freeSolo
-                    options={friends.map((option) => ({ id: option._id, label: option.usr_name }))}
+                    options={filteredOptions}
+                    filterSelectedOptions
                     ChipProps={{ size: 'medium' }}
                 />
                 <Stack spacing={2} direction={'row'} alignItems={'center'} justifyContent={'end'}>
                     <Button onClick={handleClose}>Cancel</Button>
-                    <Button type="submit" variant="contained" >
+                    <Button type="submit" variant="contained">
                         Create
                     </Button>
                 </Stack>

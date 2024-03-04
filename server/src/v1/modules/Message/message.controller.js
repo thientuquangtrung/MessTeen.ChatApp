@@ -52,5 +52,12 @@ class MessageController {
             metadata: messages,
         }).send(res);
     };
+    react = async (req, res, next) => {
+        const messageId = req.params.id;
+        new OK({
+            message: 'React message success',
+            metadata: await MessageService.reactOnMessage(messageId, req.body),
+        }).send(res);
+    };
 }
 module.exports = new MessageController();

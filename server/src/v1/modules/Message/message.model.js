@@ -9,6 +9,7 @@ const MessageSchema = new mongoose.Schema(
         msg_sender_id: {
             type: mongoose.Schema.Types.ObjectId,
             require: true,
+            ref: 'User',
         },
         msg_content: {
             type: 'String',
@@ -42,8 +43,15 @@ const MessageSchema = new mongoose.Schema(
             default: 'TEXT',
         },
         msg_reactions: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Reaction',
+            type: [
+                {
+                    usr_react: {
+                        type: mongoose.Schema.Types.ObjectId,
+                        ref: 'User',
+                    },
+                    reaction: String,
+                },
+            ],
         },
     },
     {
