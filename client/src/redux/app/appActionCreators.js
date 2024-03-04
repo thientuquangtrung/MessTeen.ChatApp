@@ -220,10 +220,12 @@ export const UpdateUserProfile = (formValues) => {
                 // Handle progress
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 console.log('Upload is ' + progress + '% done');
+                dispatch(slice.actions.updateIsLoading({ progress, state: true }));
             },
             (error) => {
                 // Handle unsuccessful uploads
                 console.error('Error uploading file:', error);
+                dispatch(slice.actions.updateIsLoading({ progress: 0, state: false }));
             },
             async () => {
                 // Handle successful uploads
@@ -241,9 +243,11 @@ export const UpdateUserProfile = (formValues) => {
                     .then((response) => {
                         console.log(response);
                         dispatch(slice.actions.updateUser({ user: response.data.metadata }));
+                        dispatch(slice.actions.updateIsLoading({ progress: 100, state: false }));
                     })
                     .catch((err) => {
                         console.log(err);
+                        dispatch(slice.actions.updateIsLoading({ progress: 0, state: false }));
                     });
             },
         );

@@ -12,7 +12,12 @@ import { socket, connectSocket } from '../../socket';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from '../../redux/store';
 import { useDispatch } from 'react-redux';
-import { SelectConversation, UpdateFriendsRequestAction, showSnackbar } from '../../redux/app/appActionCreators';
+import {
+    SelectConversation,
+    UpdateFriendsRequestAction,
+    showSnackbar,
+    toggleSidebar,
+} from '../../redux/app/appActionCreators';
 import {
     AddDirectConversation,
     AddDirectMessage,
@@ -44,7 +49,11 @@ const DashboardLayout = () => {
             };
 
             window.onload();
+        }
+    }, [isLoggedIn]);
 
+    useEffect(() => {
+        if (isLoggedIn) {
             if (!socket) {
                 connectSocket(user_id);
             }
@@ -93,7 +102,6 @@ const DashboardLayout = () => {
                 }
             });
 
-
             socket.on('start_chat', ({ chatroom, message }) => {
                 // add / update to conversation list
                 const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
@@ -103,13 +111,15 @@ const DashboardLayout = () => {
                     dispatch(AddDirectConversation({ conversation: chatroom }));
                 }
                 dispatch(SelectConversation({ room_id: chatroom._id }));
-                dispatch(showSnackbar({ severity: 'info', message }));
+                message && dispatch(showSnackbar({ severity: 'info', message }));
             });
 
             socket.on('leave_group', ({ chatroom, message }) => {
                 const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
                 if (existing_conversation !== -1) {
                     dispatch(RemoveDirectConversation({ id: chatroom._id }));
+                    dispatch(SelectConversation({ room_id: null }));
+                    dispatch(toggleSidebar());
                     dispatch(showSnackbar({ severity: 'info', message }));
                 } else {
                     dispatch(showSnackbar({ severity: 'error', message: 'Error: Conversation not found.' }));
@@ -152,9 +162,9 @@ const DashboardLayout = () => {
                 const friendId = data.userId; // Assuming you receive friend's user ID from data
                 const conversationsToUpdate = conversations.map((conversation) => {
                     const hasParticipant =
+                        conversation.participant_ids?.length === 2 &&
                         conversation.participant_ids?.includes(user_id) &&
                         conversation.participant_ids?.includes(friendId);
-                    console.log(conversation);
                     if (hasParticipant) {
                         return {
                             ...conversation,

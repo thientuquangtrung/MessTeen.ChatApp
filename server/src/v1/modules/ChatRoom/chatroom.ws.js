@@ -15,7 +15,10 @@ module.exports = {
                 room_participant_ids: { $size: 2, $all: [to, from] },
                 room_type: 'PRIVATE',
             })
-            .populate('room_participant_ids', 'usr_name usr_room_ids usr_email usr_status');
+            .populate(
+                'room_participant_ids',
+                'usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people',
+            );
 
         let chatroom;
         if (existing_conversations.length === 0) {
@@ -26,7 +29,10 @@ module.exports = {
 
             chatroom = await chatroomModel
                 .findById(new_chat._id)
-                .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status');
+                .populate(
+                    'room_participant_ids',
+                    '_id usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people',
+                );
 
             // Add the new chatroom id to usr_room_ids of each user
             for (const participantId of chatroom.room_participant_ids) {
@@ -46,8 +52,8 @@ module.exports = {
         const toSocketId = await userModel.findById(data.to).select('usr_socket_id');
 
         // send conversation details as payload
-        _io.to(fromSocketId.usr_socket_id).emit('start_chat', chatroom);
-        _io.to(toSocketId.usr_socket_id).emit('start_chat', chatroom);
+        _io.to(fromSocketId.usr_socket_id).emit('start_chat', { chatroom, message: '' });
+        _io.to(toSocketId.usr_socket_id).emit('start_chat', { chatroom, message: '' });
 
         console.log(fromSocketId.usr_socket_id, toSocketId.usr_socket_id);
     },
@@ -55,13 +61,13 @@ module.exports = {
     groupConversationWS: async (data) => {
         console.log(data);
         // data: {to: from: title}
-        // to: ['fdfdd']
+        // to: ['fds2gfds654675hfdgww', '3433fettqa54556i8]
         const { to, from, title } = data;
         if (to.length < 2) {
             throw new BadRequestError('Must have at least 3 members including yourself');
         }
         let chatroom = await chatroomModel.create({
-            room_participant_ids: [...to, from],
+            room_participant_ids: [...new Set([...to, from])],
             room_type: 'GROUP',
             room_title: title,
             room_owner_id: from,
@@ -70,28 +76,19 @@ module.exports = {
 
         chatroom = await chatroomModel
             .findById(chatroom._id)
-            .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status');
+            .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status usr_avatar');
 
         // Add the new chatroom id to usr_room_ids of each user
         for (const participantId of chatroom.room_participant_ids) {
             const user = await UserService.getUserById(participantId);
             user.usr_room_ids.push(chatroom._id);
             await user.save();
-        }
 
-        // Emit to all members
-        const participantSocketIds = await userModel
-            .find({
-                _id: { $in: [...to, from] },
-            })
-            .select('usr_socket_id');
-
-        participantSocketIds.forEach((participant) => {
-            const socket = _io.sockets.sockets.get(participant.usr_socket_id);
+            const socket = _io.sockets.sockets.get(user.usr_socket_id);
             if (socket) {
                 socket.join(chatroom._id.toString());
             }
-        });
+        }
 
         _io.to(chatroom._id.toString()).emit('start_chat', {
             message: `You have been added to a new group chat: ${title}`,
@@ -109,7 +106,7 @@ module.exports = {
                     room_participant_ids: from,
                 },
             })
-            .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status');
+            .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status usr_avatar');
 
         const user = await userModel.findByIdAndUpdate(from, {
             $pull: {
@@ -131,17 +128,22 @@ module.exports = {
     addMemberToGroupWS: async (data, callback) => {
         console.log(data);
         // data: {to: from: title}
-        // to: ['fdfdd']
+        // to: ['fds2gfds654675hfdgww', '3433fettqa54556i8]
         const { to, from, conversation_id } = data;
         if (to.length < 1) {
             throw new BadRequestError('Add at least 1 friend to the group');
         }
 
+        const fromUser = await userModel.findById(from).select('usr_name');
+
         const chatroom = await chatroomModel
             .findByIdAndUpdate(conversation_id, {
-                $push: { room_participant_ids: { $each: to } },
+                $addToSet: { room_participant_ids: { $each: to } },
             })
-            .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status usr_socket_id');
+            .populate(
+                'room_participant_ids',
+                '_id usr_name usr_room_ids usr_email usr_status usr_socket_id usr_avatar',
+            );
 
         // Add the new chatroom id to usr_room_ids of each user
         for (const participantId of to) {
@@ -153,7 +155,7 @@ module.exports = {
             if (socket) {
                 socket.join(chatroom._id.toString());
                 socket.emit('start_chat', {
-                    message: `New members have been added to the group chat: ${chatroom.room_title}`,
+                    message: `${fromUser.usr_name} has added you to the group chat: ${chatroom.room_title}`,
                     chatroom,
                 });
             }
@@ -167,7 +169,10 @@ module.exports = {
             .find({
                 room_participant_ids: { $all: [user_id] },
             })
-            .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status usr_blocked_people');
+            .populate(
+                'room_participant_ids',
+                '_id usr_name usr_room_ids usr_email usr_avatar usr_status usr_blocked_people',
+            );
 
         console.log(existing_conversations);
 

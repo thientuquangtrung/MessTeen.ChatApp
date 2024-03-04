@@ -24,11 +24,10 @@ module.exports = {
             msg_parent_id: msg_parent_id,
         });
 
-        await new_message.populate('msg_parent_id', 'msg_content _id').populate(
+        (await new_message.populate('msg_parent_id', 'msg_content _id')).populate(
             'msg_sender_id',
             'usr_name usr_avatar',
         );
-
 
         // get chatroom data
         const chatroom_data = await chatroomModel
@@ -46,7 +45,10 @@ module.exports = {
                     upsert: true,
                 },
             )
-            .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status');
+            .populate(
+                'room_participant_ids',
+                '_id usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people',
+            );
 
         if (chatroom_data.room_type === 'GROUP') {
             // If the chat room exists and is a group chat room

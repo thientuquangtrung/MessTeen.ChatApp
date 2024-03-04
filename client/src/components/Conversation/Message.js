@@ -8,10 +8,11 @@ import { DocMsg, LinkMsg, MediaMsg, ReplyMsg, TextMsg, Timeline } from './MsgTyp
 
 const Message = () => {
     const dispatch = useDispatch();
-    const messagesEndRef = useRef(null);
-
-    const { conversations, current_messages, messsage_react } = useSelector((state) => state.conversation);
+    const { conversations, current_messages } = useSelector((state) => state.conversation);
     const { room_id } = useSelector((state) => state.app);
+
+    const messagesRef = useRef(current_messages);
+    const messagesEndRef = useRef(null);
     useEffect(() => {
         const current = conversations.find((el) => el?.id === room_id);
 
@@ -26,8 +27,9 @@ const Message = () => {
 
     useEffect(() => {
         // Kéo thanh cuộn xuống dưới khi có tin nhắn mới
-        if (messagesEndRef.current) {
+        if (messagesEndRef.current && current_messages?.length > messagesRef.current?.length) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+            messagesRef.current = current_messages;
         }
     }, [current_messages]);
 

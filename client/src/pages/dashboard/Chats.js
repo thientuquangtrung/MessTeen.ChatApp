@@ -272,10 +272,10 @@ const Chats = () => {
                     </Stack>
                     {openDialogGroup && <CreateGroup open={openDialogGroup} handleClose={handleCloseDialogGroup} />}
                     <Stack spacing={1}>
-                        <Stack direction={'row'} alignItems={'center'} spacing={1.5}>
+                        {/* <Stack direction={'row'} alignItems={'center'} spacing={1.5}>
                             <ArchiveBox size={24} />
                             <Button>Archive</Button>
-                        </Stack>
+                        </Stack> */}
                         <Divider />
                     </Stack>
                     <Stack

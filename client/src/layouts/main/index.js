@@ -8,7 +8,7 @@ import Logo from '../../assets/Images/logo1.png';
 const MainLayout = () => {
     const { isLoggedIn } = useSelector((state) => state.auth);
 
-    if (isLoggedIn) return <Navigate to={'/app#loaded'} />;
+    if (isLoggedIn) return <Navigate to={'/app'} />;
 
     return (
         <>

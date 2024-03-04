@@ -32,8 +32,8 @@ export const slice = createSlice({
                         id: el._id,
                         user_id: user?._id,
                         name: `${user?.usr_name}`,
-                        online: user.usr_status === 'ONLINE',
-                        img: [faker.image.avatar()],
+                        online: user?.usr_status === 'ONLINE',
+                        img: [user.usr_avatar],
                         msg: el.room_last_msg.content,
                         time: el.room_last_msg.timestamp,
                         unread: 0,
@@ -48,7 +48,7 @@ export const slice = createSlice({
                         id: el._id,
                         name: el.room_title,
                         online: el.room_participant_ids.some((user) => user.usr_status === 'ONLINE'),
-                        img: el.room_participant_ids.map((user) => faker.image.avatar()),
+                        img: el.room_participant_ids.map((user) => user.usr_avatar),
                         msg: el.room_last_msg.content,
                         time: el.room_last_msg.timestamp,
                         unread: 0,
@@ -81,8 +81,8 @@ export const slice = createSlice({
                                 id: this_conversation._id,
                                 user_id: user?._id,
                                 name: `${user?.usr_name}`,
-                                online: user.usr_status === 'ONLINE',
-                                img: [faker.image.avatar()],
+                                online: user?.usr_status === 'ONLINE',
+                                img: [user.usr_avatar],
                                 msg: this_conversation.room_last_msg.content,
                                 time: this_conversation.room_last_msg.timestamp,
                                 unread: 0,
@@ -100,7 +100,7 @@ export const slice = createSlice({
                                 online: this_conversation.room_participant_ids.some(
                                     (user) => user.usr_status === 'ONLINE',
                                 ),
-                                img: this_conversation.room_participant_ids.map((user) => faker.image.avatar()),
+                                img: this_conversation.room_participant_ids.map((user) => user.usr_avatar),
                                 msg: this_conversation.room_last_msg.content,
                                 time: this_conversation.room_last_msg.timestamp,
                                 unread: 0,
@@ -128,10 +128,6 @@ export const slice = createSlice({
                     return el?.id !== this_conversation_id;
                 })
                 .sort((a, b) => new Date(b.time) - new Date(a.time));
-
-            // if(state.current_conversation.id === this_conversation_id){
-            //     state.current_conversation = null
-            // }
         },
 
         addDirectConversation(state, action) {
@@ -143,8 +139,9 @@ export const slice = createSlice({
                 state.conversations.push({
                     id: this_conversation._id,
                     user_id: user?._id,
-                    name: user.usr_status === 'ONLINE',
-                    img: [faker.image.avatar()],
+                    name: `${user?.usr_name}`,
+                    online: user?.usr_status === 'ONLINE',
+                    img: [user.usr_avatar],
                     msg: this_conversation.room_last_msg.content,
                     time: this_conversation.room_last_msg.timestamp,
                     unread: 0,
@@ -157,7 +154,7 @@ export const slice = createSlice({
                     id: this_conversation._id,
                     name: this_conversation.room_title,
                     online: this_conversation.room_participant_ids.some((user) => user.usr_status === 'ONLINE'),
-                    img: this_conversation.room_participant_ids.map((user) => faker.image.avatar()),
+                    img: this_conversation.room_participant_ids.map((user) => user.usr_avatar),
                     msg: this_conversation.room_last_msg.content,
                     time: this_conversation.room_last_msg.timestamp,
                     unread: 0,
