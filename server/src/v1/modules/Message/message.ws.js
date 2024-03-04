@@ -88,13 +88,22 @@ module.exports = {
             reaction,
         });
 
-        _io.to(to_user?.usr_socket_id).emit('get_reaction', {
-            message: messageReact,
-            conversation_id,
-        });
-        _io.to(from_user?.usr_socket_id).emit('get_reaction', {
-            message: messageReact,
-            conversation_id,
-        });
+        const chatroom_data = await chatroomModel.findById(conversation_id).select('room_type');
+
+        if (chatroom_data.room_type === 'GROUP') {
+            _io.to(conversation_id).emit('get_reaction', {
+                message: messageReact,
+                conversation_id,
+            });
+        } else {
+            _io.to(to_user?.usr_socket_id).emit('get_reaction', {
+                message: messageReact,
+                conversation_id,
+            });
+            _io.to(from_user?.usr_socket_id).emit('get_reaction', {
+                message: messageReact,
+                conversation_id,
+            });
+        }
     },
 };

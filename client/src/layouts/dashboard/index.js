@@ -26,6 +26,7 @@ import {
     UpdateConversationStatus,
     UpdateDirectConversation,
     RemoveDirectConversation,
+    SetCurrentConversation,
 } from '../../redux/conversation/convActionCreators';
 import AntSwitch from '../../components/AntSwitch';
 
@@ -165,11 +166,18 @@ const DashboardLayout = () => {
                         conversation.participant_ids?.length === 2 &&
                         conversation.participant_ids?.includes(user_id) &&
                         conversation.participant_ids?.includes(friendId);
+
                     if (hasParticipant) {
-                        return {
+                        const newConvStatus = {
                             ...conversation,
                             online: data.status,
                         };
+
+                        if (newConvStatus.id === current_conversation.id) {
+                            dispatch(SetCurrentConversation(newConvStatus));
+                        }
+
+                        return newConvStatus;
                     }
 
                     return conversation;
