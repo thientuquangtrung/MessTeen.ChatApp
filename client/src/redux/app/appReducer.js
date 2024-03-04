@@ -28,6 +28,10 @@ const initialState = {
         open: false,
         type: 'CONTACT',
     },
+    isLoading: {
+        state: false,
+        progress: 0, //over 100
+    },
 };
 
 export const slice = createSlice({
@@ -90,6 +94,9 @@ export const slice = createSlice({
         },
         updatedSidebarType(state, action) {
             state.sidebar.type = action.payload.type;
+        },
+        updateIsLoading(state, action) {
+            state.isLoading = action.payload;
         },
     },
     extraReducers: (builder) => builder.addCase(revertAll, () => initialState),

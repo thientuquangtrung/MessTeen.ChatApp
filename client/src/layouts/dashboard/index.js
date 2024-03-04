@@ -49,7 +49,11 @@ const DashboardLayout = () => {
             };
 
             window.onload();
+        }
+    }, [isLoggedIn]);
 
+    useEffect(() => {
+        if (isLoggedIn) {
             if (!socket) {
                 connectSocket(user_id);
             }
@@ -107,7 +111,7 @@ const DashboardLayout = () => {
                     dispatch(AddDirectConversation({ conversation: chatroom }));
                 }
                 dispatch(SelectConversation({ room_id: chatroom._id }));
-                dispatch(showSnackbar({ severity: 'info', message }));
+                message && dispatch(showSnackbar({ severity: 'info', message }));
             });
 
             socket.on('leave_group', ({ chatroom, message }) => {
@@ -158,9 +162,9 @@ const DashboardLayout = () => {
                 const friendId = data.userId; // Assuming you receive friend's user ID from data
                 const conversationsToUpdate = conversations.map((conversation) => {
                     const hasParticipant =
+                        conversation.participant_ids?.length === 2 &&
                         conversation.participant_ids?.includes(user_id) &&
                         conversation.participant_ids?.includes(friendId);
-                    console.log(conversation);
                     if (hasParticipant) {
                         return {
                             ...conversation,

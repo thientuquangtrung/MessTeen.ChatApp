@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const Profile = () => {
     const navigate = useNavigate();
     const handleBackApps = () => {
-        navigate('/app#loaded');
+        navigate('/app');
     };
 
     return (

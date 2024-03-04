@@ -5,7 +5,7 @@ import { useForm, useFormState } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import FormProvider from '../../components/hook-form/FormProvider';
 import { RHFTextField, RHFUploadAvatar } from '../../components/hook-form';
-import { Stack } from '@mui/material';
+import { CircularProgress, Stack } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useDispatch, useSelector } from 'react-redux';
 import { UpdateUserProfile } from '../../redux/app/appActionCreators';
@@ -13,7 +13,7 @@ import { UpdateUserProfile } from '../../redux/app/appActionCreators';
 const ProfileForm = () => {
     const dispatch = useDispatch();
     const [file, setFile] = useState();
-    const { user } = useSelector((state) => state.app);
+    const { user, isLoading } = useSelector((state) => state.app);
 
     const ProfileSchema = Yup.object().shape({
         fullName: Yup.string().required('Name is required'),
@@ -33,12 +33,10 @@ const ProfileForm = () => {
     });
 
     const {
-        reset,
         watch,
-        control,
         setValue,
         handleSubmit,
-        formState: { isSubmitting, isSubmitSuccessful, isDirty },
+        formState: { isDirty },
     } = methods;
 
     const values = watch();
@@ -99,8 +97,13 @@ const ProfileForm = () => {
                         size="large"
                         type="submit"
                         variant="outlined"
-                        // loading={isSubmitSuccessful || isSubmitting}
+                        loading={isLoading.state}
                         disabled={!isDirty}
+                        loadingIndicator={
+                            <Stack direction={'row'} alignItems="center">
+                                <CircularProgress color="inherit" size={16} /> {isLoading.progress}%
+                            </Stack>
+                        }
                     >
                         Save
                     </LoadingButton>
