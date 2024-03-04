@@ -28,6 +28,27 @@ module.exports = {
         });
     },
 
+    endVideoCallWS: async (data) => {
+        const { from, to } = data;
+
+        console.log(data);
+
+        const to_user = await userModel.findById(to);
+
+        await callModel.findOneAndUpdate(
+            {
+                call_participants: { $size: 2, $all: [to, from] },
+            },
+            { call_status: 'Ended', call_endedAt: Date.now() },
+        );
+
+        // TODO => emit call_missed to receiver of call
+        _io.to(to_user?.usr_socket_id).emit('video_call_end', {
+            from,
+            to,
+        });
+    },
+
     videoCallNotPickedWS: async (data) => {
         console.log(data);
         // find and update call record

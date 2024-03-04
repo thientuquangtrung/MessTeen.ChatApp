@@ -22,6 +22,7 @@ const {
     videoCallAcceptedWS,
     videoCallDeniedWS,
     videoCallBusyWS,
+    endVideoCallWS,
 } = require('./v1/modules/Call/call.ws');
 
 //init dbs
@@ -242,6 +243,9 @@ const handleSocketConnect = async (socket) => {
 
     // // handle start_video_call event
     socket.on('start_video_call', withErrorHandling(socket, startVideoCallWS));
+
+    // // handle end_video_call event
+    socket.on('end_video_call', withErrorHandling(socket, endVideoCallWS));
 
     // // handle video_call_not_picked
     socket.on('video_call_not_picked', withErrorHandling(socket, videoCallNotPickedWS));

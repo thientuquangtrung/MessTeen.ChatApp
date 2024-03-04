@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, IconButton, Slide, Stack } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import axiosInstance from '../../../utils/axios';
 import { socket } from '../../../socket';
 import { ResetVideoCallQueue } from '../../../redux/videoCall/videoCallActionCreators';
 import { PhoneSlash } from 'phosphor-react';
@@ -79,6 +78,14 @@ const CallDialog = ({ open, handleClose }) => {
             socket.on('video_call_denied', () => {
                 // TODO => You can play an audio indicating call is denined
                 // ABORT CALL
+                clearTimeout(notPickTimer);
+                handleDisconnect();
+            });
+
+            socket.on('on_another_video_call', () => {
+                // TODO => You can play an audio indicating call is denined
+                // ABORT CALL
+                clearTimeout(notPickTimer);
                 handleDisconnect();
             });
 
@@ -91,6 +98,10 @@ const CallDialog = ({ open, handleClose }) => {
                 makeCall(call_details?.streamID);
             });
         }
+
+        socket.on('video_call_end', (data) => {
+            handleDisconnect();
+        });
 
         const peer = new Peer(userID);
         peerInstance.current = peer;
@@ -208,6 +219,7 @@ const CallDialog = ({ open, handleClose }) => {
                     </Stack>
                     <Button
                         onClick={() => {
+                            socket.emit('end_video_call', { from: userID, to: call_details?.streamID });
                             handleDisconnect();
                         }}
                         variant="contained"
