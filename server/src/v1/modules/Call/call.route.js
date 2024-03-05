@@ -13,4 +13,5 @@ router.get('/statistics', asyncHandler(callStatisticController.getAllCallStatist
 
 // router.post('/start-audio-call', asyncHandler(callController.startAudioCall));
 router.post('/start-video-call', asyncHandler(callController.startVideoCall));
+router.get('/get-call-logs/:userId', asyncHandler(callController.getCallLogs));
 module.exports = router;

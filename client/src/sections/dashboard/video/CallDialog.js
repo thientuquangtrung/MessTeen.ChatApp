@@ -20,37 +20,35 @@ const CallDialog = ({ open, handleClose }) => {
     const peerInstance = useRef(null);
 
     //* Use params from call_details if available => like in case of receiver's end
-
+    /**
+     * call_details {
+     *      from : id of user who the stream comes from
+     *      to : id of user who the stream to
+     *      roomID: id of this call
+     *      streamID: id of stream (usually === from)
+     *      userID: id of user receiving the stream (usually === to)
+     * }
+     */
     const [call_details] = useSelector((state) => state.videoCall.call_queue);
     const { incoming } = useSelector((state) => state.videoCall);
-
-    // roomID => ID of conversation => current_conversation.id
-    // userID => ID of this user
 
     const roomID = call_details?.roomID;
     const userID = call_details?.userID;
 
-    const handleDisconnect = (event, reason) => {
-        if (reason && reason === 'backdropClick') {
-            return;
-        } else {
-            // clean up event listners
-            socket?.off('video_call_accepted');
-            socket?.off('video_call_denied');
-            // socket?.off('video_call_missed');
-
-            // stop publishing local audio & video stream to remote users, call the stopPublishingStream method with the corresponding stream ID passed to the streamID parameter.
-
-            // handle Call Disconnection => this will be handled as cleanup when this dialog unmounts
-            peerInstance.current?.destroy();
-
-            // at the end call handleClose Dialog
-            dispatch(ResetVideoCallQueue());
-            handleClose();
-        }
-    };
-
     useEffect(() => {
+        // for all users in call
+        socket.on('video_call_end', (data) => {
+            handleDisconnect();
+        });
+
+        const peer = new Peer(userID);
+        peerInstance.current = peer;
+        console.log(`peerInstance`, peer);
+
+        peer.on('open', (id) => {
+            console.log('My peer id:::::', id);
+        });
+
         if (!incoming) {
             //caller
             socket.emit('start_video_call', {
@@ -62,18 +60,12 @@ const CallDialog = ({ open, handleClose }) => {
             // // create a job to decline call automatically after 30 sec if not picked
             const notPickTimer = setTimeout(() => {
                 // TODO => You can play an audio indicating missed call at this line at sender's end
-                socket.emit('video_call_not_picked', { to: call_details?.streamID, from: userID }, () => {
+                socket.emit('video_call_not_picked', { to: call_details?.streamID, from: userID, roomID }, () => {
                     // TODO abort call => Call verdict will be marked as Missed
                 });
 
                 handleDisconnect();
-            }, 10 * 1000);
-
-            // socket.on('video_call_missed', () => {
-            //     // TODO => You can play an audio indicating call is missed at receiver's end
-            //     // Abort call
-            //     handleDisconnect();
-            // });
+            }, 30 * 1000);
 
             socket.on('video_call_denied', () => {
                 // TODO => You can play an audio indicating call is denined
@@ -93,81 +85,89 @@ const CallDialog = ({ open, handleClose }) => {
                 // TODO => You can play an audio indicating call is started
                 // clear timeout for "video_call_not_picked"
                 clearTimeout(notPickTimer);
-
-                //
                 makeCall(call_details?.streamID);
             });
+
+            const makeCall = (remotePeerId) => {
+                // caller
+                navigator.mediaDevices
+                    .getUserMedia({ video: true, audio: true })
+                    .then((mediaStream) => {
+                        localVideoRef.current.srcObject = mediaStream;
+                        localVideoRef.current.play();
+                        const call = peer.call(remotePeerId, mediaStream);
+
+                        console.log(`call:::::`, call);
+                        call.on('stream', (remoteStream) => {
+                            remoteVideoRef.current.srcObject = remoteStream;
+                            remoteVideoRef.current.play();
+                        });
+
+                        call.on('close', () => {
+                            console.log(`call close:::::`);
+                            localVideoRef.current?.srcObject.getTracks().forEach(function (track) {
+                                track.stop();
+                            });
+                            remoteVideoRef.current?.srcObject.getTracks().forEach(function (track) {
+                                track.stop();
+                            });
+                        });
+                    })
+                    .catch((err) => {
+                        console.error('Failed to get local stream', err);
+                    });
+            };
+        } else {
+            // receiver
+            peer.on('call', (call) => {
+                navigator.mediaDevices
+                    .getUserMedia({ video: true, audio: true })
+                    .then((mediaStream) => {
+                        localVideoRef.current.srcObject = mediaStream;
+                        localVideoRef.current.play();
+
+                        call.answer(mediaStream);
+                        call.on('stream', function (remoteStream) {
+                            remoteVideoRef.current.srcObject = remoteStream;
+                            remoteVideoRef.current.play();
+                        });
+                        call.on('close', () => {
+                            console.log(`call close:::::`);
+                            localVideoRef.current?.srcObject.getTracks().forEach(function (track) {
+                                track.stop();
+                            });
+                            remoteVideoRef.current?.srcObject.getTracks().forEach(function (track) {
+                                track.stop();
+                            });
+                        });
+                    })
+                    .catch((err) => {
+                        console.error('Failed to get local stream', err);
+                    });
+            });
         }
-
-        socket.on('video_call_end', (data) => {
-            handleDisconnect();
-        });
-
-        const peer = new Peer(userID);
-        peerInstance.current = peer;
-        console.log(`peerInstance`, peer);
-
-        peer.on('open', (id) => {
-            console.log('My peer id:::::', id);
-        });
-
-        peer.on('call', (call) => {
-            console.log('on call:::::::', userID);
-            navigator.mediaDevices
-                .getUserMedia({ video: true, audio: true })
-                .then((mediaStream) => {
-                    localVideoRef.current.srcObject = mediaStream;
-                    localVideoRef.current.play();
-
-                    call.answer(mediaStream);
-                    call.on('stream', function (remoteStream) {
-                        remoteVideoRef.current.srcObject = remoteStream;
-                        remoteVideoRef.current.play();
-                    });
-                    call.on('close', () => {
-                        console.log(`call close:::::`);
-                        localVideoRef.current?.srcObject.getTracks().forEach(function (track) {
-                            track.stop();
-                        });
-                        remoteVideoRef.current?.srcObject.getTracks().forEach(function (track) {
-                            track.stop();
-                        });
-                    });
-                })
-                .catch((err) => {
-                    console.error('Failed to get local stream', err);
-                });
-        });
-
-        const makeCall = (remotePeerId) => {
-            navigator.mediaDevices
-                .getUserMedia({ video: true, audio: true })
-                .then((mediaStream) => {
-                    localVideoRef.current.srcObject = mediaStream;
-                    localVideoRef.current.play();
-                    const call = peer.call(remotePeerId, mediaStream);
-
-                    console.log(`call:::::`, call);
-                    call.on('stream', (remoteStream) => {
-                        remoteVideoRef.current.srcObject = remoteStream;
-                        remoteVideoRef.current.play();
-                    });
-
-                    call.on('close', () => {
-                        console.log(`call close:::::`);
-                        localVideoRef.current?.srcObject.getTracks().forEach(function (track) {
-                            track.stop();
-                        });
-                        remoteVideoRef.current?.srcObject.getTracks().forEach(function (track) {
-                            track.stop();
-                        });
-                    });
-                })
-                .catch((err) => {
-                    console.error('Failed to get local stream', err);
-                });
-        };
     }, []);
+
+    const handleDisconnect = (event, reason) => {
+        if (reason && reason === 'backdropClick') {
+            return;
+        } else {
+            // clean up event listners
+            socket?.off('video_call_accepted');
+            socket?.off('video_call_denied');
+            socket?.off('on_another_video_call');
+            socket?.off('video_call_end');
+
+            // stop publishing local audio & video stream to remote users, call the stopPublishingStream method with the corresponding stream ID passed to the streamID parameter.
+
+            // handle Call Disconnection => this will be handled as cleanup when this dialog unmounts
+            peerInstance.current?.destroy();
+
+            // at the end call handleClose Dialog
+            dispatch(ResetVideoCallQueue());
+            handleClose();
+        }
+    };
 
     return (
         <>

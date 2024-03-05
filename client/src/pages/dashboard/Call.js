@@ -11,12 +11,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FetchCallLogs } from '../../redux/app/appActionCreators';
 
 const Call = () => {
+    const theme = useTheme();
     const dispatch = useDispatch();
+    const { call_logs } = useSelector((state) => state.app);
+    const [openDialog, setOpenDialog] = useState(false);
+
     useEffect(() => {
         dispatch(FetchCallLogs());
     }, []);
-    const { call_logs } = useSelector((state) => state.app);
-    const [openDialog, setOpenDialog] = useState(false);
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
@@ -24,7 +26,7 @@ const Call = () => {
     const handleOpenDialog = () => {
         setOpenDialog(true);
     };
-    const theme = useTheme();
+
     return (
         <>
             <Stack direction="row" sx={{ width: '100%' }}>
@@ -33,7 +35,6 @@ const Call = () => {
                 <Box
                     sx={{
                         overflowY: 'scroll',
-
                         height: '100vh',
                         width: 340,
                         backgroundColor: (theme) =>

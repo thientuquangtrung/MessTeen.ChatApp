@@ -8,6 +8,13 @@ class CallController {
             metadata: await CallService.startVideoCall(req.body),
         }).send(res);
     }
+
+    async getCallLogs(req, res) {
+        new OK({
+            message: 'Get call logs successfully',
+            metadata: await CallService.getCallLogs(req.params.userId),
+        }).send(res);
+    }
 }
 
 module.exports = new CallController();

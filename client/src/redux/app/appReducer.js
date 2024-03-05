@@ -38,9 +38,9 @@ export const slice = createSlice({
     name: 'app',
     initialState,
     reducers: {
-        // fetchCallLogs(state, action) {
-        //     state.call_logs = action.payload.call_logs;
-        // },
+        fetchCallLogs(state, action) {
+            state.call_logs = action.payload.call_logs;
+        },
         // fetchUser(state, action) {
         //     state.user = action.payload.user;
         // },

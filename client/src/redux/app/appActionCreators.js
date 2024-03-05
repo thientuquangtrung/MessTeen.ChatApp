@@ -173,15 +173,10 @@ export const SelectConversation = ({ room_id }) => {
 export const FetchCallLogs = () => {
     return async (dispatch, getState) => {
         axios
-            .get('/user/get-call-logs', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${getState().auth.token}`,
-                },
-            })
+            .get(`/calls/get-call-logs/${getState().auth.user_id}`)
             .then((response) => {
                 console.log(response);
-                dispatch(slice.actions.fetchCallLogs({ call_logs: response.data.data }));
+                dispatch(slice.actions.fetchCallLogs({ call_logs: response.data.metadata }));
             })
             .catch((err) => {
                 console.log(err);

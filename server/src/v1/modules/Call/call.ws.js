@@ -29,7 +29,7 @@ module.exports = {
     },
 
     endVideoCallWS: async (data) => {
-        const { from, to } = data;
+        const { from, to, roomID } = data;
 
         console.log(data);
 
@@ -37,6 +37,7 @@ module.exports = {
 
         await callModel.findOneAndUpdate(
             {
+                _id: roomID,
                 call_participants: { $size: 2, $all: [to, from] },
             },
             { call_status: 'Ended', call_endedAt: Date.now() },
@@ -52,18 +53,19 @@ module.exports = {
     videoCallNotPickedWS: async (data) => {
         console.log(data);
         // find and update call record
-        const { to, from } = data;
+        const { to, from, roomID } = data;
 
         const to_user = await userModel.findById(to);
 
         await callModel.findOneAndUpdate(
             {
+                _id: roomID,
                 call_participants: { $size: 2, $all: [to, from] },
             },
             { call_verdict: 'Missed', call_status: 'Ended', call_endedAt: Date.now() },
         );
 
-        // TODO => emit call_missed to receiver of call
+        // emit call_missed to receiver of call
         _io.to(to_user?.usr_socket_id).emit('video_call_missed', {
             from,
             to,
@@ -71,13 +73,14 @@ module.exports = {
     },
 
     videoCallAcceptedWS: async (data) => {
-        const { to, from } = data;
+        const { to, from, roomID } = data;
 
         const from_user = await userModel.findById(from);
 
         // find and update call record
         await callModel.findOneAndUpdate(
             {
+                _id: roomID,
                 call_participants: { $size: 2, $all: [to, from] },
             },
             { call_verdict: 'Accepted' },
@@ -92,10 +95,11 @@ module.exports = {
 
     videoCallDeniedWS: async (data) => {
         // find and update call record
-        const { to, from } = data;
+        const { to, from, roomID } = data;
 
         await callModel.findOneAndUpdate(
             {
+                _id: roomID,
                 call_participants: { $size: 2, $all: [to, from] },
             },
             { call_verdict: 'Denied', call_status: 'Ended', call_endedAt: Date.now() },
@@ -111,10 +115,11 @@ module.exports = {
     },
 
     videoCallBusyWS: async (data) => {
-        const { to, from } = data;
+        const { to, from, roomID } = data;
         // find and update call record
         await callModel.findOneAndUpdate(
             {
+                _id: roomID,
                 call_participants: { $size: 2, $all: [to, from] },
             },
             { call_verdict: 'Busy', call_status: 'Ended', call_endedAt: Date.now() },

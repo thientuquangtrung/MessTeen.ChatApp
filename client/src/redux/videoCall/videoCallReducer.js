@@ -18,10 +18,12 @@ export const slice = createSlice({
             if (state.call_queue.length === 0) {
                 state.call_queue.push(action.payload.call);
                 if (action.payload.incoming) {
-                    state.open_video_notification_dialog = true; // this will open up the call dialog
+                    //receiver
+                    state.open_video_notification_dialog = true; // this will open up the call notification dialog
                     state.incoming = true;
                 } else {
-                    state.open_video_dialog = true;
+                    // caller
+                    state.open_video_dialog = true; // this will open up the call dialog
                     state.incoming = false;
                 }
             } else {
