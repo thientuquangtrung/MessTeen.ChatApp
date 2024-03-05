@@ -21,6 +21,7 @@ module.exports = {
                 fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar'],
                 object: from_user,
             }),
+            to,
             roomID,
             streamID: from,
             userID: to,

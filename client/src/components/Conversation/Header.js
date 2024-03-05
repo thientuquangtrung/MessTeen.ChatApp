@@ -66,18 +66,18 @@ const Header = () => {
                         ) : (
                             // <Avatar alt={current_conversation?.name} src={current_conversation?.img} />
                             <AvatarGroup
-                                    spacing={20}
-                                    max={3}
-                                    sx={{
-                                        '.MuiAvatarGroup-avatar': isGroup
-                                            ? { width: 24, height: 24 }
-                                            : { width: 40, height: 40 },
-                                    }}
-                                >
-                                    {img.map((src) => (
-                                        <Avatar src={src} />
-                                    ))}
-                                </AvatarGroup>
+                                spacing={20}
+                                max={3}
+                                sx={{
+                                    '.MuiAvatarGroup-avatar': isGroup
+                                        ? { width: 24, height: 24 }
+                                        : { width: 40, height: 40 },
+                                }}
+                            >
+                                {img.map((src) => (
+                                    <Avatar src={src} />
+                                ))}
+                            </AvatarGroup>
                         )}
                     </Box>
                     <Stack spacing={0.2}>
@@ -86,20 +86,22 @@ const Header = () => {
                     </Stack>
                 </Stack>
                 <Stack direction="row" alignItems={'center'} spacing={3}>
-                    <IconButton
-                        onClick={() => {
-                            dispatch(StartVideoCall(user_id, current_conversation.user_id));
-                        }}
-                    >
-                        <VideoCamera />
-                    </IconButton>
-                    <IconButton
+                    {current_conversation?.type === 'PRIVATE' && (
+                        <IconButton
+                            onClick={() => {
+                                dispatch(StartVideoCall(user_id, current_conversation.user_id));
+                            }}
+                        >
+                            <VideoCamera />
+                        </IconButton>
+                    )}
+                    {/* <IconButton
                         onClick={() => {
                             // dispatch(StartAudioCall(current_conversation.user_id));
                         }}
                     >
                         <Phone />
-                    </IconButton>
+                    </IconButton> */}
                     <IconButton>
                         <MagnifyingGlass />
                     </IconButton>

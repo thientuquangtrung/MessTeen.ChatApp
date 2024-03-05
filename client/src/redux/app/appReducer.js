@@ -39,7 +39,7 @@ export const slice = createSlice({
     initialState,
     reducers: {
         fetchCallLogs(state, action) {
-            state.call_logs = action.payload.call_logs;
+            state.call_logs = action.payload.call_logs.sort((a, b) => new Date(b.start) - new Date(a.start));
         },
         // fetchUser(state, action) {
         //     state.user = action.payload.user;

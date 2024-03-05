@@ -83,9 +83,11 @@ class CallService {
                     id: element._id,
                     img: other_user.usr_avatar,
                     name: other_user.usr_name,
-                    online: true,
+                    online: other_user.usr_status === 'ONLINE',
                     incoming: false,
                     missed,
+                    start: element.call_startedAt,
+                    end: element.call_endedAt,
                 });
             } else {
                 // incoming
@@ -96,9 +98,11 @@ class CallService {
                     id: element._id,
                     img: other_user.usr_avatar,
                     name: other_user.usr_name,
-                    online: true,
-                    incoming: false,
+                    online: other_user.usr_status === 'ONLINE',
+                    incoming: true,
                     missed,
+                    start: element.call_startedAt,
+                    end: element.call_endedAt,
                 });
             }
         }

@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 // import { StartAudioCall } from '../redux/slices/audioCall';
 // import { StartVideoCall } from '../redux/slices/videoCall';
 import { faker } from '@faker-js/faker';
+import { fDateTimeSuffix } from '../utils/formatTime';
 
 const StyledChatBox = styled(Box)(({ theme }) => ({
     '&:hover': {
@@ -42,7 +43,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     },
 }));
 
-const CallLogElement = ({ img, name, incoming, missed, online, id }) => {
+const CallLogElement = ({ img, name, incoming, missed, online, id, start, end }) => {
     const theme = useTheme();
 
     return (
@@ -63,10 +64,10 @@ const CallLogElement = ({ img, name, incoming, missed, online, id }) => {
                             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                             variant="dot"
                         >
-                            <Avatar alt={name} src={faker.image.avatar()} />
+                            <Avatar alt={name} src={img} />
                         </StyledBadge>
                     ) : (
-                        <Avatar alt={name} src={faker.image.avatar()} />
+                        <Avatar alt={name} src={img} />
                     )}
                     <Stack spacing={0.3}>
                         <Typography variant="subtitle2">{name}</Typography>
@@ -76,7 +77,7 @@ const CallLogElement = ({ img, name, incoming, missed, online, id }) => {
                             ) : (
                                 <ArrowUpRight color={missed ? 'red' : 'green'} />
                             )}
-                            <Typography variant="caption">Yesterday 21:24</Typography>
+                            <Typography variant="caption">{fDateTimeSuffix(start)}</Typography>
                         </Stack>
                     </Stack>
                 </Stack>

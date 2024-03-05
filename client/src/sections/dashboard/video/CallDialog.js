@@ -219,7 +219,7 @@ const CallDialog = ({ open, handleClose }) => {
                     </Stack>
                     <Button
                         onClick={() => {
-                            socket.emit('end_video_call', { from: userID, to: call_details?.streamID });
+                            socket.emit('end_video_call', { from: userID, to: call_details?.streamID, roomID });
                             handleDisconnect();
                         }}
                         variant="contained"

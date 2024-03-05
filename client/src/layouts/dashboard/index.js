@@ -1,7 +1,7 @@
 import { useTheme, styled } from '@mui/material/styles';
 import { Avatar, Box, Divider, IconButton, Menu, MenuItem, Stack, Switch } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import Logo from '../../assets/Images/logo1.png';
 import { Nav_Buttons } from '../../data';
@@ -35,13 +35,13 @@ import AntSwitch from '../../components/AntSwitch';
 
 const DashboardLayout = () => {
     //#region hooks
+    const location = useLocation();
     const navigate = useNavigate();
     const theme = useTheme();
     const dispatch = useDispatch();
     const { isLoggedIn, user_id } = useSelector((state) => state.auth);
     const { conversations, current_conversation } = useSelector((state) => state.conversation);
     const { open_video_notification_dialog, open_video_dialog } = useSelector((state) => state.videoCall);
-    const [selected, setSelected] = useState(0);
     const { onToggleMode } = useSettings();
 
     useEffect(() => {
@@ -225,7 +225,6 @@ const DashboardLayout = () => {
 
     const handleNavigation = (path, index) => {
         navigate(path);
-        setSelected(index);
     };
 
     // const handleCloseAudioDialog = () => {
@@ -273,13 +272,15 @@ const DashboardLayout = () => {
                                         sx={{
                                             width: 'max-content',
                                             color:
-                                                index === selected
+                                                location.pathname === el.path
                                                     ? '#fff'
                                                     : theme.palette.mode === 'light'
                                                     ? '#000'
                                                     : theme.palette.text.primary,
                                             backgroundColor:
-                                                index === selected ? theme.palette.primary.main : 'transparent',
+                                                location.pathname === el.path
+                                                    ? theme.palette.primary.main
+                                                    : 'transparent',
                                             borderRadius: 1.5,
                                             '&:hover': {
                                                 backgroundColor: theme.palette.primary.main, // Màu nền khi hover
@@ -293,7 +294,7 @@ const DashboardLayout = () => {
                                 ))}
 
                                 <Divider sx={{ width: '48px' }} />
-                                {selected === 3 ? (
+                                {location.pathname === '/settings' ? (
                                     <Box
                                         sx={{
                                             backgroundColor: theme.palette.primary.main,
@@ -311,7 +312,6 @@ const DashboardLayout = () => {
                                     <IconButton
                                         onClick={() => {
                                             handleToSettings();
-                                            setSelected(3);
                                         }}
                                         sx={{
                                             width: 'max-content',
