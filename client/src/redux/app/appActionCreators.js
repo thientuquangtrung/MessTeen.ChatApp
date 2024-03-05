@@ -124,6 +124,20 @@ export function FetchFriendRequests(searchQuery = '') {
     };
 }
 
+export function FetchSentFriendRequests(searchQuery = '') {
+    return async (dispatch, getState) => {
+        await axios
+            .get(`/users/sent-friend-requests/${getState().auth.user_id}?search=${searchQuery}`)
+            .then((response) => {
+                console.log(response);
+                dispatch(slice.actions.updateSentFriendRequests({ requests: response.data.metadata }));
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+}
+
 export function BlockedFriendAction(friendId) {
     return async (dispatch, getState) => {
         await axios
@@ -161,6 +175,18 @@ export function UnblockedFriendAction(friendId) {
 export function UpdateFriendsRequestAction(requestList) {
     return (dispatch, getState) => {
         dispatch(slice.actions.updateFriendRequests({ requests: requestList }));
+    };
+}
+
+export function UpdateSentFriendsRequestAction(requestList) {
+    return (dispatch, getState) => {
+        dispatch(slice.actions.updateSentFriendRequests({ requests: requestList }));
+    };
+}
+
+export function UpdateFriendsAction(newFriendList) {
+    return (dispatch, getState) => {
+        dispatch(slice.actions.updateFriends({ friends: newFriendList }));
     };
 }
 
@@ -205,48 +231,67 @@ export const FetchCallLogs = () => {
 export const UpdateUserProfile = (formValues) => {
     return async (dispatch, getState) => {
         const file = formValues.avatar;
-        const key = v4();
-        const storageRef = ref(storage, `avatars/${key}`);
+        console.log('file::::::::::::', file);
 
-        const uploadTask = uploadBytesResumable(storageRef, file);
+        if (file) {
+            const key = v4();
+            const storageRef = ref(storage, `avatars/${key}`);
 
-        uploadTask.on(
-            'state_changed',
-            (snapshot) => {
-                // Handle progress
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
-                dispatch(slice.actions.updateIsLoading({ progress, state: true }));
-            },
-            (error) => {
-                // Handle unsuccessful uploads
-                console.error('Error uploading file:', error);
-                dispatch(slice.actions.updateIsLoading({ progress: 0, state: false }));
-            },
-            async () => {
-                // Handle successful uploads
-                console.log('File uploaded successfully');
+            const uploadTask = uploadBytesResumable(storageRef, file);
 
-                // Get the download URL of the uploaded file
-                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            uploadTask.on(
+                'state_changed',
+                (snapshot) => {
+                    // Handle progress
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                    dispatch(slice.actions.updateIsLoading({ progress, state: true }));
+                },
+                (error) => {
+                    // Handle unsuccessful uploads
+                    console.error('Error uploading file:', error);
+                    dispatch(slice.actions.updateIsLoading({ progress: 0, state: false }));
+                },
+                async () => {
+                    // Handle successful uploads
+                    console.log('File uploaded successfully');
 
-                console.log('downloadURL::::::::::::', downloadURL);
-                axios
-                    .put(`/users/update-profile-user/${getState().auth.user_id}`, {
-                        ...formValues,
-                        avatar: downloadURL,
-                    })
-                    .then((response) => {
-                        console.log(response);
-                        dispatch(slice.actions.updateUser({ user: response.data.metadata }));
-                        dispatch(slice.actions.updateIsLoading({ progress: 100, state: false }));
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                        dispatch(slice.actions.updateIsLoading({ progress: 0, state: false }));
-                    });
-            },
-        );
+                    // Get the download URL of the uploaded file
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+                    console.log('downloadURL::::::::::::', downloadURL);
+                    axios
+                        .put(`/users/update-profile-user/${getState().auth.user_id}`, {
+                            ...formValues,
+                            avatar: downloadURL,
+                        })
+                        .then((response) => {
+                            console.log(response);
+                            dispatch(slice.actions.updateUser({ user: response.data.metadata }));
+                            dispatch(slice.actions.updateIsLoading({ progress: 100, state: false }));
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                            dispatch(slice.actions.updateIsLoading({ progress: 0, state: false }));
+                        });
+                },
+            );
+        } else {
+            axios
+                .put(`/users/update-profile-user/${getState().auth.user_id}`, {
+                    ...formValues,
+                    avatar: getState().app.user?.usr_avatar,
+                })
+                .then((response) => {
+                    console.log(response);
+                    dispatch(slice.actions.updateUser({ user: response.data.metadata }));
+                    dispatch(slice.actions.updateIsLoading({ progress: 100, state: false }));
+                })
+                .catch((err) => {
+                    console.log(err);
+                    dispatch(slice.actions.updateIsLoading({ progress: 0, state: false }));
+                });
+        }
     };
 };
 

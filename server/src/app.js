@@ -6,7 +6,7 @@ const morgan = require('morgan');
 const compression = require('compression');
 const UserModel = require('./v1/modules/User/user.model');
 const withErrorHandling = require('./v1/helpers/socketAsyncHandler');
-const { sendFriendRequestWS, acceptRequestWS } = require('./v1/modules/User/user.ws');
+const { sendFriendRequestWS, acceptRequestWS, unfriendWS } = require('./v1/modules/User/user.ws');
 const {
     startConversationWS,
     getDirectConversationsWS,
@@ -95,6 +95,8 @@ const handleSocketConnect = async (socket) => {
     socket.on('friend_request', withErrorHandling(socket, sendFriendRequestWS));
 
     socket.on('accept_request', withErrorHandling(socket, acceptRequestWS));
+
+    socket.on('unfriend', withErrorHandling(socket, unfriendWS));
 
     socket.on('get_direct_conversations', withErrorHandling(socket, getDirectConversationsWS));
 
