@@ -1,17 +1,19 @@
 // routes
-import Router from "./routes";
+import Router from './routes';
 // theme
-import ThemeProvider from "./theme";
+import ThemeProvider from './theme';
 // components
-import ThemeSettings from "./components/settings";
-import { useDispatch, useSelector } from "react-redux";
-import { Alert as MuiAlert, Snackbar } from "@mui/material";
-import { closeSnackBar } from "./redux/app/appActionCreators";
-import { forwardRef } from "react";
+import ThemeSettings from './components/settings';
+import { useDispatch, useSelector } from 'react-redux';
+import { Alert as MuiAlert, Snackbar } from '@mui/material';
+import { closeSnackBar } from './redux/app/appActionCreators';
+import { forwardRef } from 'react';
 // import Alert from "./theme/overrides/Alert";
+import { ErrorBoundary } from 'react-error-boundary';
+import ErrorFallback from './pages/ErrorFallback';
 
-const vertical = "bottom";
-const horizontal = "center";
+const vertical = 'bottom';
+const horizontal = 'center';
 
 const Alert = forwardRef((props, ref) => <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />);
 
@@ -21,11 +23,11 @@ function App() {
     const { severity, message, open } = useSelector((state) => state.app.snackbar);
 
     return (
-        <>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
             <ThemeProvider>
                 <ThemeSettings>
-                    {" "}
-                    <Router />{" "}
+                    {' '}
+                    <Router />{' '}
                 </ThemeSettings>
             </ThemeProvider>
 
@@ -36,17 +38,17 @@ function App() {
                     autoHideDuration={4000}
                     key={vertical + horizontal}
                     onClose={() => {
-                        console.log("This is clicked");
+                        console.log('This is clicked');
                         dispatch(closeSnackBar());
                     }}
                 >
                     <Alert
                         onClose={() => {
-                            console.log("This is clicked");
+                            console.log('This is clicked');
                             dispatch(closeSnackBar());
                         }}
                         severity={severity}
-                        sx={{ width: "100%" }}
+                        sx={{ width: '100%' }}
                     >
                         {message}
                     </Alert>
@@ -54,7 +56,7 @@ function App() {
             ) : (
                 <></>
             )}
-        </>
+        </ErrorBoundary>
     );
 }
 

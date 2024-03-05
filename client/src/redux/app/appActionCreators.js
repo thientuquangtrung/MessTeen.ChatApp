@@ -71,28 +71,29 @@ export function UpdateUsersAction(userList) {
         dispatch(slice.actions.updateUsers({ users: userList }));
     };
 }
-// export function FetchAllUsers() {
-//     return async (dispatch, getState) => {
-//         await axios
-//             .get(
-//                 "/user/get-all-verified-users",
+export function FetchAllUsers() {
+    return async (dispatch, getState) => {
+        await axios
+            .get(
+                '/user/get-all-verified-users',
 
-//                 {
-//                     headers: {
-//                         "Content-Type": "application/json",
-//                         Authorization: `Bearer ${getState().auth.token}`,
-//                     },
-//                 },
-//             )
-//             .then((response) => {
-//                 console.log(response);
-//                 dispatch(slice.actions.updateAllUsers({ users: response.data.data }));
-//             })
-//             .catch((err) => {
-//                 console.log(err);
-//             });
-//     };
-// }
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${getState().auth.token}`,
+                    },
+                },
+            )
+            .then((response) => {
+                console.log(response);
+                dispatch(slice.actions.updateAllUsers({ users: response.data.data }));
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+}
+
 export function FetchFriends(searchQuery = '') {
     return async (dispatch, getState) => {
         await axios
@@ -169,24 +170,19 @@ export const SelectConversation = ({ room_id }) => {
     };
 };
 
-// export const FetchCallLogs = () => {
-//     return async (dispatch, getState) => {
-//         axios
-//             .get("/user/get-call-logs", {
-//                 headers: {
-//                     "Content-Type": "application/json",
-//                     Authorization: `Bearer ${getState().auth.token}`,
-//                 },
-//             })
-//             .then((response) => {
-//                 console.log(response);
-//                 dispatch(slice.actions.fetchCallLogs({ call_logs: response.data.data }));
-//             })
-//             .catch((err) => {
-//                 console.log(err);
-//             });
-//     };
-// };
+export const FetchCallLogs = () => {
+    return async (dispatch, getState) => {
+        axios
+            .get(`/calls/get-call-logs/${getState().auth.user_id}`)
+            .then((response) => {
+                console.log(response);
+                dispatch(slice.actions.fetchCallLogs({ call_logs: response.data.metadata }));
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+};
 // export const FetchUserProfile = () => {
 //     return async (dispatch, getState) => {
 //         axios

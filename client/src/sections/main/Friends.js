@@ -3,7 +3,7 @@ import { Badge, Dialog, DialogContent, Stack, Tab, Tabs } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { FetchFriendRequests, FetchFriends, FetchUsers } from '../../redux/app/appActionCreators';
 import { FriendComponent, FriendRequestComponent, UserComponent } from '../../components/Friends';
-import { Search, SearchIconWrapper, StyledInputBase } from '../../Search';
+import { Search, SearchIconWrapper, StyledInputBase } from '../../components/Search';
 import { HourglassMedium, MagnifyingGlass, ShareNetwork, UsersThree } from 'phosphor-react';
 import useDebounce from '../../hooks/useDebounce';
 
