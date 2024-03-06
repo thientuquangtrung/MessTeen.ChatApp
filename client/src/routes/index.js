@@ -40,7 +40,6 @@ export default function Router() {
                 { path: 'settings', element: <Settings /> },
                 { path: 'settings/privacy', element: <Privacy /> },
                 { path: 'settings/privacy/block-contacts', element: <BlockContacts /> },
-                { path: 'group', element: <GroupPage /> },
                 { path: 'profile', element: <ProfilePage /> },
                 { path: '404', element: <Page404 /> },
                 { path: 'call', element: <CallPage /> },
@@ -52,7 +51,6 @@ export default function Router() {
 }
 
 const GeneralApp = Loadable(lazy(() => import('../pages/dashboard/GeneralApp')));
-const GroupPage = Loadable(lazy(() => import('../pages/dashboard/Group')));
 const Page404 = Loadable(lazy(() => import('../pages/Page404')));
 const LoginPage = Loadable(lazy(() => import('../pages/auth/Login')));
 const RegisterPage = Loadable(lazy(() => import('../pages/auth/Register')));

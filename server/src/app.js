@@ -6,9 +6,24 @@ const morgan = require('morgan');
 const compression = require('compression');
 const UserModel = require('./v1/modules/User/user.model');
 const withErrorHandling = require('./v1/helpers/socketAsyncHandler');
-const { sendFriendRequestWS, acceptRequestWS } = require('./v1/modules/User/user.ws');
-const { startConversationWS, getDirectConversationsWS } = require('./v1/modules/ChatRoom/chatroom.ws');
-const { sendMesssageWS, getMessagesWS } = require('./v1/modules/Message/message.ws');
+const { sendFriendRequestWS, acceptRequestWS, unfriendWS } = require('./v1/modules/User/user.ws');
+const {
+    startConversationWS,
+    getDirectConversationsWS,
+    groupConversationWS,
+    addMemberToGroupWS,
+    leaveGroupWS,
+    joinGroupSocketWS,
+} = require('./v1/modules/ChatRoom/chatroom.ws');
+const { sendMesssageWS, getMessagesWS, reactMessageWS } = require('./v1/modules/Message/message.ws');
+const {
+    startVideoCallWS,
+    videoCallNotPickedWS,
+    videoCallAcceptedWS,
+    videoCallDeniedWS,
+    videoCallBusyWS,
+    endVideoCallWS,
+} = require('./v1/modules/Call/call.ws');
 
 //init dbs
 require('./v1/databases/init.mongodb');
@@ -58,10 +73,19 @@ const handleSocketConnect = async (socket) => {
 
     if (user_id != null && Boolean(user_id)) {
         try {
-            await UserModel.findByIdAndUpdate(user_id, {
+            const user = await UserModel.findByIdAndUpdate(user_id, {
                 usr_socket_id: socket.id,
                 usr_status: 'ONLINE',
+            }).populate('usr_friends', 'usr_socket_id usr_status');
+
+            const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status === 'ONLINE');
+            onlineFriends.forEach((friend) => {
+                if (friend.usr_socket_id) {
+                    _io.to(friend.usr_socket_id).emit('friend-online', { userId: user_id, status: true });
+                }
             });
+
+            await joinGroupSocketWS(socket, user_id);
         } catch (e) {
             console.log(e);
         }
@@ -72,22 +96,23 @@ const handleSocketConnect = async (socket) => {
 
     socket.on('accept_request', withErrorHandling(socket, acceptRequestWS));
 
+    socket.on('unfriend', withErrorHandling(socket, unfriendWS));
+
     socket.on('get_direct_conversations', withErrorHandling(socket, getDirectConversationsWS));
 
     socket.on('start_conversation', withErrorHandling(socket, startConversationWS));
 
-    // socket.on('get_messages', async (data, callback) => {
-    //     try {
-    //         const { messages } = await OneToOneMessage.findById(data.conversation_id).select('messages');
-    //         callback(messages);
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // });
+    socket.on('group_conversation', withErrorHandling(socket, groupConversationWS));
+
+    socket.on('add_member_to_group', withErrorHandling(socket, addMemberToGroupWS));
+
+    socket.on('leave_group', withErrorHandling(socket, leaveGroupWS));
+
     socket.on('get_messages', withErrorHandling(socket, getMessagesWS));
 
     // // Handle incoming text/link messages
     socket.on('text_message', withErrorHandling(socket, sendMesssageWS));
+    socket.on('react_message', withErrorHandling(socket, reactMessageWS));
 
     // // handle Media/Document Message
     // socket.on('file_message', (data) => {
@@ -219,131 +244,43 @@ const handleSocketConnect = async (socket) => {
     // // --------------------- HANDLE VIDEO CALL SOCKET EVENTS ---------------------- //
 
     // // handle start_video_call event
-    // socket.on('start_video_call', async (data) => {
-    //     const { from, to, roomID } = data;
+    socket.on('start_video_call', withErrorHandling(socket, startVideoCallWS));
 
-    //     console.log(data);
-
-    //     const to_user = await User.findById(to);
-    //     const from_user = await User.findById(from);
-
-    //     console.log('to_user', to_user);
-
-    //     // send notification to receiver of call
-    //     io.to(to_user?.socket_id).emit('video_call_notification', {
-    //         from: from_user,
-    //         roomID,
-    //         streamID: from,
-    //         userID: to,
-    //         userName: to,
-    //     });
-    // });
+    // // handle end_video_call event
+    socket.on('end_video_call', withErrorHandling(socket, endVideoCallWS));
 
     // // handle video_call_not_picked
-    // socket.on('video_call_not_picked', async (data) => {
-    //     console.log(data);
-    //     // find and update call record
-    //     const { to, from } = data;
+    socket.on('video_call_not_picked', withErrorHandling(socket, videoCallNotPickedWS));
 
-    //     const to_user = await User.findById(to);
+    // handle video_call_accepted
+    socket.on('video_call_accepted', withErrorHandling(socket, videoCallAcceptedWS));
 
-    //     await VideoCall.findOneAndUpdate(
-    //         {
-    //             participants: { $size: 2, $all: [to, from] },
-    //         },
-    //         { verdict: 'Missed', status: 'Ended', endedAt: Date.now() },
-    //     );
+    // handle video_call_denied
+    socket.on('video_call_denied', withErrorHandling(socket, videoCallDeniedWS));
 
-    //     // TODO => emit call_missed to receiver of call
-    //     io.to(to_user?.socket_id).emit('video_call_missed', {
-    //         from,
-    //         to,
-    //     });
-    // });
-
-    // // handle video_call_accepted
-    // socket.on('video_call_accepted', async (data) => {
-    //     const { to, from } = data;
-
-    //     const from_user = await User.findById(from);
-
-    //     // find and update call record
-    //     await VideoCall.findOneAndUpdate(
-    //         {
-    //             participants: { $size: 2, $all: [to, from] },
-    //         },
-    //         { verdict: 'Accepted' },
-    //     );
-
-    //     // TODO => emit call_accepted to sender of call
-    //     io.to(from_user?.socket_id).emit('video_call_accepted', {
-    //         from,
-    //         to,
-    //     });
-    // });
-
-    // // handle video_call_denied
-    // socket.on('video_call_denied', async (data) => {
-    //     // find and update call record
-    //     const { to, from } = data;
-
-    //     await VideoCall.findOneAndUpdate(
-    //         {
-    //             participants: { $size: 2, $all: [to, from] },
-    //         },
-    //         { verdict: 'Denied', status: 'Ended', endedAt: Date.now() },
-    //     );
-
-    //     const from_user = await User.findById(from);
-    //     // TODO => emit call_denied to sender of call
-
-    //     io.to(from_user?.socket_id).emit('video_call_denied', {
-    //         from,
-    //         to,
-    //     });
-    // });
-
-    // // handle user_is_busy_video_call
-    // socket.on('user_is_busy_video_call', async (data) => {
-    //     const { to, from } = data;
-    //     // find and update call record
-    //     await VideoCall.findOneAndUpdate(
-    //         {
-    //             participants: { $size: 2, $all: [to, from] },
-    //         },
-    //         { verdict: 'Busy', status: 'Ended', endedAt: Date.now() },
-    //     );
-
-    //     const from_user = await User.findById(from);
-    //     // TODO => emit on_another_video_call to sender of call
-    //     io.to(from_user?.socket_id).emit('on_another_video_call', {
-    //         from,
-    //         to,
-    //     });
-    // });
+    // handle user_is_busy_video_call
+    socket.on('user_is_busy_video_call', withErrorHandling(socket, videoCallBusyWS));
 
     // -------------- HANDLE SOCKET DISCONNECTION ----------------- //
 
     socket.on('end', async (data) => {
-        // // Find user by ID and set status as offline
-
-        // if (data.user_id) {
-        //     await UserModel.findByIdAndUpdate(data.user_id, { usr_status: 'OFFLINE' });
-        // }
-
-        // // broadcast to all conversation rooms of this user that this user is offline (disconnected)
-
         console.log('closing connection');
         socket.disconnect(0);
     });
 
     socket.on('disconnect', async () => {
         // Find user by ID and set status as offline
-        await UserModel.findByIdAndUpdate(user_id, { usr_status: 'OFFLINE' });
+        const user = await UserModel.findByIdAndUpdate(user_id, { usr_status: 'OFFLINE' }).populate('usr_friends', 'usr_socket_id usr_status');
 
-        // TODO: broadcast to all conversation rooms of this user that this user is offline (disconnected)
-
+        // broadcast to all conversation rooms of this user that this user is offline (disconnected)
         console.log(`user disconnected:::::::::::`, user_id);
+
+        const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status === 'ONLINE');
+        onlineFriends.forEach((friend) => {
+            if (friend.usr_socket_id) {
+                _io.to(friend.usr_socket_id).emit('friend-online', { userId: user_id, status: false });
+            }
+        });
     });
 };
 

@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { revertAll } from '../globalActions';
 
 // ----------------------------------------------------------------------
 
@@ -33,16 +34,17 @@ export const slice = createSlice({
             state.token = action.payload.accessToken;
             state.refreshToken = action.payload.refreshToken;
         },
-        signOut(state, action) {
-            state.isLoggedIn = false;
-            state.token = '';
-            state.refreshToken = '';
-            state.user_id = null;
-        },
+        // signOut(state, action) {
+        //     state.isLoggedIn = false;
+        //     state.token = '';
+        //     state.refreshToken = '';
+        //     state.user_id = null;
+        // },
         updateRegisterEmail(state, action) {
             state.email = action.payload.email;
         },
     },
+    extraReducers: (builder) => builder.addCase(revertAll, () => initialState),
 });
 
 // Reducer

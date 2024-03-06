@@ -1,14 +1,16 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, Dialog, DialogContent, DialogTitle, Slide, Stack } from '@mui/material';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
 import * as Yup from 'yup';
 import FormProvider from '../../components/hook-form/FormProvider';
 import { RHFTextField } from '../../components/hook-form';
 import RHFAutocomplete from '../../components/hook-form/RHFAutocomplete';
+import { useSelector } from 'react-redux';
+import { socket } from '../../socket';
 
-const MEMBERS = ['Name 1', 'Name 2', 'Name 3'];
+const MEMBERS = ['Name 1', 'Name 2', 'Name 3', 'Name 4'];
 
 // TODO => Create a reusable component
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -16,9 +18,11 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const CreateGroupForm = ({ handleClose }) => {
+    const { friends } = useSelector((state) => state.app);
+
     const NewGroupSchema = Yup.object().shape({
         title: Yup.string().required('Title is required'),
-        members: Yup.array().min(2, 'Must have at least 2 members'),
+        members: Yup.array().min(2, 'Must have at least 3 members including yourself'),
     });
 
     const defaultValues = {
@@ -32,21 +36,33 @@ const CreateGroupForm = ({ handleClose }) => {
     });
 
     const {
-        reset,
-        watch,
-        setError,
+        getValues,
         handleSubmit,
-        formState: { errors, isSubmitting, isSubmitSuccessful, isValid },
+        formState: { isValid },
     } = methods;
 
     const onSubmit = async (data) => {
         try {
             //API call
             console.log('DATA', data);
+            const member_ids = data.members.map((member) => member.id);
+            const user_id = window.localStorage.getItem('user_id');
+            const title = data.title;
+
+            socket.emit('group_conversation', { to: member_ids, from: user_id, title });
         } catch (error) {
             console.log('error', error);
         }
+        handleClose();
     };
+
+    const options = useMemo(() => friends.map((option) => ({ id: option._id, label: option.usr_name })), [friends]);
+    const filteredOptions = options.filter(
+        (option) =>
+            !getValues('members')
+                .map((v) => v.id)
+                .includes(option.id),
+    );
 
     return (
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -57,7 +73,8 @@ const CreateGroupForm = ({ handleClose }) => {
                     label="Members"
                     multiple
                     freeSolo
-                    options={MEMBERS.map((option) => option)}
+                    options={filteredOptions}
+                    filterSelectedOptions
                     ChipProps={{ size: 'medium' }}
                 />
                 <Stack spacing={2} direction={'row'} alignItems={'center'} justifyContent={'end'}>
@@ -75,7 +92,7 @@ const CreateGroup = ({ open, handleClose }) => {
     return (
         <Dialog fullWidth maxWidth="xs" open={open} TransitionComponent={Transition} keepMounted sx={{ p: 4 }}>
             {/* Title */}
-            <DialogTitle sx={{mb:3}}>Create New Group</DialogTitle>
+            <DialogTitle sx={{ mb: 3 }}>Create New Group</DialogTitle>
             {/* Content */}
             <DialogContent>
                 {/* Form */}

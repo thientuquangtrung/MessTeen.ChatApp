@@ -5,7 +5,7 @@ import { encryptTransform } from 'redux-persist-transform-encrypt';
 // slices
 import appReducer from './app/appReducer';
 // import audioCallReducer from "./slices/audioCall";
-// import videoCallReducer from "./slices/videoCall";
+import videoCallReducer from './videoCall/videoCallReducer';
 import authReducer from './auth/authReducer';
 import conversationReducer from './conversation/convReducer';
 
@@ -25,8 +25,8 @@ const rootPersistConfig = {
             },
         }),
     ],
-    whitelist: ['auth'],
-    blacklist: ['conversation'],
+    whitelist: ['auth', 'app', 'conversation'],
+    // blacklist: ['conversation'],
 };
 
 const rootReducer = combineReducers({
@@ -34,7 +34,7 @@ const rootReducer = combineReducers({
     auth: authReducer,
     conversation: conversationReducer,
     // audioCall: audioCallReducer,
-    // videoCall: videoCallReducer,
+    videoCall: videoCallReducer,
 });
 
 export { rootPersistConfig, rootReducer };

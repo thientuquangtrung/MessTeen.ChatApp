@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
     apiKey: process.env.REACT_APP_FIREBASE_APIKEY,
@@ -19,4 +20,6 @@ provider.setCustomParameters({
     prompt: 'select_account',
 });
 
-export { auth, provider };
+const storage = getStorage(app);
+
+export { auth, provider, storage };

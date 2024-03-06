@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { revertAll } from '../globalActions';
 
 const initialState = {
-    // user: {},
+    user: {},
     // sideBar: {
     //     open: false,
     //     type: "CONTACT", // can be CONTACT, STARRED, SHARED
@@ -14,17 +15,23 @@ const initialState = {
         message: null,
     },
     users: [], // all users of app who are not friends and not requested yet
-    // all_users: [],
+    all_users: [],
     friends: [], // all friends
     friendRequests: [], // all friend requests
-    chat_type: null,
+    sentRequests: [], // sent friend requests
+    blockedFriends: [],
+    // chat_type: null,
     room_id: null,
-    // call_logs: [],
+    call_logs: [],
 
     //slidebar
     sidebar: {
         open: false,
         type: 'CONTACT',
+    },
+    isLoading: {
+        state: false,
+        progress: 0, //over 100
     },
 };
 
@@ -32,15 +39,15 @@ export const slice = createSlice({
     name: 'app',
     initialState,
     reducers: {
-        // fetchCallLogs(state, action) {
-        //     state.call_logs = action.payload.call_logs;
-        // },
+        fetchCallLogs(state, action) {
+            state.call_logs = action.payload.call_logs.sort((a, b) => new Date(b.start) - new Date(a.start));
+        },
         // fetchUser(state, action) {
         //     state.user = action.payload.user;
         // },
-        // updateUser(state, action) {
-        //     state.user = action.payload.user;
-        // },
+        updateUser(state, action) {
+            state.user = action.payload.user;
+        },
         // // Toggle Sidebar
         // toggleSideBar(state) {
         //     state.sideBar.open = !state.sideBar.open;
@@ -75,8 +82,14 @@ export const slice = createSlice({
         updateFriendRequests(state, action) {
             state.friendRequests = action.payload.requests;
         },
+        updateSentFriendRequests(state, action) {
+            state.sentRequests = action.payload.requests;
+        },
+        updateBlockedFriends(state, action) {
+            state.blockedFriends = action.payload.listBlockedFriends;
+        },
         selectConversation(state, action) {
-            state.chat_type = 'individual';
+            // state.chat_type = 'individual';
             state.room_id = action.payload.room_id;
         },
 
@@ -86,7 +99,11 @@ export const slice = createSlice({
         updatedSidebarType(state, action) {
             state.sidebar.type = action.payload.type;
         },
+        updateIsLoading(state, action) {
+            state.isLoading = action.payload;
+        },
     },
+    extraReducers: (builder) => builder.addCase(revertAll, () => initialState),
 });
 
 // Reducer

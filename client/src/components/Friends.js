@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useTheme, styled } from '@mui/material/styles';
 import { Box, Badge, Avatar, Button, Typography, Stack, IconButton } from '@mui/material';
-import { Chat } from 'phosphor-react';
+import { Chat, UserMinus } from 'phosphor-react';
 import { faker } from '@faker-js/faker';
 import { socket } from '../socket';
 import { dispatch } from '../redux/store';
-import { UpdateUsersAction } from '../redux/app/appActionCreators';
+import { UpdateFriendsAction, UpdateSentFriendsRequestAction, UpdateUsersAction, showSnackbar } from '../redux/app/appActionCreators';
 import { UpdateFriendsRequestAction } from '../redux/app/appActionCreators';
 
 const user_id = window.localStorage.getItem('user_id');
@@ -45,10 +45,8 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     },
 }));
 
-const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userList }) => {
+const UserComponent = ({ usr_name, _id, usr_status, usr_avatar, userList }) => {
     const theme = useTheme();
-    const isRequested = usr_pending_friends.includes(user_id);
-    // const [isRequested, setIsRequested] = useState(usr_pending_friends.includes(user_id));
 
     return (
         <StyledChatBox
@@ -62,7 +60,7 @@ const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userLi
             <Stack direction="row" alignItems={'center'} justifyContent="space-between">
                 <Stack direction="row" alignItems={'center'} spacing={2}>
                     {/* {" "} */}
-                    {online ? (
+                    {usr_status === 'ONLINE' ? (
                         <StyledBadge
                             overlap="circular"
                             anchorOrigin={{
@@ -71,14 +69,24 @@ const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userLi
                             }}
                             variant="dot"
                         >
-                            <Avatar alt={usr_name} src={faker.image.avatar()} />
+                            <Avatar alt={usr_name} src={usr_avatar} />
                         </StyledBadge>
                     ) : (
-                        <Avatar alt={usr_name} src={faker.image.avatar()} />
+                        <Avatar alt={usr_name} src={usr_avatar} />
                     )}
 
                     <Stack spacing={0.3}>
-                        <Typography variant="subtitle2">{usr_name}</Typography>
+                        <Typography
+                            style={{
+                                maxWidth: '150px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}
+                            variant="subtitle2"
+                        >
+                            {usr_name}
+                        </Typography>
                     </Stack>
                 </Stack>
                 <Stack direction={'row'} spacing={2} alignItems={'center'}>
@@ -87,20 +95,12 @@ const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userLi
                             socket.emit('friend_request', { to: _id, from: user_id }, () => {
                                 alert('request sent');
                             });
-                            // TODO: dispatch action to update explore users in store
-                            const newUsersList = userList.map((u) => {
-                                if (u._id === _id) {
-                                    return {
-                                        ...u,
-                                        usr_pending_friends: [...u.usr_pending_friends, user_id],
-                                    };
-                                }
-                                return u;
-                            });
-                            dispatch(UpdateUsersAction(newUsersList));
+
+                            const newExploresList = userList.filter((u) => u._id !== _id);
+                            dispatch(UpdateUsersAction(newExploresList));
                         }}
                     >
-                        {isRequested ? 'Requested' : 'Send Request'}
+                        Send Request
                     </Button>
                 </Stack>
             </Stack>
@@ -108,7 +108,7 @@ const UserComponent = ({ usr_name, _id, online, img, usr_pending_friends, userLi
     );
 };
 
-const FriendRequestComponent = ({ usr_name, _id, online, img, friendsRequestList }) => {
+const FriendRequestComponent = ({ usr_name, _id, usr_status, usr_avatar, friendsRequestList }) => {
     const theme = useTheme();
 
     return (
@@ -123,7 +123,7 @@ const FriendRequestComponent = ({ usr_name, _id, online, img, friendsRequestList
             <Stack direction="row" alignItems={'center'} justifyContent="space-between">
                 <Stack direction="row" alignItems={'center'} spacing={2}>
                     {' '}
-                    {online ? (
+                    {usr_status === 'ONLINE' ? (
                         <StyledBadge
                             overlap="circular"
                             anchorOrigin={{
@@ -132,13 +132,23 @@ const FriendRequestComponent = ({ usr_name, _id, online, img, friendsRequestList
                             }}
                             variant="dot"
                         >
-                            <Avatar alt={usr_name} src={faker.image.avatar()} />
+                            <Avatar alt={usr_name} src={usr_avatar} />
                         </StyledBadge>
                     ) : (
-                        <Avatar alt={usr_name} src={img} />
+                        <Avatar alt={usr_name} src={usr_avatar} />
                     )}
                     <Stack spacing={0.3}>
-                        <Typography variant="subtitle2">{usr_name}</Typography>
+                        <Typography
+                            style={{
+                                maxWidth: '150px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}
+                            variant="subtitle2"
+                        >
+                            {usr_name}
+                        </Typography>
                     </Stack>
                 </Stack>
                 <Stack direction={'row'} spacing={2} alignItems={'center'}>
@@ -166,7 +176,7 @@ const FriendRequestComponent = ({ usr_name, _id, online, img, friendsRequestList
     );
 };
 
-const FriendComponent = ({ img, usr_name, online, _id, handleCloseDialog }) => {
+const SentRequestComponent = ({ usr_name, _id, usr_status, usr_avatar, friendsRequestList }) => {
     const theme = useTheme();
 
     return (
@@ -181,7 +191,7 @@ const FriendComponent = ({ img, usr_name, online, _id, handleCloseDialog }) => {
             <Stack direction="row" alignItems={'center'} justifyContent="space-between">
                 <Stack direction="row" alignItems={'center'} spacing={2}>
                     {' '}
-                    {online ? (
+                    {usr_status === 'ONLINE' ? (
                         <StyledBadge
                             overlap="circular"
                             anchorOrigin={{
@@ -190,13 +200,84 @@ const FriendComponent = ({ img, usr_name, online, _id, handleCloseDialog }) => {
                             }}
                             variant="dot"
                         >
-                            <Avatar alt={usr_name} src={faker.image.avatar()} />
+                            <Avatar alt={usr_name} src={usr_avatar} />
                         </StyledBadge>
                     ) : (
-                        <Avatar alt={usr_name} src={faker.image.avatar()} />
+                        <Avatar alt={usr_name} src={usr_avatar} />
                     )}
                     <Stack spacing={0.3}>
-                        <Typography variant="subtitle2">{usr_name}</Typography>
+                        <Typography
+                            style={{
+                                maxWidth: '150px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}
+                            variant="subtitle2"
+                        >
+                            {usr_name}
+                        </Typography>
+                    </Stack>
+                </Stack>
+                <Stack direction={'row'} spacing={2} alignItems={'center'}>
+                    <Button
+                        onClick={() => {
+                            socket.emit('friend_request', { to: _id, from: user_id }, () => {
+                                alert('request sent');
+                            });
+                            const newSentFriendsRequest = friendsRequestList.filter((u) => u._id !== _id);
+                            dispatch(UpdateSentFriendsRequestAction(newSentFriendsRequest));
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                </Stack>
+            </Stack>
+        </StyledChatBox>
+    );
+};
+
+const FriendComponent = ({ usr_avatar, usr_name, usr_status, _id, handleCloseDialog, friendList }) => {
+    const theme = useTheme();
+
+    return (
+        <StyledChatBox
+            sx={{
+                width: '100%',
+                borderRadius: 1,
+                backgroundColor: theme.palette.background.paper,
+            }}
+            p={2}
+        >
+            <Stack direction="row" alignItems={'center'} justifyContent="space-between">
+                <Stack direction="row" alignItems={'center'} spacing={2}>
+                    {' '}
+                    {usr_status === 'ONLINE' ? (
+                        <StyledBadge
+                            overlap="circular"
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'right',
+                            }}
+                            variant="dot"
+                        >
+                            <Avatar alt={usr_name} src={usr_avatar} />
+                        </StyledBadge>
+                    ) : (
+                        <Avatar alt={usr_name} src={usr_avatar} />
+                    )}
+                    <Stack spacing={0.3}>
+                        <Typography
+                            style={{
+                                maxWidth: '150px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}
+                            variant="subtitle2"
+                        >
+                            {usr_name}
+                        </Typography>
                     </Stack>
                 </Stack>
                 <Stack direction={'row'} spacing={2} alignItems={'center'}>
@@ -209,10 +290,29 @@ const FriendComponent = ({ img, usr_name, online, _id, handleCloseDialog }) => {
                     >
                         <Chat />
                     </IconButton>
+                    <IconButton
+                        onClick={() => {
+                            // unfriend
+                            socket.emit(
+                                'unfriend',
+                                {
+                                    user_id,
+                                    friend_id: _id,
+                                },
+                                ({ message }) => {
+                                    dispatch(showSnackbar({ severity: 'success', message }));
+                                    const newFriendsList = friendList.filter((u) => u._id !== _id);
+                                    dispatch(UpdateFriendsAction(newFriendsList));
+                                },
+                            );
+                        }}
+                    >
+                        <UserMinus />
+                    </IconButton>
                 </Stack>
             </Stack>
         </StyledChatBox>
     );
 };
 
-export { UserComponent, FriendRequestComponent, FriendComponent };
+export { UserComponent, FriendRequestComponent, SentRequestComponent, FriendComponent };

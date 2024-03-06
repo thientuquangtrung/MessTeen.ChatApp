@@ -1,36 +1,30 @@
-import React, { useCallback, useState } from "react";
-import * as Yup from "yup";
+import React, { useCallback, useState, useEffect } from 'react';
+import * as Yup from 'yup';
 // form
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import FormProvider from "../../components/hook-form/FormProvider";
-import { RHFTextField, RHFUploadAvatar } from "../../components/hook-form";
-import { Button, Stack } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-// import { useDispatch, useSelector } from "react-redux";
-// import { UpdateUserProfile } from "../../redux/slices/app";
-// import { AWS_S3_REGION, S3_BUCKET_NAME } from "../../../config";
+import { useForm, useFormState } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import FormProvider from '../../components/hook-form/FormProvider';
+import { RHFTextField, RHFUploadAvatar } from '../../components/hook-form';
+import { CircularProgress, Stack } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { useDispatch, useSelector } from 'react-redux';
+import { UpdateUserProfile } from '../../redux/app/appActionCreators';
 
 const ProfileForm = () => {
-    //   const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const [file, setFile] = useState();
-    //   const { user } = useSelector((state) => state.app);
+    const { user, isLoading } = useSelector((state) => state.app);
 
     const ProfileSchema = Yup.object().shape({
-        firstName: Yup.string().required("Name is required"),
-        about: Yup.string().required("About is required"),
-        avatar: Yup.string().required("Avatar is required").nullable(true),
+        fullName: Yup.string().required('Name is required'),
+        about: Yup.string().required('About is required'),
+        avatar: Yup.string().required('Avatar is required').nullable(true),
     });
 
-    // const defaultValues = {
-    //     firstName: user?.firstName,
-    //     about: user?.about,
-    //     avatar: `https://${S3_BUCKET_NAME}.s3.${AWS_S3_REGION}.amazonaws.com/${user?.avatar}`,
-    // };
     const defaultValues = {
-        firstName: "Ngan Tran",
-        about: "hehehe",
-        avatar: ``,
+        fullName: user?.usr_name,
+        about: user?.usr_bio,
+        avatar: user?.usr_avatar,
     };
 
     const methods = useForm({
@@ -39,12 +33,10 @@ const ProfileForm = () => {
     });
 
     const {
-        reset,
         watch,
-        control,
         setValue,
         handleSubmit,
-        formState: { isSubmitting, isSubmitSuccessful },
+        formState: { isDirty },
     } = methods;
 
     const values = watch();
@@ -52,14 +44,13 @@ const ProfileForm = () => {
     const onSubmit = async (data) => {
         try {
             //   Send API request
-            // console.log("DATA", data);
-            // dispatch(
-            //     UpdateUserProfile({
-            //         firstName: data?.firstName,
-            //         about: data?.about,
-            //         avatar: file,
-            //     })
-            // );
+            dispatch(
+                UpdateUserProfile({
+                    fullName: data?.fullName,
+                    about: data?.about,
+                    avatar: file,
+                }),
+            );
         } catch (error) {
             console.error(error);
         }
@@ -76,38 +67,46 @@ const ProfileForm = () => {
             });
 
             if (file) {
-                setValue("avatar", newFile, { shouldValidate: true });
+                setValue('avatar', newFile, { shouldValidate: true, shouldDirty: true });
             }
         },
-        [setValue]
+        [setValue],
     );
+
+    // useEffect(() => {
+    //     if (isSubmitSuccessful) {
+    //         const timeout = setTimeout(() => {
+    //             reset();
+    //         }, 2000);
+
+    //         return () => clearTimeout(timeout);
+    //     }
+    // }, [isSubmitSuccessful, reset]);
 
     return (
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={4}>
-                <RHFUploadAvatar
-                    name="avatar"
-                    maxSize={3145728}
-                    onDrop={handleDrop}
-                />
+                <RHFUploadAvatar name="avatar" maxSize={3145728} onDrop={handleDrop} />
 
-                <RHFTextField
-                    helperText={"This name is visible to your contacts"}
-                    name="firstName"
-                    label="First Name"
-                />
+                <RHFTextField helperText={'This name is visible to your contacts'} name="fullName" label="Full Name" />
                 <RHFTextField multiline rows={4} name="about" label="About" />
 
-                <Stack direction={"row"} justifyContent="end">
-                    <Button
+                <Stack direction={'row'} justifyContent="end">
+                    <LoadingButton
                         color="primary"
                         size="large"
                         type="submit"
                         variant="outlined"
-                        // loading={isSubmitSuccessful || isSubmitting}
+                        loading={isLoading.state}
+                        disabled={!isDirty}
+                        loadingIndicator={
+                            <Stack direction={'row'} alignItems="center">
+                                <CircularProgress color="inherit" size={16} /> {isLoading.progress}%
+                            </Stack>
+                        }
                     >
                         Save
-                    </Button>
+                    </LoadingButton>
                 </Stack>
             </Stack>
         </FormProvider>

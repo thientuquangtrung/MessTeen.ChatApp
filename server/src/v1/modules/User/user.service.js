@@ -1,4 +1,5 @@
 const { BadRequestError, NotFoundError } = require('../../core/error.response');
+const chatroomModel = require('../ChatRoom/chatroom.model');
 const UserModel = require('../User/user.model');
 const bcrypt = require('bcrypt');
 const { escapeRegExp } = require('lodash');
@@ -18,6 +19,9 @@ class UserService {
 
         friend.usr_pending_friends.push(user_id);
         await friend.save();
+
+        user.usr_requested_list.push(friend_id);
+        await user.save();
 
         return friend.usr_pending_friends;
     }
@@ -62,17 +66,47 @@ class UserService {
         return { message: 'Friend request rejected' };
     }
 
+    // static async blockFriend({ usr_id_1, usr_id_2 }) {
+    //     const friend = await UserModel.findById(usr_id_2);
+    //     if (!friend) {
+    //         throw new NotFoundError('Friend not found');
+    //     }
+
+    //     const user = await UserModel.findByIdAndUpdate(usr_id_1, {
+    //         $addToSet: { usr_blocked_people: usr_id_2 },
+    //     }, {
+    //         new: true,
+    //     });
+
+    //     return user.usr_blocked_people;
+    // }
+
     static async blockFriend({ usr_id_1, usr_id_2 }) {
         const friend = await UserModel.findById(usr_id_2);
         if (!friend) {
             throw new NotFoundError('Friend not found');
         }
 
-        await UserModel.findByIdAndUpdate(usr_id_1, {
-            $addToSet: { usr_blocked_people: usr_id_2 },
+        const user = await UserModel.findByIdAndUpdate(
+            usr_id_1,
+            { $addToSet: { usr_blocked_people: usr_id_2 } },
+            { new: true },
+        );
+
+        // check if there is any existing conversation
+        const existing_conversations = await chatroomModel.find({
+            room_participant_ids: { $size: 2, $all: [usr_id_1, usr_id_2] },
+            room_type: 'PRIVATE',
         });
 
-        return { message: 'Friend blocked successfully' };
+        if (existing_conversations.length > 0) {
+            _io.to(friend.usr_socket_id).emit('friend_blocked', {
+                id: existing_conversations[0]._id,
+                blocked: true,
+            });
+        }
+
+        return user.usr_blocked_people;
     }
 
     static async unBlockFriend({ usr_id_1, usr_id_2 }) {
@@ -81,24 +115,43 @@ class UserService {
             throw new NotFoundError('Friend not found');
         }
 
-        await UserModel.findByIdAndUpdate(usr_id_1, {
-            $pull: { usr_blocked_people: usr_id_2 },
+        const user = await UserModel.findByIdAndUpdate(
+            usr_id_1,
+            {
+                $pull: { usr_blocked_people: usr_id_2 },
+            },
+            {
+                new: true,
+            },
+        );
+
+        // check if there is any existing conversation
+        const existing_conversations = await chatroomModel.find({
+            room_participant_ids: { $size: 2, $all: [usr_id_1, usr_id_2] },
+            room_type: 'PRIVATE',
         });
 
-        return { message: 'Friend unblocked successfully' };
+        if (existing_conversations.length > 0) {
+            _io.to(friend.usr_socket_id).emit('friend_blocked', {
+                id: existing_conversations[0]._id,
+                blocked: false,
+            });
+        }
+
+        return user.usr_blocked_people;
     }
 
-    static async removeFriend({ usr_id_1, usr_id_2 }) {
-        const friend = await UserModel.findById(usr_id_2);
+    static async removeFriend({ user_id, friend_id }) {
+        const friend = await UserModel.findById(friend_id);
         if (!friend) {
             throw new NotFoundError('Friend not found');
         }
 
-        await UserModel.findByIdAndUpdate(usr_id_1, {
-            $pull: { usr_friends: usr_id_2 },
+        await UserModel.findByIdAndUpdate(user_id, {
+            $pull: { usr_friends: friend_id },
         });
 
-        await friend.update({ $pull: { usr_friends: usr_id_1 } });
+        await friend.update({ $pull: { usr_friends: user_id } });
 
         return { message: 'Friend remove successfully' };
     }
@@ -186,13 +239,34 @@ class UserService {
         return user.usr_pending_friends;
     }
 
+    static async sentFriendRequests(userId, searchQuery = '') {
+        const user = await UserModel.findById(userId).populate({
+            path: 'usr_requested_list',
+            match: {
+                $or: [
+                    { usr_name: new RegExp(escapeRegExp(searchQuery), 'i') },
+                    { usr_email: new RegExp(escapeRegExp(searchQuery), 'i') },
+                ],
+            },
+        });
+
+        if (!user) {
+            throw new NotFoundError('User not found');
+        }
+
+        console.log(user);
+
+        return user.usr_requested_list;
+    }
+
     static async updateProfileUser(userId, updatedUserData) {
         const user = await UserModel.findByIdAndUpdate(
             userId,
             {
-                usr_name: updatedUserData.usr_name,
-                usr_password: updatedUserData.usr_password,
-                usr_avatar: updatedUserData.usr_avatar,
+                usr_name: updatedUserData.fullName,
+                // usr_password: updatedUserData.usr_password,
+                usr_bio: updatedUserData.about,
+                usr_avatar: updatedUserData.avatar,
             },
             { new: true },
         );

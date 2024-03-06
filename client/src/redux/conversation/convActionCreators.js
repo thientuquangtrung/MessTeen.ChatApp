@@ -18,6 +18,18 @@ export const UpdateDirectConversation = ({ conversation }) => {
     };
 };
 
+export const UpdateConversationStatus = (updatedConversations) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.updateConversationStatus(updatedConversations));
+    };
+};
+
+export const RemoveDirectConversation = ({ id }) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.removeDirectConversation({ id }));
+    };
+};
+
 export const SetCurrentConversation = (current_conversation) => {
     return async (dispatch, getState) => {
         dispatch(slice.actions.setCurrentConversation(current_conversation));
@@ -33,5 +45,26 @@ export const FetchCurrentMessages = ({ messages }) => {
 export const AddDirectMessage = (message) => {
     return async (dispatch, getState) => {
         dispatch(slice.actions.addDirectMessage({ message }));
+    };
+};
+export const AddMessageReaction = ({ message }) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.addMessageReaction({ message }));
+    };
+};
+export const SetReplyMessage = (payload) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.setReplyMessage(payload));
+    };
+};
+export const CloseReplyMessage = (payload) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.closeReplyMessage(payload));
+    };
+};
+
+export const UpdateBlockedConversation = ({ id, blocked }) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.updateBlockedConversation({ id, blocked }));
     };
 };

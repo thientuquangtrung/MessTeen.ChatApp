@@ -1,6 +1,6 @@
 import { Box, Divider, IconButton, Link, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { Search, SearchIconWrapper, StyledInputBase } from '../../Search';
+import { Search, SearchIconWrapper, StyledInputBase } from '../../components/Search';
 import { MagnifyingGlass, Plus } from 'phosphor-react';
 import { useTheme } from '@mui/material/styles';
 import { ChatList } from '../../data';
