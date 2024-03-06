@@ -18,6 +18,7 @@ const initialState = {
     all_users: [],
     friends: [], // all friends
     friendRequests: [], // all friend requests
+    sentRequests: [], // sent friend requests
     blockedFriends: [],
     // chat_type: null,
     room_id: null,
@@ -80,6 +81,9 @@ export const slice = createSlice({
         },
         updateFriendRequests(state, action) {
             state.friendRequests = action.payload.requests;
+        },
+        updateSentFriendRequests(state, action) {
+            state.sentRequests = action.payload.requests;
         },
         updateBlockedFriends(state, action) {
             state.blockedFriends = action.payload.listBlockedFriends;

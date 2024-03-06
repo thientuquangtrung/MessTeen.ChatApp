@@ -16,6 +16,7 @@ router.delete('/remove-friend', asyncHandler(userController.removeFriend));
 router.get('/explore-users/:userId', asyncHandler(userController.getExploreUsers));
 router.get('/friends-list/:userId', asyncHandler(userController.friendsList));
 router.get('/pending-friend-requests/:userId', asyncHandler(userController.pendingFriendRequests));
+router.get('/sent-friend-requests/:userId', asyncHandler(userController.sentFriendRequests));
 router.put('/update-profile-user/:userId', asyncHandler(userController.updateProfileUser));
 
 // CRUD User

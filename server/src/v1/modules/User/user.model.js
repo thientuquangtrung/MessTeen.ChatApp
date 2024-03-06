@@ -26,6 +26,10 @@ const UserSchema = new Schema(
             type: [mongoose.Schema.Types.ObjectId],
             ref: 'User',
         },
+        usr_requested_list: {
+            type: [mongoose.Schema.Types.ObjectId],
+            ref: 'User',
+        },
         usr_provider_type: {
             type: 'String',
             enum: ['facebook', 'google'],

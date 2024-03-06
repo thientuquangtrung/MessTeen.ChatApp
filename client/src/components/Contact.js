@@ -178,7 +178,8 @@ const Contact = () => {
                                     <Typography variant="caption">Banana</Typography>
                                 </Stack>
                             </Stack>
-                            <Stack direction="row" alignItems="center" spacing={2}>
+                            <Divider />
+                            <Stack direction="row" alignItems="center" justifyContent="space-between">
                                 <Button
                                     fullWidth
                                     variant="outlined"
@@ -187,9 +188,9 @@ const Contact = () => {
                                 >
                                     {isBlocked ? 'Unblock' : 'Block'}
                                 </Button>
-                                <Button fullWidth variant="outlined" startIcon={<Trash />}>
+                                {/* <Button fullWidth variant="outlined" startIcon={<Trash />}>
                                     Delete
-                                </Button>
+                                </Button> */}
                             </Stack>
                         </>
                     ) : (

@@ -6,11 +6,16 @@ module.exports = {
     sendFriendRequestWS: async (data) => {
         const to_user = await userModel.findById(data.to);
         const from_user = await userModel.findById(data.from);
-        const index = to_user.usr_pending_friends.indexOf(from_user._id);
+        const indexFrom = to_user.usr_pending_friends.indexOf(from_user._id);
+        const indexTo = from_user.usr_requested_list.indexOf(to_user._id);
 
-        if (index > -1) {
-            to_user.usr_pending_friends.splice(index, 1);
+
+        if (indexFrom > -1 && indexTo > -1) {
+            to_user.usr_pending_friends.splice(indexFrom, 1);
             await to_user.save();
+
+            from_user.usr_requested_list.splice(indexTo, 1);
+            await from_user.save();
 
             _io.to(from_user?.usr_socket_id).emit('request_sent', {
                 message: 'Removed request successfully!',
@@ -45,5 +50,14 @@ module.exports = {
         _io.to(to?.usr_socket_id).emit('request_accepted', {
             message: 'Friend Request Accepted',
         });
+    },
+
+    unfriendWS: async (data, callback) => {
+        const from = await userModel.findById(data.user_id).select('usr_socket_id');
+
+        await UserService.removeFriend(data);
+
+        callback({message: 'Remove friend successfully!'})
+        
     },
 };
