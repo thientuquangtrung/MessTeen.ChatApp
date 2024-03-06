@@ -49,13 +49,11 @@ const AddFriendToGroupForm = ({ handleClose }) => {
             const member_ids = data.members.map((member) => member.id);
             const user_id = window.localStorage.getItem('user_id');
 
-            socket.emit(
-                'add_member_to_group',
-                { to: member_ids, from: user_id, conversation_id: current_conversation.id },
-                ({ message }) => {
-                    dispatch(showSnackbar({ severity: 'success', message }));
-                },
-            );
+            socket.emit('add_member_to_group', {
+                to: member_ids,
+                from: user_id,
+                conversation_id: current_conversation.id,
+            });
         } catch (error) {
             console.log('error', error);
         }
