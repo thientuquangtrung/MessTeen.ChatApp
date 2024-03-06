@@ -115,6 +115,18 @@ const DashboardLayout = () => {
                 message && dispatch(showSnackbar({ severity: 'info', message }));
             });
 
+            socket.on('update_conversation_list', ({ chatroom, message }) => {
+                // add / update to conversation list
+                const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
+                if (existing_conversation) {
+                    dispatch(UpdateDirectConversation({ conversation: chatroom }));
+                } else {
+                    dispatch(AddDirectConversation({ conversation: chatroom }));
+                }
+
+                message && dispatch(showSnackbar({ severity: 'info', message }));
+            });
+
             socket.on('leave_group', ({ chatroom, message }) => {
                 const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
                 if (existing_conversation !== -1) {
@@ -203,6 +215,7 @@ const DashboardLayout = () => {
             socket?.off('get_reaction');
             socket?.off('friend_blocked');
             socket?.off('leave_group');
+            socket?.off('update_conversation_list');
         };
     }, [isLoggedIn, socket, conversations, current_conversation, user_id]);
     //#endregion hooks

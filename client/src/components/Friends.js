@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useTheme, styled } from '@mui/material/styles';
-import { Box, Badge, Avatar, Button, Typography, Stack, IconButton } from '@mui/material';
+import { Box, Badge, Avatar, Button, Typography, Stack, IconButton, AvatarGroup } from '@mui/material';
 import { Chat } from 'phosphor-react';
 import { faker } from '@faker-js/faker';
 import { socket } from '../socket';
 import { dispatch } from '../redux/store';
-import { UpdateUsersAction } from '../redux/app/appActionCreators';
+import { SelectConversation, UpdateUsersAction } from '../redux/app/appActionCreators';
 import { UpdateFriendsRequestAction } from '../redux/app/appActionCreators';
 
 const user_id = window.localStorage.getItem('user_id');
@@ -257,4 +257,59 @@ const FriendComponent = ({ usr_avatar, usr_name, usr_status, _id, handleCloseDia
     );
 };
 
-export { UserComponent, FriendRequestComponent, FriendComponent };
+const GroupComponent = ({ id, handleCloseDialog, img, name }) => {
+    const theme = useTheme();
+
+    return (
+        <StyledChatBox
+            sx={{
+                width: '100%',
+                borderRadius: 1,
+                backgroundColor: theme.palette.background.paper,
+            }}
+            p={2}
+        >
+            <Stack direction="row" alignItems={'center'} justifyContent="space-between">
+                <Stack direction="row" alignItems={'center'} spacing={2}>
+                    <AvatarGroup
+                        spacing={20}
+                        max={3}
+                        sx={{
+                            '.MuiAvatarGroup-avatar': { width: 24, height: 24 },
+                        }}
+                    >
+                        {img.map((src) => (
+                            <Avatar src={src} />
+                        ))}
+                    </AvatarGroup>
+
+                    <Stack spacing={0.3}>
+                        <Typography
+                            style={{
+                                maxWidth: '150px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}
+                            variant="subtitle2"
+                        >
+                            {name}
+                        </Typography>
+                    </Stack>
+                </Stack>
+                <Stack direction={'row'} spacing={2} alignItems={'center'}>
+                    <IconButton
+                        onClick={() => {
+                            dispatch(SelectConversation({ room_id: id }));
+                            handleCloseDialog();
+                        }}
+                    >
+                        <Chat />
+                    </IconButton>
+                </Stack>
+            </Stack>
+        </StyledChatBox>
+    );
+};
+
+export { UserComponent, FriendRequestComponent, FriendComponent, GroupComponent };

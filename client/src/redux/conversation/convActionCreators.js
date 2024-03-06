@@ -68,3 +68,9 @@ export const UpdateBlockedConversation = ({ id, blocked }) => {
         dispatch(slice.actions.updateBlockedConversation({ id, blocked }));
     };
 };
+
+export const ShowListGroup = ({ groups }) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.showListGroup({ groups }));
+    };
+};

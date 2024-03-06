@@ -14,6 +14,7 @@ const {
     addMemberToGroupWS,
     leaveGroupWS,
     joinGroupSocketWS,
+    listGroupsWS
 } = require('./v1/modules/ChatRoom/chatroom.ws');
 const { sendMesssageWS, getMessagesWS, reactMessageWS } = require('./v1/modules/Message/message.ws');
 
@@ -89,6 +90,8 @@ const handleSocketConnect = async (socket) => {
     socket.on('accept_request', withErrorHandling(socket, acceptRequestWS));
 
     socket.on('get_direct_conversations', withErrorHandling(socket, getDirectConversationsWS));
+    
+    // socket.on('list_groups', withErrorHandling(socket, listGroupsWS));
 
     socket.on('start_conversation', withErrorHandling(socket, startConversationWS));
 

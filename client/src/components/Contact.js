@@ -1,7 +1,22 @@
-import { Avatar, AvatarGroup, Box, Button, Divider, IconButton, Stack, Typography, useTheme } from '@mui/material';
+import {
+    Avatar,
+    Box,
+    Button,
+    Collapse,
+    Divider,
+    IconButton,
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Stack,
+    Typography,
+    useTheme,
+} from '@mui/material';
 import React, { useState } from 'react';
 import {
     Bell,
+    CaretDown,
     CaretRight,
     Phone,
     Prohibit,
@@ -29,6 +44,8 @@ const Contact = () => {
     const { blockedFriends } = useSelector((state) => state.app);
     const isBlocked = blockedFriends.includes(current_conversation?.user_id);
 
+    const img = current_conversation?.img || [];
+
     const [openDialog, setOpenDialog] = useState(false);
     const [openDialogGroup, setOpenDialogGroup] = useState(false);
     const [openDialogLeaveGroup, setOpenDialogLeaveGroup] = useState(false);
@@ -49,6 +66,12 @@ const Contact = () => {
         }
     };
 
+    const [open, setOpen] = React.useState(true);
+
+    const handleClick = () => {
+        setOpen(!open);
+    };
+
     return (
         <Box sx={{ width: 320, height: '100vh' }}>
             <Stack sx={{ height: '100%' }}>
@@ -66,7 +89,8 @@ const Contact = () => {
                         justifyContent={'space-between'}
                         spacing={3}
                     >
-                        <Typography>Contact Info</Typography>
+                        {!isGroup ? <Typography>Contact Info</Typography> : <Typography>Group Info</Typography>}
+
                         <IconButton onClick={() => dispatch(toggleSidebar())}>
                             <X />
                         </IconButton>
@@ -79,19 +103,11 @@ const Contact = () => {
                     spacing={3}
                 >
                     <Stack alignItems={'center'} direction="row" spacing={2}>
-                        <AvatarGroup
-                            spacing={20}
-                            max={3}
-                            sx={{
-                                '.MuiAvatarGroup-avatar': isGroup
-                                    ? { width: 40, height: 40 }
-                                    : { width: 64, height: 64 },
-                            }}
-                        >
-                            {current_conversation?.img?.map((src) => (
-                                <Avatar src={src} />
-                            ))}
-                        </AvatarGroup>
+                        <Avatar
+                            src={current_conversation?.img}
+                            alt={current_conversation?.name}
+                            sx={{ height: 64, width: 64 }}
+                        />
                         <Stack spacing={0.5}>
                             <Typography variant="article" fontWeight={600}>
                                 {current_conversation?.name}
@@ -125,17 +141,74 @@ const Contact = () => {
                         </Stack>
                     </Stack>
                     <Divider />
-                    <Stack spacing={0.5}>
-                        <Typography variant="article">About</Typography>
-                        {current_conversation?.about ? (
-                            <Typography variant="body2">{current_conversation?.about}</Typography>
-                        ) : (
-                            <Typography variant="body2" color="textSecondary" style={{ fontStyle: 'italic' }}>
-                                User has not provided information in the About section.
-                            </Typography>
-                        )}
-                        {/* <Typography variant="body2">{current_conversation.about}</Typography> */}
-                    </Stack>
+
+                    {isGroup ? (
+                        <Stack>
+                            <ListItemButton
+                                onClick={handleClick}
+                                sx={{
+                                    paddingLeft: 0,
+                                    paddingRight: 1,
+                                    '&:hover': {
+                                        backgroundColor: 'transparent',
+                                    },
+                                }}
+                            >
+                                <Stack
+                                    direction="row"
+                                    sx={{ width: '100%' }}
+                                    alignItems="center"
+                                    justifyContent="space-between"
+                                >
+                                    <Typography variant="subtitle2">
+                                        Group Members: {current_conversation.participant_details?.length}
+                                    </Typography>
+                                    {open ? (
+                                        <CaretDown style={{ width: 24, height: 24, color: '#637381' }} />
+                                    ) : (
+                                        <CaretRight style={{ width: 24, height: 24, color: '#637381' }} />
+                                    )}
+                                </Stack>
+                            </ListItemButton>
+                            <Collapse in={open} timeout="auto" unmountOnExit>
+                                <List component="div" disablePadding>
+                                    {current_conversation.participant_details?.map((participant) => (
+                                        <ListItemButton key={participant._id}>
+                                            <ListItemIcon>
+                                                <Avatar
+                                                    sx={{ width: 24, height: 24 }}
+                                                    src={participant.img}
+                                                    alt={participant.name}
+                                                />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                                sx={{
+                                                    '.MuiListItemText-primary': {
+                                                        whiteSpace: 'nowrap',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                    },
+                                                }}
+                                                primary={participant.name}
+                                            />
+                                        </ListItemButton>
+                                    ))}
+                                </List>
+                            </Collapse>
+                        </Stack>
+                    ) : (
+                        <>
+                            <Typography variant="article">About</Typography>
+                            {current_conversation?.about ? (
+                                <Typography variant="body2">{current_conversation?.about}</Typography>
+                            ) : (
+                                <Typography variant="body2" color="textSecondary" style={{ fontStyle: 'italic' }}>
+                                    User has not provided information in the About section.
+                                </Typography>
+                            )}
+                        </>
+                    )}
+
                     <Divider />
                     <Stack direction={'row'} alignItems={'center'} justifyContent="space-between">
                         <Typography variant="subtitle2">Media, Link & Docs</Typography>
