@@ -65,26 +65,12 @@ const UserComponent = ({ usr_name, _id, usr_status, usr_avatar, userList }) => {
         >
             <Stack direction="row" alignItems={'center'} justifyContent="space-between">
                 <Stack direction="row" alignItems={'center'} spacing={2}>
-                    {/* {" "} */}
-                    {usr_status === 'ONLINE' ? (
-                        <StyledBadge
-                            overlap="circular"
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'right',
-                            }}
-                            variant="dot"
-                        >
-                            <Avatar alt={usr_name} src={usr_avatar} />
-                        </StyledBadge>
-                    ) : (
-                        <Avatar alt={usr_name} src={usr_avatar} />
-                    )}
+                    <Avatar alt={usr_name} src={usr_avatar} />
 
                     <Stack spacing={0.3}>
                         <Typography
                             style={{
-                                maxWidth: '150px',
+                                maxWidth: '200px',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
@@ -128,25 +114,11 @@ const FriendRequestComponent = ({ usr_name, _id, usr_status, usr_avatar, friends
         >
             <Stack direction="row" alignItems={'center'} justifyContent="space-between">
                 <Stack direction="row" alignItems={'center'} spacing={2}>
-                    {' '}
-                    {usr_status === 'ONLINE' ? (
-                        <StyledBadge
-                            overlap="circular"
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'right',
-                            }}
-                            variant="dot"
-                        >
-                            <Avatar alt={usr_name} src={usr_avatar} />
-                        </StyledBadge>
-                    ) : (
-                        <Avatar alt={usr_name} src={usr_avatar} />
-                    )}
+                    <Avatar alt={usr_name} src={usr_avatar} />
                     <Stack spacing={0.3}>
                         <Typography
                             style={{
-                                maxWidth: '150px',
+                                maxWidth: '200px',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
@@ -196,25 +168,11 @@ const SentRequestComponent = ({ usr_name, _id, usr_status, usr_avatar, friendsRe
         >
             <Stack direction="row" alignItems={'center'} justifyContent="space-between">
                 <Stack direction="row" alignItems={'center'} spacing={2}>
-                    {' '}
-                    {usr_status === 'ONLINE' ? (
-                        <StyledBadge
-                            overlap="circular"
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'right',
-                            }}
-                            variant="dot"
-                        >
-                            <Avatar alt={usr_name} src={usr_avatar} />
-                        </StyledBadge>
-                    ) : (
-                        <Avatar alt={usr_name} src={usr_avatar} />
-                    )}
+                    <Avatar alt={usr_name} src={usr_avatar} />
                     <Stack spacing={0.3}>
                         <Typography
                             style={{
-                                maxWidth: '150px',
+                                maxWidth: '200px',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
@@ -275,7 +233,7 @@ const FriendComponent = ({ usr_avatar, usr_name, usr_status, _id, handleCloseDia
                     <Stack spacing={0.3}>
                         <Typography
                             style={{
-                                maxWidth: '150px',
+                                maxWidth: '200px',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
@@ -350,7 +308,7 @@ const GroupComponent = ({ id, handleCloseDialog, img, name }) => {
                     <Stack spacing={0.3}>
                         <Typography
                             style={{
-                                maxWidth: '150px',
+                                maxWidth: '200px',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',

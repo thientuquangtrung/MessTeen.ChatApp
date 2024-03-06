@@ -14,8 +14,10 @@ const Header = () => {
     const theme = useTheme();
     const dispatch = useDispatch();
     const { current_conversation } = useSelector((state) => state.conversation);
+    const { friends } = useSelector((state) => state.app);
     const img = current_conversation?.img || [];
     const isGroup = current_conversation?.type === 'GROUP';
+    const isFriend = friends?.some((f) => f._id === current_conversation.user_id);
 
     return (
         <Box
@@ -82,11 +84,13 @@ const Header = () => {
                     </Box>
                     <Stack spacing={0.2}>
                         <Typography variant="subtitle2">{current_conversation?.name}</Typography>
-                        <Typography variant="caption">{current_conversation?.online ? 'Online' : 'Offline'}</Typography>
+                        <Typography variant="caption">
+                            {!isFriend && !isGroup ? 'Stranger' : current_conversation?.online ? 'Online' : 'Offline'}
+                        </Typography>
                     </Stack>
                 </Stack>
                 <Stack direction="row" alignItems={'center'} spacing={3}>
-                    {current_conversation?.type === 'PRIVATE' && (
+                    {current_conversation?.type === 'PRIVATE' && isFriend && (
                         <IconButton
                             onClick={() => {
                                 dispatch(StartVideoCall(user_id, current_conversation.user_id));

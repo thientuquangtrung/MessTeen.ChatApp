@@ -17,6 +17,7 @@ import {
     UpdateFriendsRequestAction,
     showSnackbar,
     toggleSidebar,
+    UpdateFriendsAction,
 } from '../../redux/app/appActionCreators';
 import {
     AddDirectConversation,
@@ -159,37 +160,20 @@ const DashboardLayout = () => {
                         message: data.message,
                     }),
                 );
+                handleFriendStatus(data);
+                dispatch(UpdateFriendsAction(data.friendList));
+            });
+
+            socket.on('friend-remove', (data) => {
+                handleFriendStatus(data);
+                dispatch(UpdateFriendsAction(data.friendList));
             });
 
             socket.on('request_sent', (data) => {
                 dispatch(showSnackbar({ severity: 'success', message: data.message }));
             });
 
-            socket.on('friend-online', (data) => {
-                const friendId = data.userId; // Assuming you receive friend's user ID from data
-                const conversationsToUpdate = conversations.map((conversation) => {
-                    const hasParticipant =
-                        conversation.participant_ids?.length === 2 &&
-                        conversation.participant_ids?.includes(user_id) &&
-                        conversation.participant_ids?.includes(friendId);
-
-                    if (hasParticipant) {
-                        const newConvStatus = {
-                            ...conversation,
-                            online: data.status,
-                        };
-
-                        if (newConvStatus.id === current_conversation.id) {
-                            dispatch(SetCurrentConversation(newConvStatus));
-                        }
-
-                        return newConvStatus;
-                    }
-
-                    return conversation;
-                });
-                dispatch(UpdateConversationStatus(conversationsToUpdate));
-            });
+            socket.on('friend-online', handleFriendStatus);
 
             socket.on('error', (data) => {
                 dispatch(showSnackbar({ severity: 'error', message: data.message }));
@@ -215,16 +199,40 @@ const DashboardLayout = () => {
     }, [isLoggedIn, socket, conversations, current_conversation, user_id]);
     //#endregion hooks
 
+    if (!isLoggedIn) {
+        return <Navigate to={'/auth/login'} />;
+    }
+
     // methods
     const handleToSettings = () => {
         navigate('/settings');
     };
 
-    // console.log(theme);
+    const handleFriendStatus = (data) => {
+        const friendId = data.userId;
+        const conversationsToUpdate = conversations.map((conversation) => {
+            const hasParticipant =
+                conversation.participant_ids?.length === 2 &&
+                conversation.participant_ids?.includes(user_id) &&
+                conversation.participant_ids?.includes(friendId);
 
-    if (!isLoggedIn) {
-        return <Navigate to={'/auth/login'} />;
-    }
+            if (hasParticipant) {
+                const newConvStatus = {
+                    ...conversation,
+                    online: data.status,
+                };
+
+                if (newConvStatus.id === current_conversation.id) {
+                    dispatch(SetCurrentConversation(newConvStatus));
+                }
+
+                return newConvStatus;
+            }
+
+            return conversation;
+        });
+        dispatch(UpdateConversationStatus(conversationsToUpdate));
+    };
 
     const handleNavigation = (path, index) => {
         navigate(path);

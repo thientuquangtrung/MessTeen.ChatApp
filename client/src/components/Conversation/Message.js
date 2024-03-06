@@ -23,6 +23,10 @@ const Message = () => {
 
             dispatch(SetCurrentConversation(current));
         }
+
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
     }, [room_id]);
 
     useEffect(() => {
