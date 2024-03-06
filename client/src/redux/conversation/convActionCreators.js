@@ -74,11 +74,13 @@ export const UpdateBlockedConversation = ({ id, blocked }) => {
         dispatch(slice.actions.updateBlockedConversation({ id, blocked }));
     };
 };
+
 export const OpenSendMultimedia = ({ payload }) => {
     return async (dispatch, getState) => {
         dispatch(slice.actions.openSendMultimedia({ payload }));
     };
 };
+
 export const CloseSendMultimedia = ({ payload }) => {
     return async (dispatch, getState) => {
         dispatch(slice.actions.closeSendMultimedia({ payload }));
@@ -120,5 +122,11 @@ export const SendMultimedia = (multimedia, callback) => {
                 dispatch(slice.actions.setDownloadURL({ downloadURL }));
             },
         );
+    };
+};
+
+export const ShowListGroup = ({ groups }) => {
+    return async (dispatch, getState) => {
+        dispatch(slice.actions.showListGroup({ groups }));
     };
 };

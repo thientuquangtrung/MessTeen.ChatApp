@@ -19,6 +19,7 @@ const initialState = {
     current_messages: [],
     replyMsg: null,
     fileURL: [],
+    groups: [],
 };
 
 export const slice = createSlice({
@@ -45,6 +46,11 @@ export const slice = createSlice({
                         participant_ids: el.room_participant_ids.map((participant) => participant._id),
                     };
                 } else {
+                    const participantDetails = el.room_participant_ids.map((user) => ({
+                        user_id: user._id,
+                        name: user.usr_name,
+                        img: user.usr_avatar,
+                    }));
                     return {
                         id: el._id,
                         name: el.room_title,
@@ -56,6 +62,7 @@ export const slice = createSlice({
                         pinned: false,
                         type: el.room_type,
                         participant_ids: el.room_participant_ids.map((participant) => participant._id),
+                        participant_details: participantDetails,
                     };
                 }
             });
@@ -72,13 +79,15 @@ export const slice = createSlice({
                     if (el?.id !== this_conversation._id) {
                         return el;
                     } else {
+                        let formatted_conversation = null;
+
                         const user = this_conversation.room_participant_ids.find(
                             (elm) => elm._id.toString() !== user_id,
                         );
 
                         // PRIVATE
                         if (this_conversation.room_type !== 'GROUP') {
-                            return {
+                            formatted_conversation = {
                                 id: this_conversation._id,
                                 user_id: user?._id,
                                 name: `${user?.usr_name}`,
@@ -95,7 +104,13 @@ export const slice = createSlice({
                             };
                         } else {
                             // GROUP
-                            return {
+                            const participantDetails = this_conversation.room_participant_ids.map((user) => ({
+                                user_id: user._id,
+                                name: user.usr_name,
+                                img: user.usr_avatar,
+                            }));
+
+                            formatted_conversation = {
                                 id: this_conversation._id,
                                 name: this_conversation.room_title,
                                 online: this_conversation.room_participant_ids.some(
@@ -110,8 +125,13 @@ export const slice = createSlice({
                                 participant_ids: this_conversation.room_participant_ids.map(
                                     (participant) => participant._id,
                                 ),
+                                participant_details: participantDetails,
                             };
                         }
+                        if (state.current_conversation.id === formatted_conversation.id) {
+                            state.current_conversation = formatted_conversation;
+                        }
+                        return formatted_conversation;
                     }
                 })
                 .sort((a, b) => new Date(b.time) - new Date(a.time));
@@ -151,6 +171,11 @@ export const slice = createSlice({
                     participant_ids: this_conversation.room_participant_ids.map((participant) => participant._id),
                 });
             } else {
+                const participantDetails = this_conversation.room_participant_ids.map((user) => ({
+                    user_id: user._id,
+                    name: user.usr_name,
+                    img: user.usr_avatar,
+                }));
                 state.conversations.push({
                     id: this_conversation._id,
                     name: this_conversation.room_title,
@@ -162,6 +187,7 @@ export const slice = createSlice({
                     pinned: false,
                     type: this_conversation.room_type,
                     participant_ids: this_conversation.room_participant_ids.map((participant) => participant._id),
+                    participant_details: participantDetails,
                 });
             }
             state.conversations.sort((a, b) => new Date(b.time) - new Date(a.time));
@@ -254,14 +280,21 @@ export const slice = createSlice({
                 return conversation;
             });
         },
+
         openSendMultimedia(state, action) {
             state.selectedFiles = action.payload;
         },
+                                 
         closeSendMultimedia(state, action) {
             state.selectedFiles = null;
         },
+  
         setDownloadURL(state, action) {
             state.fileURL = action.payload;
+        },
+  
+        showListGroup(state, action) {
+            state.groups = action.payload;
         },
     },
 

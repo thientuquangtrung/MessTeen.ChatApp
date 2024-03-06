@@ -50,6 +50,14 @@ class ChatroomController {
       metadata: await ChatroomService.addMemberToChatroom(roomId, memberId),
     }).send(res);
   };
+  
+
+  listGroups = async (req, res, next) => {
+    new OK({
+      message: "List of all groups",
+      metadata: await ChatroomService.listGroups(),
+    }).send(res);
+  };
 }
 
 module.exports = new ChatroomController();

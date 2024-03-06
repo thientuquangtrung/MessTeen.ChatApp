@@ -19,7 +19,7 @@ const provider = new GoogleAuthProvider();
 provider.setCustomParameters({
     prompt: 'select_account',
 });
-const storage = getStorage(app);
 
+const storage = getStorage(app);
 
 export { auth, provider, storage };
