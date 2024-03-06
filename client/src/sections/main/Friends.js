@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Badge, Dialog, DialogContent, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { FetchFriendRequests, FetchFriends, FetchUsers } from '../../redux/app/appActionCreators';
-import { FriendComponent, FriendRequestComponent, GroupComponent, UserComponent } from '../../components/Friends';
-import { Search, SearchIconWrapper, StyledInputBase } from '../../Search';
 import {
-    ChalkboardTeacher,
-    CirclesFour,
+    FetchFriendRequests,
+    FetchFriends,
+    FetchSentFriendRequests,
+    FetchUsers,
+} from '../../redux/app/appActionCreators';
+import { FriendComponent, FriendRequestComponent, SentRequestComponent, UserComponent, GroupComponent } from '../../components/Friends';
+import { Search, SearchIconWrapper, StyledInputBase } from '../../components/Search';
+import {
     HourglassMedium,
     MagnifyingGlass,
     ShareNetwork,
     UsersThree,
+    ArrowSquareIn,
+    ArrowSquareOut,
+    ChalkboardTeacher,
+    CirclesFour,
 } from 'phosphor-react';
 import useDebounce from '../../hooks/useDebounce';
 import { ShowListGroup } from '../../redux/conversation/convActionCreators';
@@ -47,7 +54,9 @@ const FriendsList = ({ searchQuery, handleCloseDialog }) => {
     return (
         <>
             {friends.map((el, idx) => {
-                return <FriendComponent key={el._id} {...el} handleCloseDialog={handleCloseDialog} />;
+                return (
+                    <FriendComponent key={el._id} {...el} handleCloseDialog={handleCloseDialog} friendList={friends} />
+                );
             })}
         </>
     );
@@ -94,13 +103,38 @@ const GroupsList = ({ searchQuery, handleCloseDialog }) => {
     );
 };
 
+const SentRequestList = ({ searchQuery }) => {
+    const dispatch = useDispatch();
+    const debouncedSearchTerm = useDebounce(searchQuery, 500);
+
+    useEffect(() => {
+        dispatch(FetchSentFriendRequests(debouncedSearchTerm));
+    }, [debouncedSearchTerm]);
+
+    const { sentRequests } = useSelector((state) => state.app);
+
+    return (
+        <>
+            {sentRequests.map((el, idx) => {
+                //el => {_id, sender: {_id, firstName, lastName, img, online}}
+                return <SentRequestComponent key={el._id} {...el} friendsRequestList={sentRequests} />;
+            })}
+        </>
+    );
+};
+
 const Friends = ({ open, handleClose }) => {
     const [value, setValue] = useState(0);
+    const [subValue, setSubValue] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
     const { friendRequests } = useSelector((state) => state.app);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
+    };
+
+    const handleChangeSubTab = (event, newValue) => {
+        setSubValue(newValue);
     };
 
     return (
@@ -139,6 +173,12 @@ const Friends = ({ open, handleClose }) => {
                         inputProps={{ 'aria-label': 'search' }}
                     />
                 </Search>
+                {value === 2 && (
+                    <Tabs value={subValue} onChange={handleChangeSubTab} centered>
+                        <Tab sx={{ px: 1 }} icon={<ArrowSquareIn size={18} />} label="Received Requests" />
+                        <Tab sx={{ px: 1 }} icon={<ArrowSquareOut size={18} />} label="Sent Requests" />
+                    </Tabs>
+                )}
             </Stack>
             {/* Dialog Content */}
             <DialogContent>
@@ -153,9 +193,13 @@ const Friends = ({ open, handleClose }) => {
                                     return <FriendsList searchQuery={searchQuery} handleCloseDialog={handleClose} />;
 
                                 case 2: // display request in this list
-                                    return <FriendRequestList searchQuery={searchQuery} />;
+                                    if (subValue === 0) {
+                                        return <FriendRequestList searchQuery={searchQuery} />;
+                                    } else {
+                                        return <SentRequestList searchQuery={searchQuery} />;
+                                    }
 
-                                case 3: // display all users in this list
+                                case 3: // display all user groups in this list
                                     return <GroupsList searchQuery={searchQuery} handleCloseDialog={handleClose} />;
 
                                 default:

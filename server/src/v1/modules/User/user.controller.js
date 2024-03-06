@@ -65,6 +65,13 @@ class UserController {
         }).send(res);
     };
 
+    sentFriendRequests = async (req, res, next) => {
+        new OK({
+            message: 'Sent friend requests retrieved successfully!',
+            metadata: await UserService.sentFriendRequests(req.params.userId, req.query.search),
+        }).send(res);
+    };
+
     updateProfileUser = async (req, res, next) => {
         new OK({
             message: 'Profile updated successfully!',

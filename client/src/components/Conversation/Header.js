@@ -6,6 +6,9 @@ import { CaretDown, Divide, MagnifyingGlass, Phone, VideoCamera } from 'phosphor
 import { useDispatch, useSelector } from 'react-redux';
 import { dispatch } from '../../redux/store';
 import { toggleSidebar } from '../../redux/app/appActionCreators';
+import { StartVideoCall } from '../../redux/videoCall/videoCallActionCreators';
+
+const user_id = window.localStorage.getItem('user_id');
 
 const Header = () => {
     const theme = useTheme();
@@ -63,18 +66,18 @@ const Header = () => {
                         ) : (
                             // <Avatar alt={current_conversation?.name} src={current_conversation?.img} />
                             <AvatarGroup
-                                    spacing={20}
-                                    max={3}
-                                    sx={{
-                                        '.MuiAvatarGroup-avatar': isGroup
-                                            ? { width: 24, height: 24 }
-                                            : { width: 40, height: 40 },
-                                    }}
-                                >
-                                    {img.map((src) => (
-                                        <Avatar src={src} />
-                                    ))}
-                                </AvatarGroup>
+                                spacing={20}
+                                max={3}
+                                sx={{
+                                    '.MuiAvatarGroup-avatar': isGroup
+                                        ? { width: 24, height: 24 }
+                                        : { width: 40, height: 40 },
+                                }}
+                            >
+                                {img.map((src) => (
+                                    <Avatar src={src} />
+                                ))}
+                            </AvatarGroup>
                         )}
                     </Box>
                     <Stack spacing={0.2}>
@@ -83,12 +86,22 @@ const Header = () => {
                     </Stack>
                 </Stack>
                 <Stack direction="row" alignItems={'center'} spacing={3}>
-                    <IconButton>
-                        <VideoCamera />
-                    </IconButton>
-                    <IconButton>
+                    {current_conversation?.type === 'PRIVATE' && (
+                        <IconButton
+                            onClick={() => {
+                                dispatch(StartVideoCall(user_id, current_conversation.user_id));
+                            }}
+                        >
+                            <VideoCamera />
+                        </IconButton>
+                    )}
+                    {/* <IconButton
+                        onClick={() => {
+                            // dispatch(StartAudioCall(current_conversation.user_id));
+                        }}
+                    >
                         <Phone />
-                    </IconButton>
+                    </IconButton> */}
                     <IconButton>
                         <MagnifyingGlass />
                     </IconButton>

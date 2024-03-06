@@ -20,6 +20,9 @@ class UserService {
         friend.usr_pending_friends.push(user_id);
         await friend.save();
 
+        user.usr_requested_list.push(friend_id);
+        await user.save();
+
         return friend.usr_pending_friends;
     }
 
@@ -91,13 +94,12 @@ class UserService {
         );
 
         // check if there is any existing conversation
-        const existing_conversations = await chatroomModel
-            .find({
-                room_participant_ids: { $size: 2, $all: [usr_id_1, usr_id_2] },
-                room_type: 'PRIVATE',
-            })
+        const existing_conversations = await chatroomModel.find({
+            room_participant_ids: { $size: 2, $all: [usr_id_1, usr_id_2] },
+            room_type: 'PRIVATE',
+        });
 
-        if(existing_conversations.length > 0) {
+        if (existing_conversations.length > 0) {
             _io.to(friend.usr_socket_id).emit('friend_blocked', {
                 id: existing_conversations[0]._id,
                 blocked: true,
@@ -124,13 +126,12 @@ class UserService {
         );
 
         // check if there is any existing conversation
-        const existing_conversations = await chatroomModel
-            .find({
-                room_participant_ids: { $size: 2, $all: [usr_id_1, usr_id_2] },
-                room_type: 'PRIVATE',
-            })
+        const existing_conversations = await chatroomModel.find({
+            room_participant_ids: { $size: 2, $all: [usr_id_1, usr_id_2] },
+            room_type: 'PRIVATE',
+        });
 
-        if(existing_conversations.length > 0) {
+        if (existing_conversations.length > 0) {
             _io.to(friend.usr_socket_id).emit('friend_blocked', {
                 id: existing_conversations[0]._id,
                 blocked: false,
@@ -140,17 +141,17 @@ class UserService {
         return user.usr_blocked_people;
     }
 
-    static async removeFriend({ usr_id_1, usr_id_2 }) {
-        const friend = await UserModel.findById(usr_id_2);
+    static async removeFriend({ user_id, friend_id }) {
+        const friend = await UserModel.findById(friend_id);
         if (!friend) {
             throw new NotFoundError('Friend not found');
         }
 
-        await UserModel.findByIdAndUpdate(usr_id_1, {
-            $pull: { usr_friends: usr_id_2 },
+        await UserModel.findByIdAndUpdate(user_id, {
+            $pull: { usr_friends: friend_id },
         });
 
-        await friend.update({ $pull: { usr_friends: usr_id_1 } });
+        await friend.update({ $pull: { usr_friends: user_id } });
 
         return { message: 'Friend remove successfully' };
     }
@@ -236,6 +237,26 @@ class UserService {
         console.log(user);
 
         return user.usr_pending_friends;
+    }
+
+    static async sentFriendRequests(userId, searchQuery = '') {
+        const user = await UserModel.findById(userId).populate({
+            path: 'usr_requested_list',
+            match: {
+                $or: [
+                    { usr_name: new RegExp(escapeRegExp(searchQuery), 'i') },
+                    { usr_email: new RegExp(escapeRegExp(searchQuery), 'i') },
+                ],
+            },
+        });
+
+        if (!user) {
+            throw new NotFoundError('User not found');
+        }
+
+        console.log(user);
+
+        return user.usr_requested_list;
     }
 
     static async updateProfileUser(userId, updatedUserData) {
