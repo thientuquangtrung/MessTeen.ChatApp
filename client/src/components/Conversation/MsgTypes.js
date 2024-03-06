@@ -22,12 +22,10 @@ const Response = ({ el }) => {
         );
     };
     const { current_conversation, fileURL } = useSelector((state) => state.conversation);
-    console.log(fileURL);
     const { sideBar, room_id } = useSelector((state) => state.app);
     const user_id = window.localStorage.getItem('user_id');
 
     const handleEmojiSelect = (emojiId) => {
-        console.log(emojiId);
         socket.emit('react_message', {
             messageID: el.id,
             reaction: emojiId,
@@ -376,6 +374,7 @@ const MediaMsg = ({ el }) => {
                         background: el.incoming ? theme.palette.background.default : theme.palette.primary.main,
                         borderRadius: 1.5, //1.5*8=12px
                         width: 'max-content',
+                        position: 'relative',
                     }}
                 >
                     <Stack spacing={1}>

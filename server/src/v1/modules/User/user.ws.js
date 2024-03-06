@@ -9,7 +9,6 @@ module.exports = {
         const indexFrom = to_user.usr_pending_friends.indexOf(from_user._id);
         const indexTo = from_user.usr_requested_list.indexOf(to_user._id);
 
-
         if (indexFrom > -1 && indexTo > -1) {
             to_user.usr_pending_friends.splice(indexFrom, 1);
             await to_user.save();
@@ -37,7 +36,6 @@ module.exports = {
 
     acceptRequestWS: async (data) => {
         // accept friend request => add ref of each other in friends array
-        console.log(data);
         const from = await userModel.findById(data.user_id).select('usr_socket_id');
         const to = await userModel.findById(data.friend_id).select('usr_socket_id');
 
@@ -57,7 +55,6 @@ module.exports = {
 
         await UserService.removeFriend(data);
 
-        callback({message: 'Remove friend successfully!'})
-        
+        callback({ message: 'Remove friend successfully!' });
     },
 };

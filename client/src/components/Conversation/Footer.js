@@ -133,9 +133,6 @@ const Footer = () => {
         setValue(value + emoji.native);
     };
     const [selectedFiles, setSelectedFiles] = useState([]);
-    useEffect(() => {
-        console.log(selectedFiles);
-    }, [selectedFiles]);
 
     const sendMessage = () => {
         if (current_conversation.isBeingBlocked) {

@@ -7,7 +7,13 @@ import {
     FetchSentFriendRequests,
     FetchUsers,
 } from '../../redux/app/appActionCreators';
-import { FriendComponent, FriendRequestComponent, SentRequestComponent, UserComponent, GroupComponent } from '../../components/Friends';
+import {
+    FriendComponent,
+    FriendRequestComponent,
+    SentRequestComponent,
+    UserComponent,
+    GroupComponent,
+} from '../../components/Friends';
 import { Search, SearchIconWrapper, StyledInputBase } from '../../components/Search';
 import {
     HourglassMedium,
@@ -20,7 +26,6 @@ import {
     CirclesFour,
 } from 'phosphor-react';
 import useDebounce from '../../hooks/useDebounce';
-import { ShowListGroup } from '../../redux/conversation/convActionCreators';
 
 const UsersList = ({ searchQuery }) => {
     const dispatch = useDispatch();
@@ -31,7 +36,7 @@ const UsersList = ({ searchQuery }) => {
     }, [debouncedSearchTerm]);
 
     const { users } = useSelector((state) => state.app);
-    // console.log(users);
+
     return (
         <>
             {users.map((el, idx) => {

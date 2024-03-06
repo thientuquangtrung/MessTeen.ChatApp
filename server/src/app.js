@@ -117,29 +117,6 @@ const handleSocketConnect = async (socket) => {
     socket.on('text_message', withErrorHandling(socket, sendMesssageWS));
     socket.on('react_message', withErrorHandling(socket, reactMessageWS));
 
-    // // handle Media/Document Message
-    // socket.on('file_message', (data) => {
-    //     console.log('Received message:', data);
-
-    //     // data: {to, from, text, file}
-
-    //     // Get the file extension
-    //     const fileExtension = path.extname(data.file.name);
-
-    //     // Generate a unique filename
-    //     const filename = `${Date.now()}_${Math.floor(Math.random() * 10000)}${fileExtension}`;
-
-    //     // upload file to AWS s3
-
-    //     // create a new conversation if its dosent exists yet or add a new message to existing conversation
-
-    //     // save to db
-
-    //     // emit incoming_message -> to user
-
-    //     // emit outgoing_message -> from user
-    // });
-
     // // -------------- HANDLE AUDIO CALL SOCKET EVENTS ----------------- //
 
     // // handle start_audio_call event

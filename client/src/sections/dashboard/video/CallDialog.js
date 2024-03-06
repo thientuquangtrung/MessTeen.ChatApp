@@ -97,7 +97,6 @@ const CallDialog = ({ open, handleClose }) => {
                         localVideoRef.current.play();
                         const call = peer.call(remotePeerId, mediaStream);
 
-                        console.log(`call:::::`, call);
                         call.on('stream', (remoteStream) => {
                             remoteVideoRef.current.srcObject = remoteStream;
                             remoteVideoRef.current.play();

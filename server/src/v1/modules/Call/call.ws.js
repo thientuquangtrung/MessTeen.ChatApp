@@ -6,14 +6,11 @@ module.exports = {
     startVideoCallWS: async (data) => {
         const { from, to, roomID } = data;
 
-        console.log(data);
-
         const to_user = await userModel.findById(to);
         const from_user = await userModel.findById(from);
 
         // TODO: check if user is busy
 
-        console.log('to_user', to_user);
 
         // send notification to receiver of call
         _io.to(to_user?.usr_socket_id).emit('video_call_notification', {
@@ -31,8 +28,6 @@ module.exports = {
 
     endVideoCallWS: async (data) => {
         const { from, to, roomID } = data;
-
-        console.log(data);
 
         const to_user = await userModel.findById(to);
 
@@ -52,7 +47,6 @@ module.exports = {
     },
 
     videoCallNotPickedWS: async (data) => {
-        console.log(data);
         // find and update call record
         const { to, from, roomID } = data;
 

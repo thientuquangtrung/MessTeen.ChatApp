@@ -1,5 +1,6 @@
 import {
     Avatar,
+    AvatarGroup,
     Box,
     Button,
     Collapse,
@@ -103,11 +104,19 @@ const Contact = () => {
                     spacing={3}
                 >
                     <Stack alignItems={'center'} direction="row" spacing={2}>
-                        <Avatar
-                            src={current_conversation?.img}
-                            alt={current_conversation?.name}
-                            sx={{ height: 64, width: 64 }}
-                        />
+                        <AvatarGroup
+                            spacing={20}
+                            max={3}
+                            sx={{
+                                '.MuiAvatarGroup-avatar': isGroup
+                                    ? { width: 40, height: 40 }
+                                    : { width: 64, height: 64 },
+                            }}
+                        >
+                            {img.map((src) => (
+                                <Avatar src={src} />
+                            ))}
+                        </AvatarGroup>
                         <Stack spacing={0.5}>
                             <Typography variant="article" fontWeight={600}>
                                 {current_conversation?.name}
@@ -126,7 +135,7 @@ const Contact = () => {
                             </Typography>
                         </Stack>
                     </Stack>
-                    <Stack direction={'row'} alignItems={'center'} justifyContent="space-evenly">
+                    {/* <Stack direction={'row'} alignItems={'center'} justifyContent="space-evenly">
                         <Stack spacing={1} alignItems={'center'}>
                             <IconButton>
                                 <Phone />
@@ -139,7 +148,7 @@ const Contact = () => {
                             </IconButton>
                             <Typography variant="overline">Video</Typography>
                         </Stack>
-                    </Stack>
+                    </Stack> */}
                     <Divider />
 
                     {isGroup ? (

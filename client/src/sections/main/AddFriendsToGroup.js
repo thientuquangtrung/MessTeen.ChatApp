@@ -45,7 +45,6 @@ const AddFriendToGroupForm = ({ handleClose }) => {
     const onSubmit = async (data) => {
         try {
             //API call
-            console.log('DATA', data);
             const member_ids = data.members.map((member) => member.id);
             const user_id = window.localStorage.getItem('user_id');
 

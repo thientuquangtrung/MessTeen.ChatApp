@@ -79,7 +79,6 @@ export function LoginUser(formValues) {
                 ...formValues,
             })
             .then(function (response) {
-                console.log(response);
                 dispatch(
                     slice.actions.logIn({
                         isLoggedIn: true,
@@ -114,7 +113,6 @@ export function AuthWithProvider(formValues) {
                 ...formValues,
             })
             .then(function (response) {
-                console.log(`auth-with-provider`, response);
                 dispatch(
                     slice.actions.logIn({
                         isLoggedIn: true,
@@ -175,7 +173,6 @@ export function RegisterUser(formValues) {
                 ...formValues,
             })
             .then(function (response) {
-                console.log(response);
                 // dispatch(slice.actions.updateRegisterEmail({ email: response.data.metadata.user.usr_email }));
                 dispatch(
                     slice.actions.logIn({
