@@ -18,6 +18,7 @@ const initialState = {
     current_conversation: null,
     current_messages: [],
     replyMsg: null,
+    fileURL: [],
     groups: [],
 };
 
@@ -197,18 +198,26 @@ export const slice = createSlice({
         fetchCurrentMessages(state, action) {
             const messages = action.payload.messages;
             console.log('alo', messages);
-            const formatted_messages = messages.map((el) => ({
-                id: el._id,
-                type: 'msg',
-                subtype: el.msg_parent_id ? 'reply' : el.msg_type,
-                message: el.msg_content,
-                incoming: el.msg_sender_id._id !== user_id,
-                outgoing: el.msg_sender_id_id === user_id,
-                timestamp: el.msg_timestamp,
-                reactions: el.msg_reactions.map((reaction) => reaction.reaction),
-                msgReply: el.msg_parent_id,
-                user_name: el.msg_sender_id.usr_name,
-            }));
+            const formatted_messages = messages.map((el) => {
+                let subtype = el.msg_parent_id ? 'reply' : el.msg_type;
+                if (subtype === 'IMAGE') {
+                    subtype = 'img';
+                }
+                return {
+                    id: el._id,
+                    type: 'msg',
+                    subtype: subtype,
+                    message: el.msg_content,
+                    incoming: el.msg_sender_id._id !== user_id,
+                    outgoing: el.msg_sender_id_id === user_id,
+                    timestamp: el.msg_timestamp,
+                    reactions: el.msg_reactions.map((reaction) => reaction.reaction),
+                    msgReply: el.msg_parent_id,
+                    user_name: el.msg_sender_id.usr_name,
+                    fileURL: el.msg_media_url,
+                };
+            });
+            console.log(formatted_messages);
             formatted_messages.sort((a, b) => {
                 return new Date(a.timestamp) - new Date(b.timestamp);
             });
@@ -225,12 +234,16 @@ export const slice = createSlice({
 
             if (messageIndex !== -1) {
                 // Create a copy of the current_messages array
-                const updatedMessages = [...state.current_messages];
+                let updatedMessages = [...state.current_messages];
+                let subtype = messageUpdate.msg_parent_id ? 'reply' : messageUpdate.msg_type;
+                if (subtype === 'IMAGE') {
+                    subtype = 'img';
+                }
                 // Replace the message at the found index with the updated message
                 updatedMessages[messageIndex] = {
                     id: messageUpdate._id,
                     type: 'msg',
-                    subtype: messageUpdate.msg_parent_id ? 'reply' : messageUpdate.msg_type,
+                    subtype,
                     message: messageUpdate.msg_content,
                     incoming: messageUpdate.msg_sender_id._id !== user_id,
                     outgoing: messageUpdate.msg_sender_id._id === user_id,
@@ -238,12 +251,14 @@ export const slice = createSlice({
                     reactions: messageUpdate.msg_reactions.map((reaction) => reaction.reaction),
                     msgReply: messageUpdate.msg_parent_id,
                     user_name: messageUpdate.msg_sender_id.usr_name,
+                    fileURL: messageUpdate.msg_media_url,
                 };
 
                 // Update the state with the new array of messages
                 state.current_messages = updatedMessages;
             }
         },
+
         setReplyMessage(state, action) {
             state.replyMsg = action.payload;
         },
@@ -266,10 +281,23 @@ export const slice = createSlice({
             });
         },
 
+        openSendMultimedia(state, action) {
+            state.selectedFiles = action.payload;
+        },
+                                 
+        closeSendMultimedia(state, action) {
+            state.selectedFiles = null;
+        },
+  
+        setDownloadURL(state, action) {
+            state.fileURL = action.payload;
+        },
+  
         showListGroup(state, action) {
             state.groups = action.payload;
         },
     },
+
     extraReducers: (builder) => builder.addCase(revertAll, () => initialState),
 });
 

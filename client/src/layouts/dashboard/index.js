@@ -76,17 +76,23 @@ const DashboardLayout = () => {
             socket.on('new_message', (data) => {
                 const message = data.message;
                 // check if msg we got is from currently selected conversation
+
                 if (current_conversation?.id === data.conversation._id) {
+                    let subtype = message.msg_parent_id ? 'reply' : message.msg_type;
+                    if (subtype === 'IMAGE') {
+                        subtype = 'img';
+                    }
                     dispatch(
                         AddDirectMessage({
                             id: message._id,
                             type: 'msg',
-                            subtype: message.msg_parent_id ? 'reply' : message.msg_type,
+                            subtype,
                             message: message.msg_content,
                             incoming: message.msg_sender_id._id !== user_id,
                             outgoing: message.msg_sender_id._id === user_id,
                             msgReply: message.msg_parent_id,
                             user_name: message.msg_sender_id.usr_name,
+                            fileURL: message.msg_media_url,
                         }),
                     );
                 }
