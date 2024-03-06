@@ -5,7 +5,14 @@ import { Chat, UserMinus } from 'phosphor-react';
 import { faker } from '@faker-js/faker';
 import { socket } from '../socket';
 import { dispatch } from '../redux/store';
-import { UpdateFriendsAction, UpdateSentFriendsRequestAction, UpdateUsersAction, showSnackbar, SelectConversation, UpdateUsersAction, UpdateFriendsRequestAction } from '../redux/app/appActionCreators';
+import {
+    UpdateFriendsAction,
+    UpdateSentFriendsRequestAction,
+    UpdateUsersAction,
+    showSnackbar,
+    SelectConversation,
+    UpdateFriendsRequestAction,
+} from '../redux/app/appActionCreators';
 
 const user_id = window.localStorage.getItem('user_id');
 
