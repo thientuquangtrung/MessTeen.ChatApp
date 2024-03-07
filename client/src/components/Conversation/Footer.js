@@ -152,7 +152,7 @@ const Footer = () => {
             dispatch(showSnackbar({ severity: 'info', message: ' You cannot text or call in this chat.' }));
         } else {
             let messageToSend = value.trim();
-            if (messageToSend !== '' || selectedFiles !== '') {
+            if (messageToSend !== '' || selectedFiles.length > 0) {
                 if (replyMsg) {
                     if (selectedFiles.length > 0) {
                         dispatch(
