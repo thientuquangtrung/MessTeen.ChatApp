@@ -10,12 +10,19 @@ module.exports = {
         const indexOfTo = from_user.usr_requested_list.indexOf(to_user._id);
 
         if (indexOfFrom > -1 && indexOfTo > -1) {
+            // remove friend request
             to_user.usr_pending_friends.splice(indexOfFrom, 1);
             await to_user.save();
 
             from_user.usr_requested_list.splice(indexOfTo, 1);
             await from_user.save();
 
+            await to_user.populate('usr_pending_friends');
+            const newFrRequests = to_user.usr_pending_friends;
+
+            _io.to(to_user?.usr_socket_id).emit('new_friend_request', {
+                friendRequests: newFrRequests,
+            });
             _io.to(from_user?.usr_socket_id).emit('request_sent', {
                 message: 'Removed request successfully!',
             });

@@ -144,12 +144,13 @@ const DashboardLayout = () => {
             });
 
             socket.on('new_friend_request', (data) => {
-                dispatch(
-                    showSnackbar({
-                        severity: 'success',
-                        message: data.message,
-                    }),
-                );
+                data.message &&
+                    dispatch(
+                        showSnackbar({
+                            severity: 'success',
+                            message: data.message,
+                        }),
+                    );
                 dispatch(UpdateFriendsRequestAction(data.friendRequests));
             });
 
@@ -191,6 +192,7 @@ const DashboardLayout = () => {
             socket?.off('video_call_notification');
             socket?.off('error');
             socket?.off('friend-online');
+            socket?.off('friend-remove');
             socket?.off('get_reaction');
             socket?.off('friend_blocked');
             socket?.off('leave_group');
@@ -222,7 +224,7 @@ const DashboardLayout = () => {
                     online: data.status,
                 };
 
-                if (newConvStatus.id === current_conversation.id) {
+                if (newConvStatus.id === current_conversation?.id) {
                     dispatch(SetCurrentConversation(newConvStatus));
                 }
 

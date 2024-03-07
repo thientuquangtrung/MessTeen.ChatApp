@@ -1,5 +1,6 @@
 const callModel = require('./call.model');
 const userModel = require('../User/user.model');
+const { getInfoData } = require('../../utils');
 
 class CallService {
     static async startVideoCall({ from, to }) {
@@ -18,7 +19,10 @@ class CallService {
 
         // return object info of stream
         return {
-            from: to_user,
+            from: getInfoData({
+                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar'],
+                object: to_user,
+            }),
             roomID: new_video_call._id,
             streamID: to,
             userID: from,

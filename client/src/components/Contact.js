@@ -219,7 +219,7 @@ const Contact = () => {
                     )}
 
                     <Divider />
-                    <Stack direction={'row'} alignItems={'center'} justifyContent="space-between">
+                    {/* <Stack direction={'row'} alignItems={'center'} justifyContent="space-between">
                         <Typography variant="subtitle2">Media, Link & Docs</Typography>
                         <Button endIcon={<CaretRight />}> 401</Button>
                     </Stack>
@@ -230,8 +230,8 @@ const Contact = () => {
                             </Box>
                         ))}
                     </Stack>
-                    <Divider />
-                    <Stack direction={'row'} alignItems="center" justifyContent="space-between">
+                    <Divider /> */}
+                    {/* <Stack direction={'row'} alignItems="center" justifyContent="space-between">
                         <Stack direction={'row'} alignItems="center" spacing={2}>
                             <Star size={21} />
                             <Typography variant="subtitle2">Starred Messages</Typography>
@@ -248,11 +248,11 @@ const Contact = () => {
                         </Stack>
                         <AntSwitch />
                     </Stack>
-                    <Divider />
+                    <Divider /> */}
                     {/* Private */}
                     {!isGroup ? (
                         <>
-                            <Typography>1 group in common</Typography>
+                            {/* <Typography>1 group in common</Typography>
                             <Stack direction="row" spacing={2} alignItems="center">
                                 <Avatar src={faker.image.avatar()} alt={faker.name.fullName()} />
                                 <Stack spacing={0.5}>
@@ -260,7 +260,7 @@ const Contact = () => {
                                     <Typography variant="caption">Banana</Typography>
                                 </Stack>
                             </Stack>
-                            <Divider />
+                            <Divider /> */}
                             <Stack direction="row" alignItems="center" justifyContent="space-between">
                                 <Button
                                     fullWidth

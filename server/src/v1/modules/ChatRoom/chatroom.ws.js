@@ -51,8 +51,7 @@ module.exports = {
 
         // send conversation details as payload
         _io.to(fromSocketId.usr_socket_id).emit('start_chat', { chatroom, message: '' });
-        _io.to(toSocketId.usr_socket_id).emit('start_chat', { chatroom, message: '' });
-
+        _io.to(toSocketId.usr_socket_id).emit('update_conversation_list', { chatroom, message: '' });
     },
 
     groupConversationWS: async (data) => {

@@ -81,11 +81,11 @@ const CallLogElement = ({ img, name, incoming, missed, online, id, start, end })
                         </Stack>
                     </Stack>
                 </Stack>
-                <Stack direction={'row'} spacing={2} alignItems={'center'}>
+                {/* <Stack direction={'row'} spacing={2} alignItems={'center'}>
                     <Phone />
 
                     <VideoCamera />
-                </Stack>
+                </Stack> */}
             </Stack>
         </StyledChatBox>
     );
