@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { ClickAwayListener } from '@mui/base/ClickAwayListener';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { socket } from '../../socket';
 import { CloseReplyMessage, FetchCurrentMessages, SendMultimedia } from '../../redux/conversation/convActionCreators';
 import { dispatch } from '../../redux/store';
@@ -32,6 +32,7 @@ const ChatInput = ({
 }) => {
     const [openActions, setOpenActions] = React.useState(false);
 
+    const dispatch = useDispatch();
     const inputRef1 = useRef(null);
     const handleClickAway = () => {
         setOpenActions(false);
@@ -39,7 +40,18 @@ const ChatInput = ({
 
     const handleSelectFile = (event) => {
         const files = event.target.files;
-        setSelectedFiles([...files]);
+        const nonImageFile = Array.from(files).find((file) => !file.type.startsWith('image/'));
+
+        if (nonImageFile) {
+            dispatch(
+                showSnackbar({
+                    severity: 'error',
+                    message: `Invalid file type: ${nonImageFile.type}. Please select an image file.`,
+                }),
+            );
+        } else {
+            setSelectedFiles([...files]);
+        }
     };
 
     const handleKeyDown = (event) => {
@@ -81,6 +93,7 @@ const ChatInput = ({
                                         type="file"
                                         onChange={handleSelectFile}
                                         style={{ display: 'none' }}
+                                        accept={'image/*'}
                                     />
                                 </Stack>
                             </IconButton>
@@ -133,9 +146,6 @@ const Footer = () => {
         setValue(value + emoji.native);
     };
     const [selectedFiles, setSelectedFiles] = useState([]);
-    useEffect(() => {
-        console.log(selectedFiles);
-    }, [selectedFiles]);
 
     const sendMessage = () => {
         if (current_conversation.isBeingBlocked) {

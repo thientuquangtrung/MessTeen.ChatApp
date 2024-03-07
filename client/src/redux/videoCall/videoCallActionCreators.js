@@ -7,7 +7,6 @@ export const StartVideoCall = (from, to) => {
         axios
             .post('/calls/start-video-call', { from, to })
             .then((response) => {
-                console.log(response);
                 // for user who MAKE the call
                 dispatch(
                     slice.actions.pushToVideoCallQueue({

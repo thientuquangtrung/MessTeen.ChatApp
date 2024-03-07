@@ -1,10 +1,8 @@
 import { slice } from './convReducer';
-// import S3 from "../../utils/s3";
 import { v4 } from 'uuid';
-// import S3 from "../../utils/s3";
-// import { S3_BUCKET_NAME } from "../../config";
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '../../utils/firebase';
+import axios from '../../utils/axios';
 
 export const FetchDirectConversations = ({ conversations }) => {
     return async (dispatch, getState) => {
@@ -48,6 +46,29 @@ export const FetchCurrentMessages = ({ messages }) => {
     };
 };
 
+export const FetchMoreMessages = (chatroomId, cb) => {
+    return async (dispatch, getState) => {
+        axios
+            .get(`/message/get-all/${chatroomId}`, {
+                params: {
+                    page: getState().conversation.message_page + 1,
+                },
+            })
+            .then((response) => {
+                const messages = response.data.metadata;
+
+                if (messages && messages.length > 0) {
+                    dispatch(slice.actions.fetchMoreMessages(response.data.metadata));
+                }
+                cb();
+            })
+            .catch((error) => {
+                console.log(error);
+                cb();
+            });
+    };
+};
+
 export const AddDirectMessage = (message) => {
     return async (dispatch, getState) => {
         dispatch(slice.actions.addDirectMessage({ message }));
@@ -75,22 +96,9 @@ export const UpdateBlockedConversation = ({ id, blocked }) => {
     };
 };
 
-export const OpenSendMultimedia = ({ payload }) => {
-    return async (dispatch, getState) => {
-        dispatch(slice.actions.openSendMultimedia({ payload }));
-    };
-};
-
-export const CloseSendMultimedia = ({ payload }) => {
-    return async (dispatch, getState) => {
-        dispatch(slice.actions.closeSendMultimedia({ payload }));
-    };
-};
-
 export const SendMultimedia = (multimedia, callback) => {
     return async (dispatch, getState) => {
         const file = multimedia[0];
-        console.log(file);
         const key = v4();
         const storageRef = ref(storage, `message/${key}`);
 
@@ -122,11 +130,5 @@ export const SendMultimedia = (multimedia, callback) => {
                 dispatch(slice.actions.setDownloadURL({ downloadURL }));
             },
         );
-    };
-};
-
-export const ShowListGroup = ({ groups }) => {
-    return async (dispatch, getState) => {
-        dispatch(slice.actions.showListGroup({ groups }));
     };
 };

@@ -7,6 +7,7 @@ import { PhoneSlash } from 'phosphor-react';
 import { faker } from '@faker-js/faker';
 import PaperComponent from '../../../components/PaperComponent';
 import Peer from 'peerjs';
+import { showSnackbar } from '../../../redux/app/appActionCreators';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -31,6 +32,7 @@ const CallDialog = ({ open, handleClose }) => {
      */
     const [call_details] = useSelector((state) => state.videoCall.call_queue);
     const { incoming } = useSelector((state) => state.videoCall);
+    const { user } = useSelector((state) => state.app);
 
     const roomID = call_details?.roomID;
     const userID = call_details?.userID;
@@ -77,6 +79,7 @@ const CallDialog = ({ open, handleClose }) => {
             socket.on('on_another_video_call', () => {
                 // TODO => You can play an audio indicating call is denined
                 // ABORT CALL
+                dispatch(showSnackbar({ severity: 'warning', message: 'User is on another call!' }));
                 clearTimeout(notPickTimer);
                 handleDisconnect();
             });
@@ -97,7 +100,6 @@ const CallDialog = ({ open, handleClose }) => {
                         localVideoRef.current.play();
                         const call = peer.call(remotePeerId, mediaStream);
 
-                        console.log(`call:::::`, call);
                         call.on('stream', (remoteStream) => {
                             remoteVideoRef.current.srcObject = remoteStream;
                             remoteVideoRef.current.play();
@@ -189,9 +191,9 @@ const CallDialog = ({ open, handleClose }) => {
                 disableEnforceFocus
             >
                 <DialogContent sx={{ p: 0 }}>
-                    <Stack>
+                    <Stack height={'450px'}>
                         <video
-                            poster={faker.image.city()}
+                            poster={call_details.from?.usr_avatar || faker.image.city()}
                             style={{ height: '100%', width: '100%', objectFit: 'cover' }}
                             ref={remoteVideoRef}
                             id="remote-video"
@@ -209,7 +211,7 @@ const CallDialog = ({ open, handleClose }) => {
                         overflow={'hidden'}
                     >
                         <video
-                            poster={faker.image.animals()}
+                            poster={user?.usr_avatar || faker.image.animals()}
                             style={{ height: '100%', width: '100%', objectFit: 'cover' }}
                             ref={localVideoRef}
                             id="local-video"

@@ -57,7 +57,6 @@ export function FetchUsers(searchQuery = '') {
         await axios
             .get(`/users/explore-users/${getState().auth.user_id}?search=${searchQuery}`)
             .then((response) => {
-                console.log(response);
                 dispatch(slice.actions.updateUsers({ users: response.data.metadata }));
             })
             .catch((err) => {
@@ -85,7 +84,6 @@ export function FetchAllUsers() {
                 },
             )
             .then((response) => {
-                console.log(response);
                 dispatch(slice.actions.updateAllUsers({ users: response.data.data }));
             })
             .catch((err) => {
@@ -101,7 +99,6 @@ export function FetchFriends(searchQuery = '') {
                 params: { search: searchQuery },
             })
             .then((response) => {
-                console.log(response);
                 dispatch(slice.actions.updateFriends({ friends: response.data.metadata }));
             })
             .catch((err) => {
@@ -115,7 +112,6 @@ export function FetchFriendRequests(searchQuery = '') {
         await axios
             .get(`/users/pending-friend-requests/${getState().auth.user_id}?search=${searchQuery}`)
             .then((response) => {
-                console.log(response);
                 dispatch(slice.actions.updateFriendRequests({ requests: response.data.metadata }));
             })
             .catch((err) => {
@@ -129,7 +125,6 @@ export function FetchSentFriendRequests(searchQuery = '') {
         await axios
             .get(`/users/sent-friend-requests/${getState().auth.user_id}?search=${searchQuery}`)
             .then((response) => {
-                console.log(response);
                 dispatch(slice.actions.updateSentFriendRequests({ requests: response.data.metadata }));
             })
             .catch((err) => {
@@ -146,7 +141,6 @@ export function BlockedFriendAction(friendId) {
                 usr_id_2: friendId,
             })
             .then((response) => {
-                console.log(response);
                 dispatch(slice.actions.updateBlockedFriends({ listBlockedFriends: response.data.metadata }));
             })
             .catch((err) => {
@@ -163,7 +157,6 @@ export function UnblockedFriendAction(friendId) {
                 usr_id_2: friendId,
             })
             .then((response) => {
-                console.log(response);
                 dispatch(slice.actions.updateBlockedFriends({ listBlockedFriends: response.data.metadata }));
             })
             .catch((err) => {
@@ -201,7 +194,6 @@ export const FetchCallLogs = () => {
         axios
             .get(`/calls/get-call-logs/${getState().auth.user_id}`)
             .then((response) => {
-                console.log(response);
                 dispatch(slice.actions.fetchCallLogs({ call_logs: response.data.metadata }));
             })
             .catch((err) => {
@@ -231,7 +223,6 @@ export const FetchCallLogs = () => {
 export const UpdateUserProfile = (formValues) => {
     return async (dispatch, getState) => {
         const file = formValues.avatar;
-        console.log('file::::::::::::', file);
 
         if (file) {
             const key = v4();
@@ -266,7 +257,6 @@ export const UpdateUserProfile = (formValues) => {
                             avatar: downloadURL,
                         })
                         .then((response) => {
-                            console.log(response);
                             dispatch(slice.actions.updateUser({ user: response.data.metadata }));
                             dispatch(slice.actions.updateIsLoading({ progress: 100, state: false }));
                         })
@@ -283,7 +273,6 @@ export const UpdateUserProfile = (formValues) => {
                     avatar: getState().app.user?.usr_avatar,
                 })
                 .then((response) => {
-                    console.log(response);
                     dispatch(slice.actions.updateUser({ user: response.data.metadata }));
                     dispatch(slice.actions.updateIsLoading({ progress: 100, state: false }));
                 })

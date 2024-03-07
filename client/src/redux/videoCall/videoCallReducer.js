@@ -28,7 +28,7 @@ export const slice = createSlice({
                 }
             } else {
                 // if queue is not empty then emit user_is_busy => in turn server will send this event to sender of call
-                socket.emit('user_is_busy_video_call', { ...action.payload });
+                socket.emit('user_is_busy_video_call', { ...action.payload.call });
             }
 
             // Ideally queue should be managed on server side

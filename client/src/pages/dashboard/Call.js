@@ -57,14 +57,14 @@ const Call = () => {
                             </Search>
                         </Stack>
 
-                        <Stack justifyContent={'space-between'} alignItems={'center'} direction={'row'}>
+                        {/* <Stack justifyContent={'space-between'} alignItems={'center'} direction={'row'}>
                             <Typography variant="subtitle2" sx={{}} component={Link}>
                                 Start a conversation
                             </Typography>
                             <IconButton onClick={handleOpenDialog}>
                                 <Phone style={{ color: theme.palette.primary.main }} />
                             </IconButton>
-                        </Stack>
+                        </Stack> */}
                         <Divider />
                         <Stack sx={{ flexGrow: 1, overflow: 'scroll', height: '100%' }}>
                             <SimpleBarStyle timeout={500} clickOnTrack={false}>

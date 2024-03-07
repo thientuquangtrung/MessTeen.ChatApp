@@ -6,14 +6,10 @@ module.exports = {
     startVideoCallWS: async (data) => {
         const { from, to, roomID } = data;
 
-        console.log(data);
-
         const to_user = await userModel.findById(to);
         const from_user = await userModel.findById(from);
 
         // TODO: check if user is busy
-
-        console.log('to_user', to_user);
 
         // send notification to receiver of call
         _io.to(to_user?.usr_socket_id).emit('video_call_notification', {
@@ -31,8 +27,6 @@ module.exports = {
 
     endVideoCallWS: async (data) => {
         const { from, to, roomID } = data;
-
-        console.log(data);
 
         const to_user = await userModel.findById(to);
 
@@ -52,7 +46,6 @@ module.exports = {
     },
 
     videoCallNotPickedWS: async (data) => {
-        console.log(data);
         // find and update call record
         const { to, from, roomID } = data;
 
@@ -121,12 +114,13 @@ module.exports = {
         await callModel.findOneAndUpdate(
             {
                 _id: roomID,
-                call_participants: { $size: 2, $all: [to, from] },
+                call_participants: { $size: 2, $all: [to, from._id] },
             },
             { call_verdict: 'Busy', call_status: 'Ended', call_endedAt: Date.now() },
         );
 
-        const from_user = await userModel.findById(from);
+        const from_user = await userModel.findById(from._id);
+        console.log(`videoCallBusyWS::::::::`, from_user);
         // TODO => emit on_another_video_call to sender of call
         _io.to(from_user?.usr_socket_id).emit('on_another_video_call', {
             from,

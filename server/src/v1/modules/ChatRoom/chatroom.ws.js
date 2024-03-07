@@ -17,7 +17,7 @@ module.exports = {
             })
             .populate(
                 'room_participant_ids',
-                'usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people',
+                'usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people usr_friends',
             );
 
         let chatroom;
@@ -31,7 +31,7 @@ module.exports = {
                 .findById(new_chat._id)
                 .populate(
                     'room_participant_ids',
-                    '_id usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people',
+                    '_id usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people usr_friends',
                 );
 
             // Add the new chatroom id to usr_room_ids of each user
@@ -40,9 +40,7 @@ module.exports = {
                 user.usr_room_ids.push(chatroom._id);
                 await user.save();
             }
-            console.log(chatroom);
         } else {
-            console.log(existing_conversations[0], 'Existing Conversation');
             // if yes => Use the existing chatroom
             chatroom = existing_conversations[0];
         }
@@ -53,13 +51,10 @@ module.exports = {
 
         // send conversation details as payload
         _io.to(fromSocketId.usr_socket_id).emit('start_chat', { chatroom, message: '' });
-        _io.to(toSocketId.usr_socket_id).emit('start_chat', { chatroom, message: '' });
-
-        console.log(fromSocketId.usr_socket_id, toSocketId.usr_socket_id);
+        _io.to(toSocketId.usr_socket_id).emit('update_conversation_list', { chatroom, message: '' });
     },
 
     groupConversationWS: async (data) => {
-        console.log(data);
         // data: {to: from: title}
         // to: ['fds2gfds654675hfdgww', '3433fettqa54556i8]
         const { to, from, title } = data;
@@ -99,7 +94,6 @@ module.exports = {
     },
 
     leaveGroupWS: async (data) => {
-        console.log(data);
         const { from, conversation_id } = data;
 
         const chatroom = await chatroomModel
@@ -142,7 +136,6 @@ module.exports = {
     },
 
     addMemberToGroupWS: async (data, callback) => {
-        console.log(data);
         // data: {to: from: title}
         // to: ['fds2gfds654675hfdgww', '3433fettqa54556i8]
         const { to, from, conversation_id } = data;
@@ -199,10 +192,8 @@ module.exports = {
             })
             .populate(
                 'room_participant_ids',
-                '_id usr_name usr_room_ids usr_email usr_avatar usr_status usr_blocked_people',
+                '_id usr_name usr_room_ids usr_email usr_avatar usr_status usr_blocked_people usr_friends',
             );
-
-        console.log(existing_conversations);
 
         callback(existing_conversations);
     },
@@ -228,8 +219,6 @@ module.exports = {
     joinGroupSocketWS: async (socket, user_id) => {
         const group_chat = await chatroomModel.find({ room_participant_ids: { $all: [user_id] }, room_type: 'GROUP' });
         group_chat.forEach((group) => {
-            console.log('Join socket ::::::::::::::', group._id);
-
             socket.join(group._id.toString());
         });
     },
