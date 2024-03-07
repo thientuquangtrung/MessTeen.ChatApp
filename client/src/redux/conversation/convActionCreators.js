@@ -1,10 +1,8 @@
 import { slice } from './convReducer';
-// import S3 from "../../utils/s3";
 import { v4 } from 'uuid';
-// import S3 from "../../utils/s3";
-// import { S3_BUCKET_NAME } from "../../config";
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '../../utils/firebase';
+import axios from '../../utils/axios';
 
 export const FetchDirectConversations = ({ conversations }) => {
     return async (dispatch, getState) => {
@@ -45,6 +43,29 @@ export const SetCurrentConversation = (current_conversation) => {
 export const FetchCurrentMessages = ({ messages }) => {
     return async (dispatch, getState) => {
         dispatch(slice.actions.fetchCurrentMessages({ messages }));
+    };
+};
+
+export const FetchMoreMessages = (chatroomId, cb) => {
+    return async (dispatch, getState) => {
+        axios
+            .get(`/message/get-all/${chatroomId}`, {
+                params: {
+                    page: getState().conversation.message_page + 1,
+                },
+            })
+            .then((response) => {
+                const messages = response.data.metadata;
+
+                if (messages && messages.length > 0) {
+                    dispatch(slice.actions.fetchMoreMessages(response.data.metadata));
+                }
+                cb();
+            })
+            .catch((error) => {
+                console.log(error);
+                cb();
+            });
     };
 };
 

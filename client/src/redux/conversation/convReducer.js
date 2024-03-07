@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { faker } from '@faker-js/faker';
 import { revertAll } from '../globalActions';
 import { getFormattedConversation, getFormattedMessage } from '../../utils/conversations';
+import { slice as appSlice } from '../app/appReducer';
 
 const user_id = window.localStorage.getItem('user_id');
 
@@ -10,6 +11,7 @@ const initialState = {
     current_conversation: null,
     current_messages: [],
     replyMsg: null,
+    message_page: 1,
 };
 
 export const slice = createSlice({
@@ -32,7 +34,7 @@ export const slice = createSlice({
                     if (el?.id !== this_conversation._id) {
                         return el;
                     } else {
-                        let formatted_conversation = getFormattedConversation(el, user_id);
+                        let formatted_conversation = getFormattedConversation(this_conversation, user_id);
 
                         if (state.current_conversation.id === formatted_conversation.id) {
                             state.current_conversation = formatted_conversation;
@@ -78,6 +80,18 @@ export const slice = createSlice({
             });
             state.current_messages = formatted_messages;
         },
+        fetchMoreMessages(state, action) {
+            const messages = action.payload;
+            const formatted_messages = messages.map((el) => {
+                return getFormattedMessage(el, user_id);
+            });
+            const newMsgs = [...formatted_messages, ...state.current_messages];
+            newMsgs.sort((a, b) => {
+                return new Date(a.timestamp) - new Date(b.timestamp);
+            });
+            state.current_messages = newMsgs;
+            state.message_page += 1;
+        },
         addDirectMessage(state, action) {
             state.current_messages.push(getFormattedMessage(action.payload.message, user_id));
         },
@@ -122,7 +136,13 @@ export const slice = createSlice({
         },
     },
 
-    extraReducers: (builder) => builder.addCase(revertAll, () => initialState),
+    extraReducers: (builder) => {
+        builder
+            .addCase(revertAll, () => initialState)
+            .addCase(appSlice.actions.selectConversation, (state, action) => {
+                state.message_page = 1;
+            });
+    },
 });
 
 // Reducer

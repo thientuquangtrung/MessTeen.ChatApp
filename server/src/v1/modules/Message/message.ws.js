@@ -73,7 +73,7 @@ module.exports = {
         }
     },
     getMessagesWS: async (data, callback) => {
-        const messages = await MessageService.getAllMessages(data.conversation_id);
+        const messages = await MessageService.getAllMessages({ msg_room_id: data.conversation_id });
         callback(messages);
     },
     reactMessageWS: async (data, callback) => {
