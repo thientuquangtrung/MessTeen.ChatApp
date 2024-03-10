@@ -110,17 +110,17 @@ module.exports = {
 
     videoCallBusyWS: async (data) => {
         const { to, from, roomID } = data;
+        console.log(`videoCallBusyWS:::::::`, data);
         // find and update call record
         await callModel.findOneAndUpdate(
             {
                 _id: roomID,
-                call_participants: { $size: 2, $all: [to, from._id] },
+                call_participants: { $size: 2, $all: [to, from] },
             },
             { call_verdict: 'Busy', call_status: 'Ended', call_endedAt: Date.now() },
         );
 
-        const from_user = await userModel.findById(from._id);
-        console.log(`videoCallBusyWS::::::::`, from_user);
+        const from_user = await userModel.findById(from);
         // TODO => emit on_another_video_call to sender of call
         _io.to(from_user?.usr_socket_id).emit('on_another_video_call', {
             from,

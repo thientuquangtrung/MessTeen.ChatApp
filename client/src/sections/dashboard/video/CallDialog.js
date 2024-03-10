@@ -51,6 +51,12 @@ const CallDialog = ({ open, handleClose }) => {
             console.log('My peer id:::::', id);
         });
 
+        peer.on('error', (error) => {
+            console.error('Peer connection error:', error);
+            dispatch(showSnackbar({ severity: 'error', message: 'Peer connection error' }));
+            handleEndVideoCall();
+        });
+
         if (!incoming) {
             //caller
             socket.emit('start_video_call', {
@@ -107,16 +113,12 @@ const CallDialog = ({ open, handleClose }) => {
 
                         call.on('close', () => {
                             console.log(`call close:::::`);
-                            localVideoRef.current?.srcObject.getTracks().forEach(function (track) {
-                                track.stop();
-                            });
-                            remoteVideoRef.current?.srcObject.getTracks().forEach(function (track) {
-                                track.stop();
-                            });
                         });
                     })
                     .catch((err) => {
                         console.error('Failed to get local stream', err);
+                        dispatch(showSnackbar({ severity: 'error', message: 'Failed to get local stream' }));
+                        handleEndVideoCall();
                     });
             };
         } else {
@@ -135,16 +137,12 @@ const CallDialog = ({ open, handleClose }) => {
                         });
                         call.on('close', () => {
                             console.log(`call close:::::`);
-                            localVideoRef.current?.srcObject.getTracks().forEach(function (track) {
-                                track.stop();
-                            });
-                            remoteVideoRef.current?.srcObject.getTracks().forEach(function (track) {
-                                track.stop();
-                            });
                         });
                     })
                     .catch((err) => {
                         console.error('Failed to get local stream', err);
+                        dispatch(showSnackbar({ severity: 'error', message: 'Failed to get local stream' }));
+                        handleEndVideoCall();
                     });
             });
         }
@@ -161,14 +159,26 @@ const CallDialog = ({ open, handleClose }) => {
             socket?.off('video_call_end');
 
             // stop publishing local audio & video stream to remote users, call the stopPublishingStream method with the corresponding stream ID passed to the streamID parameter.
+            localVideoRef.current?.srcObject?.getTracks()?.forEach(function (track) {
+                track.stop();
+            });
+            remoteVideoRef.current?.srcObject?.getTracks()?.forEach(function (track) {
+                track.stop();
+            });
 
             // handle Call Disconnection => this will be handled as cleanup when this dialog unmounts
+            console.log(`destroy peer instance::::`, peerInstance.current);
             peerInstance.current?.destroy();
 
             // at the end call handleClose Dialog
             dispatch(ResetVideoCallQueue());
             handleClose();
         }
+    };
+
+    const handleEndVideoCall = () => {
+        socket.emit('end_video_call', { from: userID, to: call_details?.streamID, roomID });
+        handleDisconnect();
     };
 
     return (
@@ -220,10 +230,7 @@ const CallDialog = ({ open, handleClose }) => {
                         {/* <audio id="local-audio" controls={false} /> */}
                     </Stack>
                     <Button
-                        onClick={() => {
-                            socket.emit('end_video_call', { from: userID, to: call_details?.streamID, roomID });
-                            handleDisconnect();
-                        }}
+                        onClick={handleEndVideoCall}
                         variant="contained"
                         color="error"
                         // size="large"

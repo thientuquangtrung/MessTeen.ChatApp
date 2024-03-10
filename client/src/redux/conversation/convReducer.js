@@ -94,6 +94,10 @@ export const slice = createSlice({
         },
         addDirectMessage(state, action) {
             state.current_messages.push(getFormattedMessage(action.payload.message, user_id));
+            const newPage = Math.ceil(state.current_messages.length / 20);
+            if (newPage > state.message_page) {
+                state.message_page = newPage;
+            }
         },
         addMessageReaction(state, action) {
             const messageUpdate = action.payload.message;

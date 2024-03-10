@@ -96,7 +96,7 @@ export function LoginUser(formValues) {
             })
             .catch(function (error) {
                 console.log(error);
-                dispatch(showSnackbar({ severity: 'error', message: error.error.message }));
+                dispatch(showSnackbar({ severity: 'error', message: error.error?.message || 'Try again later!' }));
                 dispatch(slice.actions.updateIsLoading({ isLoading: false, error: true }));
             });
     };
@@ -130,7 +130,7 @@ export function AuthWithProvider(formValues) {
             })
             .catch(function (error) {
                 console.log(error);
-                dispatch(showSnackbar({ severity: 'error', message: error.error.message }));
+                dispatch(showSnackbar({ severity: 'error', message: error.error?.message || 'Try again later!' }));
                 dispatch(slice.actions.updateIsLoading({ isLoading: false, error: true }));
             });
     };
@@ -158,7 +158,7 @@ export function LogoutUser() {
             })
             .catch(function (error) {
                 console.log(error);
-                dispatch(showSnackbar({ severity: 'error', message: error.error.message }));
+                dispatch(showSnackbar({ severity: 'error', message: error.error?.message || 'Try again later!' }));
                 dispatch(slice.actions.updateIsLoading({ isLoading: false, error: true }));
             });
     };
@@ -191,7 +191,7 @@ export function RegisterUser(formValues) {
             })
             .catch(function (error) {
                 console.log(error);
-                dispatch(showSnackbar({ severity: 'error', message: error.error.message }));
+                dispatch(showSnackbar({ severity: 'error', message: error.error?.message || 'Try again later!' }));
                 dispatch(slice.actions.updateIsLoading({ error: true, isLoading: false }));
             })
             .finally(() => {

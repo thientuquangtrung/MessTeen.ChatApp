@@ -8,9 +8,8 @@ import Picker from '@emoji-mart/react';
 import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import { useDispatch, useSelector } from 'react-redux';
 import { socket } from '../../socket';
-import { CloseReplyMessage, FetchCurrentMessages, SendMultimedia } from '../../redux/conversation/convActionCreators';
+import { CloseReplyMessage, SendMultimedia } from '../../redux/conversation/convActionCreators';
 import { dispatch } from '../../redux/store';
-import { FetchDirectConversations } from '../../redux/conversation/convActionCreators';
 import { showSnackbar } from '../../redux/app/appActionCreators';
 
 const StyledInput = styled(TextField)(({ theme }) => ({
@@ -152,6 +151,10 @@ const Footer = () => {
             dispatch(showSnackbar({ severity: 'info', message: ' You cannot text or call in this chat.' }));
         } else {
             let messageToSend = value.trim();
+            if (messageToSend?.length > 500) {
+                dispatch(showSnackbar({ severity: 'warning', message: `Message must less than 500 characters` }));
+                return;
+            }
             if (messageToSend !== '' || selectedFiles.length > 0) {
                 if (replyMsg) {
                     if (selectedFiles.length > 0) {
