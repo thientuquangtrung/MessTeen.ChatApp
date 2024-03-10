@@ -301,7 +301,7 @@ const Chats = () => {
                                 All Chats
                             </Typography>
                             {conversations.map((el) => {
-                                return <ChatElement {...el} />;
+                                return <ChatElement key={conversations.id} {...el} />;
                             })}
                         </Stack>
                     </Stack>

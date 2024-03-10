@@ -6,17 +6,23 @@ module.exports = {
     sendFriendRequestWS: async (data) => {
         const to_user = await userModel.findById(data.to);
         const from_user = await userModel.findById(data.from);
-        const indexFrom = to_user.usr_pending_friends.indexOf(from_user._id);
-        const indexTo = from_user.usr_requested_list.indexOf(to_user._id);
+        const indexOfFrom = to_user.usr_pending_friends.indexOf(from_user._id);
+        const indexOfTo = from_user.usr_requested_list.indexOf(to_user._id);
 
-
-        if (indexFrom > -1 && indexTo > -1) {
-            to_user.usr_pending_friends.splice(indexFrom, 1);
+        if (indexOfFrom > -1 && indexOfTo > -1) {
+            // remove friend request
+            to_user.usr_pending_friends.splice(indexOfFrom, 1);
             await to_user.save();
 
-            from_user.usr_requested_list.splice(indexTo, 1);
+            from_user.usr_requested_list.splice(indexOfTo, 1);
             await from_user.save();
 
+            await to_user.populate('usr_pending_friends');
+            const newFrRequests = to_user.usr_pending_friends;
+
+            _io.to(to_user?.usr_socket_id).emit('new_friend_request', {
+                friendRequests: newFrRequests,
+            });
             _io.to(from_user?.usr_socket_id).emit('request_sent', {
                 message: 'Removed request successfully!',
             });
@@ -36,28 +42,56 @@ module.exports = {
     },
 
     acceptRequestWS: async (data) => {
-        // accept friend request => add ref of each other in friends array
-        console.log(data);
-        const from = await userModel.findById(data.user_id).select('usr_socket_id');
-        const to = await userModel.findById(data.friend_id).select('usr_socket_id');
+        await UserService.acceptFriendRequest(data);
 
-        UserService.acceptFriendRequest(data);
+        // accept friend request => add ref of each other in friends array
+        const from = await userModel
+            .findById(data.user_id)
+            .select('_id usr_socket_id usr_status usr_friends')
+            .populate('usr_friends');
+        const to = await userModel
+            .findById(data.friend_id)
+            .select('_id usr_socket_id usr_status usr_friends')
+            .populate('usr_friends');
 
         // emit event request accepted to both
         _io.to(from?.usr_socket_id).emit('request_accepted', {
             message: 'Friend Request Accepted',
+            status: to.usr_status === 'ONLINE',
+            userId: to._id,
+            friendList: from.usr_friends,
         });
         _io.to(to?.usr_socket_id).emit('request_accepted', {
             message: 'Friend Request Accepted',
+            status: from.usr_status === 'ONLINE',
+            userId: from._id,
+            friendList: to.usr_friends,
         });
     },
 
     unfriendWS: async (data, callback) => {
-        const from = await userModel.findById(data.user_id).select('usr_socket_id');
-
         await UserService.removeFriend(data);
 
-        callback({message: 'Remove friend successfully!'})
-        
+        const from = await userModel
+            .findById(data.user_id)
+            .select('_id usr_socket_id usr_status usr_friends')
+            .populate('usr_friends');
+        const to = await userModel
+            .findById(data.friend_id)
+            .select('_id usr_socket_id usr_status usr_friends')
+            .populate('usr_friends');
+
+        callback({ message: 'Remove friend successfully!' });
+
+        _io.to(from?.usr_socket_id).emit('friend-remove', {
+            status: false,
+            userId: to._id,
+            friendList: from.usr_friends,
+        });
+        _io.to(to?.usr_socket_id).emit('friend-remove', {
+            status: false,
+            userId: from._id,
+            friendList: to.usr_friends,
+        });
     },
 };

@@ -14,6 +14,7 @@ const {
     addMemberToGroupWS,
     leaveGroupWS,
     joinGroupSocketWS,
+    listGroupsWS,
 } = require('./v1/modules/ChatRoom/chatroom.ws');
 const { sendMesssageWS, getMessagesWS, reactMessageWS } = require('./v1/modules/Message/message.ws');
 const {
@@ -100,6 +101,8 @@ const handleSocketConnect = async (socket) => {
 
     socket.on('get_direct_conversations', withErrorHandling(socket, getDirectConversationsWS));
 
+    // socket.on('list_groups', withErrorHandling(socket, listGroupsWS));
+
     socket.on('start_conversation', withErrorHandling(socket, startConversationWS));
 
     socket.on('group_conversation', withErrorHandling(socket, groupConversationWS));
@@ -113,29 +116,6 @@ const handleSocketConnect = async (socket) => {
     // // Handle incoming text/link messages
     socket.on('text_message', withErrorHandling(socket, sendMesssageWS));
     socket.on('react_message', withErrorHandling(socket, reactMessageWS));
-
-    // // handle Media/Document Message
-    // socket.on('file_message', (data) => {
-    //     console.log('Received message:', data);
-
-    //     // data: {to, from, text, file}
-
-    //     // Get the file extension
-    //     const fileExtension = path.extname(data.file.name);
-
-    //     // Generate a unique filename
-    //     const filename = `${Date.now()}_${Math.floor(Math.random() * 10000)}${fileExtension}`;
-
-    //     // upload file to AWS s3
-
-    //     // create a new conversation if its dosent exists yet or add a new message to existing conversation
-
-    //     // save to db
-
-    //     // emit incoming_message -> to user
-
-    //     // emit outgoing_message -> from user
-    // });
 
     // // -------------- HANDLE AUDIO CALL SOCKET EVENTS ----------------- //
 
@@ -270,17 +250,22 @@ const handleSocketConnect = async (socket) => {
 
     socket.on('disconnect', async () => {
         // Find user by ID and set status as offline
-        const user = await UserModel.findByIdAndUpdate(user_id, { usr_status: 'OFFLINE' }).populate('usr_friends', 'usr_socket_id usr_status');
+        const user = await UserModel.findByIdAndUpdate(user_id, { usr_status: 'OFFLINE' }).populate(
+            'usr_friends',
+            'usr_socket_id usr_status',
+        );
 
         // broadcast to all conversation rooms of this user that this user is offline (disconnected)
         console.log(`user disconnected:::::::::::`, user_id);
 
-        const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status === 'ONLINE');
-        onlineFriends.forEach((friend) => {
-            if (friend.usr_socket_id) {
-                _io.to(friend.usr_socket_id).emit('friend-online', { userId: user_id, status: false });
-            }
-        });
+        if (user) {
+            const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status === 'ONLINE');
+            onlineFriends.forEach((friend) => {
+                if (friend.usr_socket_id) {
+                    _io.to(friend.usr_socket_id).emit('friend-online', { userId: user_id, status: false });
+                }
+            });
+        }
     });
 };
 

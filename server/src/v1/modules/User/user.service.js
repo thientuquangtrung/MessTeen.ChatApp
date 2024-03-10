@@ -13,7 +13,11 @@ class UserService {
             throw new NotFoundError('User not found');
         }
 
-        if (friend.usr_pending_friends.includes(user_id) || friend.usr_friends.includes(user_id)) {
+        if (
+            user.usr_requested_list.includes(friend_id) ||
+            friend.usr_pending_friends.includes(user_id) ||
+            friend.usr_friends.includes(user_id)
+        ) {
             throw new BadRequestError('Already friends or request pending');
         }
 
@@ -38,6 +42,7 @@ class UserService {
         const friend = await UserModel.findByIdAndUpdate(
             friend_id,
             {
+                $pull: { usr_requested_list: user_id },
                 $addToSet: { usr_friends: user_id },
             },
             { new: true },
@@ -190,11 +195,13 @@ class UserService {
 
         const userFriendIds = user.usr_friends.map((friend) => friend.toString());
         const userPendingFriendIds = user.usr_pending_friends.map((friend) => friend.toString());
+        const userRequestedFriendIds = user.usr_requested_list.map((friend) => friend.toString());
 
         const remainingUsers = allUsers.filter(
             (u) =>
                 u._id.toString() !== user._id.toString() &&
                 !userFriendIds.includes(u._id.toString()) &&
+                !userRequestedFriendIds.includes(u._id.toString()) &&
                 !userPendingFriendIds.includes(u._id.toString()),
         );
 
@@ -234,8 +241,6 @@ class UserService {
             throw new NotFoundError('User not found');
         }
 
-        console.log(user);
-
         return user.usr_pending_friends;
     }
 
@@ -253,8 +258,6 @@ class UserService {
         if (!user) {
             throw new NotFoundError('User not found');
         }
-
-        console.log(user);
 
         return user.usr_requested_list;
     }

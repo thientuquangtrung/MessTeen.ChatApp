@@ -1,23 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { faker } from '@faker-js/faker';
 import { revertAll } from '../globalActions';
+import { getFormattedConversation, getFormattedMessage } from '../../utils/conversations';
+import { slice as appSlice } from '../app/appReducer';
 
 const user_id = window.localStorage.getItem('user_id');
-
-// const initialState = {
-//     direct_chat: {
-//         conversations: [],
-//         current_conversation: null,
-//         current_messages: [],
-//     },
-//     group_chat: {},
-// };
 
 const initialState = {
     conversations: [],
     current_conversation: null,
     current_messages: [],
     replyMsg: null,
+    message_page: 1,
 };
 
 export const slice = createSlice({
@@ -26,37 +20,7 @@ export const slice = createSlice({
     reducers: {
         fetchDirectConversations(state, action) {
             const list = action.payload.conversations.map((el) => {
-                if (el.room_type === 'PRIVATE') {
-                    const user = el.room_participant_ids.find((elm) => elm._id.toString() !== user_id);
-                    return {
-                        id: el._id,
-                        user_id: user?._id,
-                        name: `${user?.usr_name}`,
-                        online: user?.usr_status === 'ONLINE',
-                        img: [user.usr_avatar],
-                        msg: el.room_last_msg.content,
-                        time: el.room_last_msg.timestamp,
-                        unread: 0,
-                        pinned: false,
-                        about: user?.about,
-                        type: el.room_type,
-                        isBeingBlocked: user.usr_blocked_people.includes(user_id),
-                        participant_ids: el.room_participant_ids.map((participant) => participant._id),
-                    };
-                } else {
-                    return {
-                        id: el._id,
-                        name: el.room_title,
-                        online: el.room_participant_ids.some((user) => user.usr_status === 'ONLINE'),
-                        img: el.room_participant_ids.map((user) => user.usr_avatar),
-                        msg: el.room_last_msg.content,
-                        time: el.room_last_msg.timestamp,
-                        unread: 0,
-                        pinned: false,
-                        type: el.room_type,
-                        participant_ids: el.room_participant_ids.map((participant) => participant._id),
-                    };
-                }
+                return getFormattedConversation(el, user_id);
             });
 
             state.conversations = list.sort((a, b) => new Date(b.time) - new Date(a.time)); // Sort by time in descending order
@@ -64,53 +28,18 @@ export const slice = createSlice({
 
         updateDirectConversation(state, action) {
             const this_conversation = action.payload.conversation;
-            console.log('message chat', this_conversation);
 
             state.conversations = state.conversations
                 .map((el) => {
                     if (el?.id !== this_conversation._id) {
                         return el;
                     } else {
-                        const user = this_conversation.room_participant_ids.find(
-                            (elm) => elm._id.toString() !== user_id,
-                        );
+                        let formatted_conversation = getFormattedConversation(this_conversation, user_id);
 
-                        // PRIVATE
-                        if (this_conversation.room_type !== 'GROUP') {
-                            return {
-                                id: this_conversation._id,
-                                user_id: user?._id,
-                                name: `${user?.usr_name}`,
-                                online: user?.usr_status === 'ONLINE',
-                                img: [user.usr_avatar],
-                                msg: this_conversation.room_last_msg.content,
-                                time: this_conversation.room_last_msg.timestamp,
-                                unread: 0,
-                                pinned: false,
-                                type: this_conversation.room_type,
-                                participant_ids: this_conversation.room_participant_ids.map(
-                                    (participant) => participant._id,
-                                ),
-                            };
-                        } else {
-                            // GROUP
-                            return {
-                                id: this_conversation._id,
-                                name: this_conversation.room_title,
-                                online: this_conversation.room_participant_ids.some(
-                                    (user) => user.usr_status === 'ONLINE',
-                                ),
-                                img: this_conversation.room_participant_ids.map((user) => user.usr_avatar),
-                                msg: this_conversation.room_last_msg.content,
-                                time: this_conversation.room_last_msg.timestamp,
-                                unread: 0,
-                                pinned: false,
-                                type: this_conversation.room_type,
-                                participant_ids: this_conversation.room_participant_ids.map(
-                                    (participant) => participant._id,
-                                ),
-                            };
+                        if (state.current_conversation.id === formatted_conversation.id) {
+                            state.current_conversation = formatted_conversation;
                         }
+                        return formatted_conversation;
                     }
                 })
                 .sort((a, b) => new Date(b.time) - new Date(a.time));
@@ -119,7 +48,7 @@ export const slice = createSlice({
         updateConversationStatus(state, action) {
             state.conversations = action.payload;
         },
-                                 
+
         removeDirectConversation(state, action) {
             const this_conversation_id = action.payload.id;
 
@@ -134,35 +63,8 @@ export const slice = createSlice({
             const this_conversation = action.payload.conversation;
             state.conversations = state.conversations.filter((el) => el?.id !== this_conversation._id);
 
-            if (this_conversation.room_type === 'PRIVATE') {
-                const user = this_conversation.room_participant_ids.find((elm) => elm._id.toString() !== user_id);
-                state.conversations.push({
-                    id: this_conversation._id,
-                    user_id: user?._id,
-                    name: `${user?.usr_name}`,
-                    online: user?.usr_status === 'ONLINE',
-                    img: [user.usr_avatar],
-                    msg: this_conversation.room_last_msg.content,
-                    time: this_conversation.room_last_msg.timestamp,
-                    unread: 0,
-                    pinned: false,
-                    type: this_conversation.room_type,
-                    participant_ids: this_conversation.room_participant_ids.map((participant) => participant._id),
-                });
-            } else {
-                state.conversations.push({
-                    id: this_conversation._id,
-                    name: this_conversation.room_title,
-                    online: this_conversation.room_participant_ids.some((user) => user.usr_status === 'ONLINE'),
-                    img: this_conversation.room_participant_ids.map((user) => user.usr_avatar),
-                    msg: this_conversation.room_last_msg.content,
-                    time: this_conversation.room_last_msg.timestamp,
-                    unread: 0,
-                    pinned: false,
-                    type: this_conversation.room_type,
-                    participant_ids: this_conversation.room_participant_ids.map((participant) => participant._id),
-                });
-            }
+            const formatted_conversation = getFormattedConversation(this_conversation, user_id);
+            state.conversations.push(formatted_conversation);
             state.conversations.sort((a, b) => new Date(b.time) - new Date(a.time));
         },
         setCurrentConversation(state, action) {
@@ -170,26 +72,32 @@ export const slice = createSlice({
         },
         fetchCurrentMessages(state, action) {
             const messages = action.payload.messages;
-            console.log('alo', messages);
-            const formatted_messages = messages.map((el) => ({
-                id: el._id,
-                type: 'msg',
-                subtype: el.msg_parent_id ? 'reply' : el.msg_type,
-                message: el.msg_content,
-                incoming: el.msg_sender_id._id !== user_id,
-                outgoing: el.msg_sender_id_id === user_id,
-                timestamp: el.msg_timestamp,
-                reactions: el.msg_reactions.map((reaction) => reaction.reaction),
-                msgReply: el.msg_parent_id,
-                user_name: el.msg_sender_id.usr_name,
-            }));
+            const formatted_messages = messages.map((el) => {
+                return getFormattedMessage(el, user_id);
+            });
             formatted_messages.sort((a, b) => {
                 return new Date(a.timestamp) - new Date(b.timestamp);
             });
             state.current_messages = formatted_messages;
         },
+        fetchMoreMessages(state, action) {
+            const messages = action.payload;
+            const formatted_messages = messages.map((el) => {
+                return getFormattedMessage(el, user_id);
+            });
+            const newMsgs = [...formatted_messages, ...state.current_messages];
+            newMsgs.sort((a, b) => {
+                return new Date(a.timestamp) - new Date(b.timestamp);
+            });
+            state.current_messages = newMsgs;
+            state.message_page += 1;
+        },
         addDirectMessage(state, action) {
-            state.current_messages.push(action.payload.message);
+            state.current_messages.push(getFormattedMessage(action.payload.message, user_id));
+            const newPage = Math.ceil(state.current_messages.length / 20);
+            if (newPage > state.message_page) {
+                state.message_page = newPage;
+            }
         },
         addMessageReaction(state, action) {
             const messageUpdate = action.payload.message;
@@ -199,25 +107,16 @@ export const slice = createSlice({
 
             if (messageIndex !== -1) {
                 // Create a copy of the current_messages array
-                const updatedMessages = [...state.current_messages];
+                let updatedMessages = [...state.current_messages];
+
                 // Replace the message at the found index with the updated message
-                updatedMessages[messageIndex] = {
-                    id: messageUpdate._id,
-                    type: 'msg',
-                    subtype: messageUpdate.msg_parent_id ? 'reply' : messageUpdate.msg_type,
-                    message: messageUpdate.msg_content,
-                    incoming: messageUpdate.msg_sender_id._id !== user_id,
-                    outgoing: messageUpdate.msg_sender_id._id === user_id,
-                    timestamp: messageUpdate.msg_timestamp,
-                    reactions: messageUpdate.msg_reactions.map((reaction) => reaction.reaction),
-                    msgReply: messageUpdate.msg_parent_id,
-                    user_name: messageUpdate.msg_sender_id.usr_name,
-                };
+                updatedMessages[messageIndex] = getFormattedMessage(messageUpdate, user_id);
 
                 // Update the state with the new array of messages
                 state.current_messages = updatedMessages;
             }
         },
+
         setReplyMessage(state, action) {
             state.replyMsg = action.payload;
         },
@@ -240,7 +139,14 @@ export const slice = createSlice({
             });
         },
     },
-    extraReducers: (builder) => builder.addCase(revertAll, () => initialState),
+
+    extraReducers: (builder) => {
+        builder
+            .addCase(revertAll, () => initialState)
+            .addCase(appSlice.actions.selectConversation, (state, action) => {
+                state.message_page = 1;
+            });
+    },
 });
 
 // Reducer

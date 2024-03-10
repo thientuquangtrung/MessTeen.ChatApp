@@ -17,6 +17,7 @@ import {
     UpdateFriendsRequestAction,
     showSnackbar,
     toggleSidebar,
+    UpdateFriendsAction,
 } from '../../redux/app/appActionCreators';
 import {
     AddDirectConversation,
@@ -76,19 +77,9 @@ const DashboardLayout = () => {
             socket.on('new_message', (data) => {
                 const message = data.message;
                 // check if msg we got is from currently selected conversation
+
                 if (current_conversation?.id === data.conversation._id) {
-                    dispatch(
-                        AddDirectMessage({
-                            id: message._id,
-                            type: 'msg',
-                            subtype: message.msg_parent_id ? 'reply' : message.msg_type,
-                            message: message.msg_content,
-                            incoming: message.msg_sender_id._id !== user_id,
-                            outgoing: message.msg_sender_id._id === user_id,
-                            msgReply: message.msg_parent_id,
-                            user_name: message.msg_sender_id.usr_name,
-                        }),
-                    );
+                    dispatch(AddDirectMessage(message));
                 }
                 const existing_conversation = conversations.find((el) => el?.id === data.conversation._id);
                 if (existing_conversation) {
@@ -119,6 +110,18 @@ const DashboardLayout = () => {
                 message && dispatch(showSnackbar({ severity: 'info', message }));
             });
 
+            socket.on('update_conversation_list', ({ chatroom, message }) => {
+                // add / update to conversation list
+                const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
+                if (existing_conversation) {
+                    dispatch(UpdateDirectConversation({ conversation: chatroom }));
+                } else {
+                    dispatch(AddDirectConversation({ conversation: chatroom }));
+                }
+
+                message && dispatch(showSnackbar({ severity: 'info', message }));
+            });
+
             socket.on('leave_group', ({ chatroom, message }) => {
                 const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
                 if (existing_conversation !== -1) {
@@ -141,12 +144,13 @@ const DashboardLayout = () => {
             });
 
             socket.on('new_friend_request', (data) => {
-                dispatch(
-                    showSnackbar({
-                        severity: 'success',
-                        message: data.message,
-                    }),
-                );
+                data.message &&
+                    dispatch(
+                        showSnackbar({
+                            severity: 'success',
+                            message: data.message,
+                        }),
+                    );
                 dispatch(UpdateFriendsRequestAction(data.friendRequests));
             });
 
@@ -157,37 +161,20 @@ const DashboardLayout = () => {
                         message: data.message,
                     }),
                 );
+                handleFriendStatus(data);
+                dispatch(UpdateFriendsAction(data.friendList));
+            });
+
+            socket.on('friend-remove', (data) => {
+                handleFriendStatus(data);
+                dispatch(UpdateFriendsAction(data.friendList));
             });
 
             socket.on('request_sent', (data) => {
                 dispatch(showSnackbar({ severity: 'success', message: data.message }));
             });
 
-            socket.on('friend-online', (data) => {
-                const friendId = data.userId; // Assuming you receive friend's user ID from data
-                const conversationsToUpdate = conversations.map((conversation) => {
-                    const hasParticipant =
-                        conversation.participant_ids?.length === 2 &&
-                        conversation.participant_ids?.includes(user_id) &&
-                        conversation.participant_ids?.includes(friendId);
-
-                    if (hasParticipant) {
-                        const newConvStatus = {
-                            ...conversation,
-                            online: data.status,
-                        };
-
-                        if (newConvStatus.id === current_conversation.id) {
-                            dispatch(SetCurrentConversation(newConvStatus));
-                        }
-
-                        return newConvStatus;
-                    }
-
-                    return conversation;
-                });
-                dispatch(UpdateConversationStatus(conversationsToUpdate));
-            });
+            socket.on('friend-online', handleFriendStatus);
 
             socket.on('error', (data) => {
                 dispatch(showSnackbar({ severity: 'error', message: data.message }));
@@ -205,23 +192,49 @@ const DashboardLayout = () => {
             socket?.off('video_call_notification');
             socket?.off('error');
             socket?.off('friend-online');
+            socket?.off('friend-remove');
             socket?.off('get_reaction');
             socket?.off('friend_blocked');
             socket?.off('leave_group');
+            socket?.off('update_conversation_list');
         };
     }, [isLoggedIn, socket, conversations, current_conversation, user_id]);
     //#endregion hooks
+
+    if (!isLoggedIn) {
+        return <Navigate to={'/auth/login'} />;
+    }
 
     // methods
     const handleToSettings = () => {
         navigate('/settings');
     };
 
-    // console.log(theme);
+    const handleFriendStatus = (data) => {
+        const friendId = data.userId;
+        const conversationsToUpdate = conversations.map((conversation) => {
+            const hasParticipant =
+                conversation.participant_ids?.length === 2 &&
+                conversation.participant_ids?.includes(user_id) &&
+                conversation.participant_ids?.includes(friendId);
 
-    if (!isLoggedIn) {
-        return <Navigate to={'/auth/login'} />;
-    }
+            if (hasParticipant) {
+                const newConvStatus = {
+                    ...conversation,
+                    online: data.status,
+                };
+
+                if (newConvStatus.id === current_conversation?.id) {
+                    dispatch(SetCurrentConversation(newConvStatus));
+                }
+
+                return newConvStatus;
+            }
+
+            return conversation;
+        });
+        dispatch(UpdateConversationStatus(conversationsToUpdate));
+    };
 
     const handleNavigation = (path, index) => {
         navigate(path);

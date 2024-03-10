@@ -2,7 +2,7 @@ import { Box, useTheme, Stack, Avatar, Typography, IconButton, Divider, AvatarGr
 import { faker } from '@faker-js/faker';
 import React from 'react';
 import StyledBadge from '../settings/StyledBadge';
-import { CaretDown, Divide, MagnifyingGlass, Phone, VideoCamera } from 'phosphor-react';
+import { CaretDown, CaretLeft, CaretRight, Divide, MagnifyingGlass, Phone, VideoCamera } from 'phosphor-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { dispatch } from '../../redux/store';
 import { toggleSidebar } from '../../redux/app/appActionCreators';
@@ -14,8 +14,10 @@ const Header = () => {
     const theme = useTheme();
     const dispatch = useDispatch();
     const { current_conversation } = useSelector((state) => state.conversation);
+    const { friends, sidebar } = useSelector((state) => state.app);
     const img = current_conversation?.img || [];
     const isGroup = current_conversation?.type === 'GROUP';
+    const isFriend = friends?.some((f) => f._id === current_conversation?.user_id);
 
     return (
         <Box
@@ -82,11 +84,13 @@ const Header = () => {
                     </Box>
                     <Stack spacing={0.2}>
                         <Typography variant="subtitle2">{current_conversation?.name}</Typography>
-                        <Typography variant="caption">{current_conversation?.online ? 'Online' : 'Offline'}</Typography>
+                        <Typography variant="caption">
+                            {!isFriend && !isGroup ? 'Stranger' : current_conversation?.online ? 'Online' : 'Offline'}
+                        </Typography>
                     </Stack>
                 </Stack>
                 <Stack direction="row" alignItems={'center'} spacing={3}>
-                    {current_conversation?.type === 'PRIVATE' && (
+                    {current_conversation?.type === 'PRIVATE' && isFriend && (
                         <IconButton
                             onClick={() => {
                                 dispatch(StartVideoCall(user_id, current_conversation.user_id));
@@ -106,8 +110,12 @@ const Header = () => {
                         <MagnifyingGlass />
                     </IconButton>
                     <Divider orientation="vertical" flexItem />
-                    <IconButton>
-                        <CaretDown />
+                    <IconButton
+                        onClick={() => {
+                            dispatch(toggleSidebar());
+                        }}
+                    >
+                        {sidebar.open ? <CaretRight /> : <CaretLeft />}
                     </IconButton>
                 </Stack>
             </Stack>

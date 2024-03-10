@@ -10,12 +10,12 @@ const {
     NotFoundError,
 } = require('../../core/error.response');
 class MessageService {
-    static async getAllMessages(msg_room_id, skip = 0, limit = 20) {
+    static async getAllMessages({ msg_room_id, page = 1, limit = 20 }) {
         const messages = await MessageModel.find({ msg_room_id })
             .sort({ msg_timestamp: -1 })
-            .skip(skip)
+            .skip((page - 1) * limit)
             .limit(limit)
-            .populate('msg_parent_id', 'msg_content _id')
+            .populate('msg_parent_id', 'msg_content _id msg_media_url')
             .populate('msg_sender_id', 'usr_name usr_avatar _id');
 
         return messages;
@@ -51,7 +51,7 @@ class MessageService {
     }
     static async reactOnMessage(messageId, msg_reaction) {
         const message = await MessageModel.findById(messageId)
-            .populate('msg_parent_id', 'msg_content _id')
+            .populate('msg_parent_id', 'msg_content _id msg_media_url')
             .populate('msg_sender_id', 'usr_name usr_avatar');
 
         if (!message) {

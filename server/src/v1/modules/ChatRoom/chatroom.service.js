@@ -106,6 +106,15 @@ class ChatroomService {
     await chatroom.save();
     return chatroom;
   }
+
+  async listGroups() {
+    const groups = await Chatroom.find({ room_type: 'GROUP' });
+    if (!groups) {
+        throw new Error("Failed to fetch groups.");
+    }
+    return groups;
+}
+
 }
 
 module.exports = new ChatroomService();

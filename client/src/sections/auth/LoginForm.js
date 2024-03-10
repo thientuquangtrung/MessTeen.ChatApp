@@ -47,7 +47,6 @@ const LoginForm = () => {
     const onSubmit = async (data) => {
         try {
             const params = createRequest(data);
-            console.log(params);
             // submit params to backend
             dispatch(LoginUser(params));
         } catch (error) {

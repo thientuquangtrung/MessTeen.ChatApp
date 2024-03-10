@@ -23,9 +23,14 @@ const CallNotification = ({ open }) => {
             dispatch(ResetVideoCallQueue());
         });
 
+        socket.on('video_call_end', () => {
+            dispatch(ResetVideoCallQueue());
+        });
+
         return () => {
             console.log(`clean up:::::::::`);
             socket?.off('video_call_missed');
+            socket?.off('video_call_end');
         };
     }, []);
 

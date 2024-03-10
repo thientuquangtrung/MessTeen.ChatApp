@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, Dialog, DialogContent, Stack, Tab, Tabs } from '@mui/material';
+import { Badge, Dialog, DialogContent, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     FetchFriendRequests,
@@ -7,7 +7,13 @@ import {
     FetchSentFriendRequests,
     FetchUsers,
 } from '../../redux/app/appActionCreators';
-import { FriendComponent, FriendRequestComponent, SentRequestComponent, UserComponent } from '../../components/Friends';
+import {
+    FriendComponent,
+    FriendRequestComponent,
+    SentRequestComponent,
+    UserComponent,
+    GroupComponent,
+} from '../../components/Friends';
 import { Search, SearchIconWrapper, StyledInputBase } from '../../components/Search';
 import {
     HourglassMedium,
@@ -16,6 +22,8 @@ import {
     UsersThree,
     ArrowSquareIn,
     ArrowSquareOut,
+    ChalkboardTeacher,
+    CirclesFour,
 } from 'phosphor-react';
 import useDebounce from '../../hooks/useDebounce';
 
@@ -28,12 +36,18 @@ const UsersList = ({ searchQuery }) => {
     }, [debouncedSearchTerm]);
 
     const { users } = useSelector((state) => state.app);
-    // console.log(users);
+
     return (
         <>
-            {users.map((el, idx) => {
-                return <UserComponent key={el._id} {...el} userList={users} />;
-            })}
+            {users.length > 0 ? (
+                users.map((el, idx) => {
+                    return <UserComponent key={el._id} {...el} userList={users} />;
+                })
+            ) : (
+                <Typography textAlign={'center'} fontStyle={'italic'}>
+                    No result found
+                </Typography>
+            )}
         </>
     );
 };
@@ -50,11 +64,22 @@ const FriendsList = ({ searchQuery, handleCloseDialog }) => {
 
     return (
         <>
-            {friends.map((el, idx) => {
-                return (
-                    <FriendComponent key={el._id} {...el} handleCloseDialog={handleCloseDialog} friendList={friends} />
-                );
-            })}
+            {friends.length > 0 ? (
+                friends.map((el, idx) => {
+                    return (
+                        <FriendComponent
+                            key={el._id}
+                            {...el}
+                            handleCloseDialog={handleCloseDialog}
+                            friendList={friends}
+                        />
+                    );
+                })
+            ) : (
+                <Typography textAlign={'center'} fontStyle={'italic'}>
+                    No result found
+                </Typography>
+            )}
         </>
     );
 };
@@ -71,10 +96,43 @@ const FriendRequestList = ({ searchQuery }) => {
 
     return (
         <>
-            {friendRequests.map((el, idx) => {
-                //el => {_id, sender: {_id, firstName, lastName, img, online}}
-                return <FriendRequestComponent key={el._id} {...el} friendsRequestList={friendRequests} />;
-            })}
+            {friendRequests.length > 0 ? (
+                friendRequests.map((el, idx) => {
+                    //el => {_id, sender: {_id, firstName, lastName, img, online}}
+                    return <FriendRequestComponent key={el._id} {...el} friendsRequestList={friendRequests} />;
+                })
+            ) : (
+                <Typography textAlign={'center'} fontStyle={'italic'}>
+                    No result found
+                </Typography>
+            )}
+        </>
+    );
+};
+
+const GroupsList = ({ searchQuery, handleCloseDialog }) => {
+    const dispatch = useDispatch();
+
+    const { conversations } = useSelector((state) => state.conversation);
+
+    const group_conversations = conversations?.filter((conversation) => {
+        return conversation.type === 'GROUP' && conversation.name.includes(searchQuery);
+    });
+
+    return (
+        <>
+            <Typography sx={{ pl: 1 }} variant="body2" color="textSecondary">
+                Total Groups Participated: {group_conversations.length}
+            </Typography>
+            {group_conversations.length > 0 ? (
+                group_conversations.map((group) => (
+                    <GroupComponent key={group._id} {...group} handleCloseDialog={handleCloseDialog} />
+                ))
+            ) : (
+                <Typography textAlign={'center'} fontStyle={'italic'}>
+                    No result found
+                </Typography>
+            )}
         </>
     );
 };
@@ -91,10 +149,16 @@ const SentRequestList = ({ searchQuery }) => {
 
     return (
         <>
-            {sentRequests.map((el, idx) => {
-                //el => {_id, sender: {_id, firstName, lastName, img, online}}
-                return <SentRequestComponent key={el._id} {...el} friendsRequestList={sentRequests} />;
-            })}
+            {sentRequests.length > 0 ? (
+                sentRequests.map((el, idx) => {
+                    //el => {_id, sender: {_id, firstName, lastName, img, online}}
+                    return <SentRequestComponent key={el._id} {...el} friendsRequestList={sentRequests} />;
+                })
+            ) : (
+                <Typography textAlign={'center'} fontStyle={'italic'}>
+                    No result found
+                </Typography>
+            )}
         </>
     );
 };
@@ -114,10 +178,10 @@ const Friends = ({ open, handleClose }) => {
     };
 
     return (
-        <Dialog fullWidth maxWidth="xs" open={open} keepMounted onClose={handleClose} sx={{ p: 4 }}>
+        <Dialog open={open} keepMounted onClose={handleClose}>
             {/* <DialogTitle>{"Friends"}</DialogTitle> */}
-            <Stack p={2} sx={{ width: '100%' }}>
-                <Tabs value={value} onChange={handleChange} centered>
+            <Stack pl={4} pr={4} sx={{ width: '100%' }}>
+                <Tabs sx={{ pt: 2 }} value={value} onChange={handleChange} centered>
                     <Tab sx={{ px: 1 }} icon={<ShareNetwork size={18} />} label="Explore" />
                     <Tab sx={{ px: 1 }} icon={<UsersThree size={18} />} label="Friends" />
                     <Tab
@@ -135,6 +199,7 @@ const Friends = ({ open, handleClose }) => {
                         }
                         label="Requests"
                     />
+                    <Tab sx={{ px: 1 }} icon={<CirclesFour size={18} />} label="Groups" />
                 </Tabs>
                 {/* Search */}
                 <Search>
@@ -173,6 +238,9 @@ const Friends = ({ open, handleClose }) => {
                                     } else {
                                         return <SentRequestList searchQuery={searchQuery} />;
                                     }
+
+                                case 3: // display all user groups in this list
+                                    return <GroupsList searchQuery={searchQuery} handleCloseDialog={handleClose} />;
 
                                 default:
                                     break;

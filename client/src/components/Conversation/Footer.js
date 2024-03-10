@@ -6,11 +6,10 @@ import styled from '@emotion/styled';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { ClickAwayListener } from '@mui/base/ClickAwayListener';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { socket } from '../../socket';
-import { CloseReplyMessage, FetchCurrentMessages } from '../../redux/conversation/convActionCreators';
+import { CloseReplyMessage, SendMultimedia } from '../../redux/conversation/convActionCreators';
 import { dispatch } from '../../redux/store';
-import { FetchDirectConversations } from '../../redux/conversation/convActionCreators';
 import { showSnackbar } from '../../redux/app/appActionCreators';
 
 const StyledInput = styled(TextField)(({ theme }) => ({
@@ -20,43 +19,38 @@ const StyledInput = styled(TextField)(({ theme }) => ({
     },
 }));
 
-const Actions = [
-    {
-        color: '#4da5fe',
-        icon: <Image size={24} />,
-        y: 102,
-        title: 'Photo/Video',
-    },
-    {
-        color: '#1b8cfe',
-        icon: <Sticker size={24} />,
-        y: 172,
-        title: 'Stickers',
-    },
-    {
-        color: '#0172e4',
-        icon: <Camera size={24} />,
-        y: 242,
-        title: 'Image',
-    },
-    {
-        color: '#0159b2',
-        icon: <File size={24} />,
-        y: 312,
-        title: 'Document',
-    },
-    {
-        color: '#013f7f',
-        icon: <User size={24} />,
-        y: 382,
-        title: 'Contact',
-    },
-];
-
-const ChatInput = ({ openPicker, setOpenPicker, setValue, value, sendMessage, inputRef }) => {
+const ChatInput = ({
+    openPicker,
+    setOpenPicker,
+    setValue,
+    value,
+    sendMessage,
+    inputRef,
+    selectedFiles,
+    setSelectedFiles,
+}) => {
     const [openActions, setOpenActions] = React.useState(false);
+
+    const dispatch = useDispatch();
+    const inputRef1 = useRef(null);
     const handleClickAway = () => {
         setOpenActions(false);
+    };
+
+    const handleSelectFile = (event) => {
+        const files = event.target.files;
+        const nonImageFile = Array.from(files).find((file) => !file.type.startsWith('image/'));
+
+        if (nonImageFile) {
+            dispatch(
+                showSnackbar({
+                    severity: 'error',
+                    message: `Invalid file type: ${nonImageFile.type}. Please select an image file.`,
+                }),
+            );
+        } else {
+            setSelectedFiles([...files]);
+        }
     };
 
     const handleKeyDown = (event) => {
@@ -65,6 +59,7 @@ const ChatInput = ({ openPicker, setOpenPicker, setValue, value, sendMessage, in
             sendMessage();
         }
     };
+
     return (
         <StyledInput
             inputRef={inputRef}
@@ -79,42 +74,28 @@ const ChatInput = ({ openPicker, setOpenPicker, setValue, value, sendMessage, in
             InputProps={{
                 disableUnderline: true,
                 startAdornment: (
-                    <Stack sx={{ width: 'max-content' }}>
-                        <Stack
-                            sx={{
-                                position: 'relative',
-                                display: openActions ? 'inline-block' : 'none',
-                            }}
-                        >
-                            {Actions.map((el) => (
-                                <Tooltip placement="right" title={el.title}>
-                                    <Fab
-                                        onClick={() => {
-                                            setOpenActions(!openActions);
-                                        }}
-                                        sx={{
-                                            position: 'absolute',
-                                            top: -el.y,
-                                            backgroundColor: el.color,
-                                        }}
-                                        aria-label="add"
-                                    >
-                                        {el.icon}
-                                    </Fab>
-                                </Tooltip>
-                            ))}
-                        </Stack>
-
+                    <Stack sx={{ width: '30px' }}>
                         <InputAdornment>
-                            <ClickAwayListener onClickAway={handleClickAway}>
-                                <IconButton
-                                    onClick={() => {
-                                        setOpenActions(!openActions);
-                                    }}
-                                >
-                                    <LinkSimple />
-                                </IconButton>
-                            </ClickAwayListener>
+                            <IconButton onClick={() => inputRef1.current.click()}>
+                                <Stack justifyContent={'center'} alignItems={'center'}>
+                                    <Tooltip placement="top" title={'Image'}>
+                                        <Stack
+                                            sx={{
+                                                position: 'absolute',
+                                            }}
+                                        >
+                                            <Image size={24} />
+                                        </Stack>
+                                    </Tooltip>
+                                    <input
+                                        ref={inputRef1}
+                                        type="file"
+                                        onChange={handleSelectFile}
+                                        style={{ display: 'none' }}
+                                        accept={'image/*'}
+                                    />
+                                </Stack>
+                            </IconButton>
                         </InputAdornment>
                     </Stack>
                 ),
@@ -158,37 +139,74 @@ const Footer = () => {
     const { blockedFriends } = useSelector((state) => state.app);
     const isBlocked = blockedFriends.includes(current_conversation?.user_id);
 
-    const { sideBar, room_id } = useSelector((state) => state.app);
+    const { room_id } = useSelector((state) => state.app);
     const inputRef = useRef(null);
     const handleEmojiSelect = (emoji) => {
         setValue(value + emoji.native);
     };
+    const [selectedFiles, setSelectedFiles] = useState([]);
 
     const sendMessage = () => {
         if (current_conversation.isBeingBlocked) {
             dispatch(showSnackbar({ severity: 'info', message: ' You cannot text or call in this chat.' }));
         } else {
             let messageToSend = value.trim();
-            if (messageToSend !== '') {
+            if (messageToSend?.length > 500) {
+                dispatch(showSnackbar({ severity: 'warning', message: `Message must less than 500 characters` }));
+                return;
+            }
+            if (messageToSend !== '' || selectedFiles.length > 0) {
                 if (replyMsg) {
-                    socket.emit('text_message', {
-                        message: linkify(messageToSend),
-                        conversation_id: room_id,
-                        from: user_id,
-                        to: current_conversation.user_id,
-                        type: containsUrl(messageToSend) ? 'LINK' : 'TEXT',
-                        msg_parent_id: replyMsg.id,
-                    });
+                    if (selectedFiles.length > 0) {
+                        dispatch(
+                            SendMultimedia(selectedFiles, (downloadURL) => {
+                                socket.emit('text_message', {
+                                    message: linkify(messageToSend),
+                                    conversation_id: room_id,
+                                    from: user_id,
+                                    to: current_conversation.user_id,
+                                    type: 'IMAGE',
+                                    msg_parent_id: replyMsg.id,
+                                    fileURL: downloadURL,
+                                });
+                            }),
+                        );
+                    } else {
+                        socket.emit('text_message', {
+                            message: linkify(messageToSend),
+                            conversation_id: room_id,
+                            from: user_id,
+                            to: current_conversation.user_id,
+                            type: containsUrl(messageToSend) ? 'LINK' : 'TEXT',
+                            msg_parent_id: replyMsg.id,
+                        });
+                    }
                     dispatch(CloseReplyMessage());
                 } else {
-                    socket.emit('text_message', {
-                        message: linkify(messageToSend),
-                        conversation_id: room_id,
-                        from: user_id,
-                        to: current_conversation.user_id,
-                        type: containsUrl(messageToSend) ? 'LINK' : 'TEXT',
-                    });
+                    if (selectedFiles.length > 0) {
+                        dispatch(
+                            SendMultimedia(selectedFiles, (downloadURL) => {
+                                socket.emit('text_message', {
+                                    message: linkify(messageToSend),
+                                    conversation_id: room_id,
+                                    from: user_id,
+                                    to: current_conversation.user_id,
+                                    type: 'IMAGE',
+                                    fileURL: downloadURL,
+                                });
+                            }),
+                        );
+                    } else {
+                        socket.emit('text_message', {
+                            message: linkify(messageToSend),
+                            conversation_id: room_id,
+                            from: user_id,
+                            to: current_conversation.user_id,
+                            type: containsUrl(messageToSend) ? 'LINK' : 'TEXT',
+                        });
+                    }
                 }
+                setSelectedFiles([]);
                 setValue('');
                 inputRef.current.focus();
             }
@@ -239,9 +257,56 @@ const Footer = () => {
                             <Typography>{replyMsg?.content}</Typography>
                         </Stack>
                     )}
-
+                    {selectedFiles.length > 0 && (
+                        <Stack
+                            direction={'row'}
+                            sx={{
+                                backgroundColor: '#919eab1f',
+                                width: 'auto',
+                                height: 'auto',
+                                padding: '10px',
+                                marginBottom: '10px',
+                            }}
+                        >
+                            {selectedFiles.map((file, index) => (
+                                <Stack position={'relative'} key={index} marginRight={'15px'}>
+                                    <img
+                                        src={URL.createObjectURL(file)}
+                                        alt="Selected File"
+                                        style={{ width: '70px', height: '70px' }}
+                                    />
+                                    <IconButton
+                                        style={{
+                                            position: 'absolute',
+                                            top: -13,
+                                            right: -13,
+                                        }}
+                                        onClick={() => {
+                                            const updatedFiles = [...selectedFiles];
+                                            updatedFiles.splice(index, 1);
+                                            setSelectedFiles(updatedFiles);
+                                        }}
+                                    >
+                                        <Stack
+                                            sx={{
+                                                backgroundColor: 'white',
+                                                height: '20px',
+                                                width: '20px',
+                                                borderRadius: '10px',
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}
+                                        >
+                                            <X fontSize={15} />
+                                        </Stack>
+                                    </IconButton>
+                                </Stack>
+                            ))}
+                        </Stack>
+                    )}
                     <Stack direction="row" alignItems={'center'} spacing={3}>
-                        <Stack sx={{ width: '100%' }}>
+                        <Stack sx={{ width: '100%' }} justifyContent={'flex-end'}>
                             <ClickAwayListener mouseEvent="onMouseDown" onClickAway={handleClickAwayPicker}>
                                 <Box
                                     sx={{
@@ -266,6 +331,8 @@ const Footer = () => {
                                 setValue={setValue}
                                 sendMessage={sendMessage}
                                 inputRef={inputRef}
+                                selectedFiles={selectedFiles}
+                                setSelectedFiles={setSelectedFiles}
                             />
                         </Stack>
 
