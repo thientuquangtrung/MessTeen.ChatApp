@@ -1,7 +1,9 @@
 import axios from 'axios';
 // config
 import { BASE_URL } from '../config';
+import { showSnackbar } from '../redux/app/appActionCreators';
 import { handleRefreshToken } from '../redux/auth/authActionCreators';
+import { revertAll } from '../redux/globalActions';
 import { store } from '../redux/store';
 
 // ----------------------------------------------------------------------
@@ -53,7 +55,15 @@ axiosInstance.interceptors.response.use(
 
         return response;
     },
-    (error) => Promise.reject((error.response && error.response.data) || 'Something went wrong'),
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            store.dispatch(revertAll());
+            store.dispatch(
+                showSnackbar({ severity: 'error', message: error.response?.data?.message || 'Something went wrong' }),
+            );
+        }
+        return Promise.reject((error.response && error.response.data) || 'Something went wrong');
+    },
 );
 
 const getNewTokens = async (userId, token) => {

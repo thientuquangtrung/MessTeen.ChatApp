@@ -97,7 +97,7 @@ const authenticate = asyncHandler(async (req, res, next) => {
                 message: error.message,
             });
         } else {
-            return next(error);
+            return next(new AuthFailureError(error.message));
         }
     }
 });
