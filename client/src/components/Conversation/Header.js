@@ -5,7 +5,7 @@ import StyledBadge from '../settings/StyledBadge';
 import { CaretDown, CaretLeft, CaretRight, Divide, MagnifyingGlass, Phone, VideoCamera } from 'phosphor-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { dispatch } from '../../redux/store';
-import { toggleSidebar } from '../../redux/app/appActionCreators';
+import { showSnackbar, toggleSidebar } from '../../redux/app/appActionCreators';
 import { StartVideoCall } from '../../redux/videoCall/videoCallActionCreators';
 
 const user_id = window.localStorage.getItem('user_id');
@@ -14,7 +14,8 @@ const Header = () => {
     const theme = useTheme();
     const dispatch = useDispatch();
     const { current_conversation } = useSelector((state) => state.conversation);
-    const { friends, sidebar } = useSelector((state) => state.app);
+    const { friends, sidebar, blockedFriends } = useSelector((state) => state.app);
+    const isBlocked = blockedFriends.includes(current_conversation?.user_id);
     const img = current_conversation?.img || [];
     const isGroup = current_conversation?.type === 'GROUP';
     const isFriend = friends?.some((f) => f._id === current_conversation?.user_id);
@@ -93,7 +94,16 @@ const Header = () => {
                     {current_conversation?.type === 'PRIVATE' && isFriend && (
                         <IconButton
                             onClick={() => {
-                                dispatch(StartVideoCall(user_id, current_conversation.user_id));
+                                if (!isBlocked && !current_conversation?.isBeingBlocked) {
+                                    dispatch(StartVideoCall(user_id, current_conversation.user_id));
+                                } else {
+                                    dispatch(
+                                        showSnackbar({
+                                            severity: 'info',
+                                            message: ' You cannot text or call in this chat.',
+                                        }),
+                                    );
+                                }
                             }}
                         >
                             <VideoCamera />

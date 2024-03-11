@@ -101,7 +101,7 @@ const ProfileForm = () => {
                         disabled={!isDirty}
                         loadingIndicator={
                             <Stack direction={'row'} alignItems="center">
-                                <CircularProgress color="inherit" size={16} /> {isLoading.progress}%
+                                <CircularProgress color="inherit" size={16} /> {Math.floor(isLoading.progress)}%
                             </Stack>
                         }
                     >

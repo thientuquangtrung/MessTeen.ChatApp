@@ -11,7 +11,7 @@ export const getFormattedConversation = (conversationBE, user_id) => {
             time: conversationBE.room_last_msg.timestamp,
             unread: 0,
             pinned: false,
-            about: user?.about,
+            about: user?.usr_bio,
             type: conversationBE.room_type,
             isBeingBlocked: user.usr_blocked_people.includes(user_id),
             participant_ids: conversationBE.room_participant_ids.map((participant) => participant._id),

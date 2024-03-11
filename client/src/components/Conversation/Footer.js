@@ -147,7 +147,7 @@ const Footer = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
 
     const sendMessage = () => {
-        if (current_conversation.isBeingBlocked) {
+        if (current_conversation?.isBeingBlocked) {
             dispatch(showSnackbar({ severity: 'info', message: ' You cannot text or call in this chat.' }));
         } else {
             let messageToSend = value.trim();
