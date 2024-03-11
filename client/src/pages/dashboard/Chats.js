@@ -197,7 +197,7 @@ const Chats = () => {
 
     const filteredConversations = useMemo(
         () => conversations.filter((c) => new RegExp(escapeRegExp(searchValue), 'i').test(c.name)),
-        [searchValue],
+        [searchValue, conversations],
     );
 
     useEffect(() => {
