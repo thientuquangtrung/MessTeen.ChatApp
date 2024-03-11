@@ -1,11 +1,17 @@
 // mainRouter.js
 const express = require('express');
 const asyncHandler = require('../../helpers/asyncHandler');
+const { authenticate } = require('../Auth/auth.utils');
 const userController = require('./user.controller');
 const userStatisticController = require('./userStatistic.controller');
 // const isAdmin = require("../../middlewares/isAdmin");
 
 const router = express.Router();
+
+// authentication middleware //
+router.use(authenticate);
+// ========================
+
 //addFriends
 router.post('/send-friend-request', asyncHandler(userController.sendFriendRequest));
 router.post('/accept-friend-request', asyncHandler(userController.acceptFriendRequest));

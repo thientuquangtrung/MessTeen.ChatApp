@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const ChatroomController = require('./chatroom.controller');
 const asyncHandler = require('../../helpers/asyncHandler');
+const { authenticate } = require('../Auth/auth.utils');
+
+// authentication middleware //
+router.use(authenticate);
+// ========================
 
 router.get('/', asyncHandler(ChatroomController.list));
 router.post('/create', asyncHandler(ChatroomController.create));

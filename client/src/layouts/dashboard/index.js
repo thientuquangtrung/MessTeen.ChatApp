@@ -33,6 +33,7 @@ import VideoCallNotification from '../../sections/dashboard/video/CallNotificati
 import VideoCallDialog from '../../sections/dashboard/video/CallDialog';
 import { PushToVideoCallQueue, UpdateVideoCallDialog } from '../../redux/videoCall/videoCallActionCreators';
 import AntSwitch from '../../components/AntSwitch';
+import { revertAll } from '../../redux/globalActions';
 
 const DashboardLayout = () => {
     //#region hooks
@@ -40,7 +41,7 @@ const DashboardLayout = () => {
     const navigate = useNavigate();
     const theme = useTheme();
     const dispatch = useDispatch();
-    const { isLoggedIn, user_id } = useSelector((state) => state.auth);
+    const { isLoggedIn, user_id, token } = useSelector((state) => state.auth);
     const { conversations, current_conversation } = useSelector((state) => state.conversation);
     const { open_video_notification_dialog, open_video_dialog } = useSelector((state) => state.videoCall);
     const { onToggleMode } = useSettings();
@@ -61,7 +62,7 @@ const DashboardLayout = () => {
     useEffect(() => {
         if (isLoggedIn) {
             if (!socket) {
-                connectSocket(user_id);
+                connectSocket(user_id, token);
             }
 
             // socket.on('audio_call_notification', (data) => {
@@ -179,6 +180,11 @@ const DashboardLayout = () => {
             socket.on('error', (data) => {
                 dispatch(showSnackbar({ severity: 'error', message: data.message }));
             });
+
+            socket.on('connect_error', (err) => {
+                dispatch(revertAll());
+                dispatch(showSnackbar({ severity: 'error', message: err.message }));
+            });
         }
 
         // Remove event listener on component unmount
@@ -197,6 +203,7 @@ const DashboardLayout = () => {
             socket?.off('friend_blocked');
             socket?.off('leave_group');
             socket?.off('update_conversation_list');
+            socket?.off('connect_error');
         };
     }, [isLoggedIn, socket, conversations, current_conversation, user_id]);
     //#endregion hooks

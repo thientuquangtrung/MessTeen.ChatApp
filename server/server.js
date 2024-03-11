@@ -23,6 +23,10 @@
 const { Server } = require('socket.io');
 const { app, handleSocketConnect } = require('./src/app');
 const { PORT } = require('./base.config');
+const { findByUserId } = require('./src/v1/modules/Auth/keyToken.service');
+const { AuthFailureError } = require('./src/v1/core/error.response');
+const crypto = require('crypto');
+const JWT = require('jsonwebtoken');
 
 const server = app.listen(PORT, () => {
     console.log(`MessTeen server start with port ${PORT}`);
@@ -38,7 +42,20 @@ global._io = io;
 
 // Add this
 // Listen for when the client connects via socket.io-client
-io.on('connection', handleSocketConnect);
+io.use(async function (socket, next) {
+    if (socket.handshake.query && socket.handshake.query.token && socket.handshake.query.user_id) {
+        const keyStore = await findByUserId(socket.handshake.query.user_id);
+        if (!keyStore) return next(new AuthFailureError(`Keystore not found`));
+
+        JWT.verify(socket.handshake.query.token, crypto.createPublicKey(keyStore.publicKey), function (err, decoded) {
+            if (err) return next(new AuthFailureError('Authentication error'));
+            socket.decoded = decoded;
+            next();
+        });
+    } else {
+        next(new Error('Authentication error'));
+    }
+}).on('connection', handleSocketConnect);
 
 process.on('SIGINT', () => {
     server.close(() => console.log(`exits server express`));
