@@ -17,7 +17,7 @@ module.exports = {
             })
             .populate(
                 'room_participant_ids',
-                'usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people usr_friends',
+                '_id usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people usr_friends usr_bio',
             );
 
         let chatroom;
@@ -31,7 +31,7 @@ module.exports = {
                 .findById(new_chat._id)
                 .populate(
                     'room_participant_ids',
-                    '_id usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people usr_friends',
+                    '_id usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people usr_friends usr_bio',
                 );
 
             // Add the new chatroom id to usr_room_ids of each user
@@ -192,7 +192,7 @@ module.exports = {
             })
             .populate(
                 'room_participant_ids',
-                '_id usr_name usr_room_ids usr_email usr_avatar usr_status usr_blocked_people usr_friends',
+                '_id usr_name usr_room_ids usr_email usr_avatar usr_status usr_blocked_people usr_friends usr_bio',
             );
 
         callback(existing_conversations);

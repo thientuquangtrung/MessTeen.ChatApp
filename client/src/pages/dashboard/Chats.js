@@ -13,7 +13,7 @@ import {
     useTheme,
 } from '@mui/material';
 import { ArchiveBox, CircleDashed, MagnifyingGlass, Plus, Users } from 'phosphor-react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { styled, alpha } from '@mui/material';
 import { faker } from '@faker-js/faker';
 import { ChatList } from '../../data';
@@ -24,6 +24,7 @@ import { FetchFriendRequests, FetchFriends, SelectConversation } from '../../red
 import { FetchDirectConversations } from '../../redux/conversation/convActionCreators';
 import { formatDate } from '../../utils/formatTime';
 import CreateGroup from '../../sections/main/CreateGroup';
+import { escapeRegExp } from '../../utils/formatText';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
     '& .MuiBadge-badge': {
@@ -187,11 +188,17 @@ const user_id = window.localStorage.getItem('user_id');
 const Chats = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [openDialogGroup, setOpenDialogGroup] = useState(false);
+    const [searchValue, setSearchValue] = useState('');
     const theme = useTheme();
 
     const dispatch = useDispatch();
     const { conversations } = useSelector((state) => state.conversation);
     const { user, friendRequests } = useSelector((state) => state.app);
+
+    const filteredConversations = useMemo(
+        () => conversations.filter((c) => new RegExp(escapeRegExp(searchValue), 'i').test(c.name)),
+        [searchValue],
+    );
 
     useEffect(() => {
         socket.emit('get_direct_conversations', { user_id }, (data) => {
@@ -255,7 +262,12 @@ const Chats = () => {
                             <SearchIconWrapper>
                                 <MagnifyingGlass color="#709CE6" />
                             </SearchIconWrapper>
-                            <StyledInputBase placeholder="Search..." inputProps={{ 'aria-label': 'search' }} />
+                            <StyledInputBase
+                                value={searchValue}
+                                onChange={(e) => setSearchValue(e.target.value)}
+                                placeholder="Search..."
+                                inputProps={{ 'aria-label': 'search' }}
+                            />
                         </Search>
                     </Stack>
                     <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
@@ -300,9 +312,15 @@ const Chats = () => {
                             <Typography variant="subtitle2" sx={{ color: '#676767' }}>
                                 All Chats
                             </Typography>
-                            {conversations.map((el) => {
-                                return <ChatElement key={conversations.id} {...el} />;
-                            })}
+                            {filteredConversations.length > 0 ? (
+                                filteredConversations.map((el) => {
+                                    return <ChatElement key={filteredConversations.id} {...el} />;
+                                })
+                            ) : (
+                                <Typography textAlign={'center'} fontStyle={'italic'}>
+                                    No conversations found
+                                </Typography>
+                            )}
                         </Stack>
                     </Stack>
                 </Stack>

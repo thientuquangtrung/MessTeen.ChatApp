@@ -48,7 +48,7 @@ module.exports = {
             )
             .populate(
                 'room_participant_ids',
-                '_id usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people usr_friends',
+                '_id usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people usr_friends usr_bio',
             );
 
         if (chatroom_data.room_type === 'GROUP') {
