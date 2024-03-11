@@ -2,17 +2,23 @@ import { Box, useTheme, Stack, Avatar, Typography, IconButton, Divider, AvatarGr
 import { faker } from '@faker-js/faker';
 import React from 'react';
 import StyledBadge from '../settings/StyledBadge';
-import { CaretDown, Divide, MagnifyingGlass, Phone, VideoCamera } from 'phosphor-react';
+import { CaretDown, CaretLeft, CaretRight, Divide, MagnifyingGlass, Phone, VideoCamera } from 'phosphor-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { dispatch } from '../../redux/store';
-import { toggleSidebar } from '../../redux/app/appActionCreators';
+import { showSnackbar, toggleSidebar } from '../../redux/app/appActionCreators';
+import { StartVideoCall } from '../../redux/videoCall/videoCallActionCreators';
+
+const user_id = window.localStorage.getItem('user_id');
 
 const Header = () => {
     const theme = useTheme();
     const dispatch = useDispatch();
     const { current_conversation } = useSelector((state) => state.conversation);
+    const { friends, sidebar, blockedFriends } = useSelector((state) => state.app);
+    const isBlocked = blockedFriends.includes(current_conversation?.user_id);
     const img = current_conversation?.img || [];
     const isGroup = current_conversation?.type === 'GROUP';
+    const isFriend = friends?.some((f) => f._id === current_conversation?.user_id);
 
     return (
         <Box
@@ -63,38 +69,63 @@ const Header = () => {
                         ) : (
                             // <Avatar alt={current_conversation?.name} src={current_conversation?.img} />
                             <AvatarGroup
-                                    spacing={20}
-                                    max={3}
-                                    sx={{
-                                        '.MuiAvatarGroup-avatar': isGroup
-                                            ? { width: 24, height: 24 }
-                                            : { width: 40, height: 40 },
-                                    }}
-                                >
-                                    {img.map((src) => (
-                                        <Avatar src={src} />
-                                    ))}
-                                </AvatarGroup>
+                                spacing={20}
+                                max={3}
+                                sx={{
+                                    '.MuiAvatarGroup-avatar': isGroup
+                                        ? { width: 24, height: 24 }
+                                        : { width: 40, height: 40 },
+                                }}
+                            >
+                                {img.map((src) => (
+                                    <Avatar src={src} />
+                                ))}
+                            </AvatarGroup>
                         )}
                     </Box>
                     <Stack spacing={0.2}>
                         <Typography variant="subtitle2">{current_conversation?.name}</Typography>
-                        <Typography variant="caption">{current_conversation?.online ? 'Online' : 'Offline'}</Typography>
+                        <Typography variant="caption">
+                            {!isFriend && !isGroup ? 'Stranger' : current_conversation?.online ? 'Online' : 'Offline'}
+                        </Typography>
                     </Stack>
                 </Stack>
                 <Stack direction="row" alignItems={'center'} spacing={3}>
-                    <IconButton>
-                        <VideoCamera />
-                    </IconButton>
-                    <IconButton>
+                    {current_conversation?.type === 'PRIVATE' && isFriend && (
+                        <IconButton
+                            onClick={() => {
+                                if (!isBlocked && !current_conversation?.isBeingBlocked) {
+                                    dispatch(StartVideoCall(user_id, current_conversation.user_id));
+                                } else {
+                                    dispatch(
+                                        showSnackbar({
+                                            severity: 'info',
+                                            message: ' You cannot text or call in this chat.',
+                                        }),
+                                    );
+                                }
+                            }}
+                        >
+                            <VideoCamera />
+                        </IconButton>
+                    )}
+                    {/* <IconButton
+                        onClick={() => {
+                            // dispatch(StartAudioCall(current_conversation.user_id));
+                        }}
+                    >
                         <Phone />
-                    </IconButton>
+                    </IconButton> */}
                     <IconButton>
                         <MagnifyingGlass />
                     </IconButton>
                     <Divider orientation="vertical" flexItem />
-                    <IconButton>
-                        <CaretDown />
+                    <IconButton
+                        onClick={() => {
+                            dispatch(toggleSidebar());
+                        }}
+                    >
+                        {sidebar.open ? <CaretRight /> : <CaretLeft />}
                     </IconButton>
                 </Stack>
             </Stack>

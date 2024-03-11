@@ -15,13 +15,14 @@ const initialState = {
         message: null,
     },
     users: [], // all users of app who are not friends and not requested yet
-    // all_users: [],
+    all_users: [],
     friends: [], // all friends
     friendRequests: [], // all friend requests
+    sentRequests: [], // sent friend requests
     blockedFriends: [],
     // chat_type: null,
     room_id: null,
-    // call_logs: [],
+    call_logs: [],
 
     //slidebar
     sidebar: {
@@ -38,9 +39,9 @@ export const slice = createSlice({
     name: 'app',
     initialState,
     reducers: {
-        // fetchCallLogs(state, action) {
-        //     state.call_logs = action.payload.call_logs;
-        // },
+        fetchCallLogs(state, action) {
+            state.call_logs = action.payload.call_logs.sort((a, b) => new Date(b.start) - new Date(a.start));
+        },
         // fetchUser(state, action) {
         //     state.user = action.payload.user;
         // },
@@ -59,13 +60,11 @@ export const slice = createSlice({
         // },
 
         openSnackBar(state, action) {
-            console.log(action.payload);
             state.snackbar.open = true;
             state.snackbar.severity = action.payload.severity;
             state.snackbar.message = action.payload.message;
         },
         closeSnackBar(state) {
-            console.log('This is getting executed');
             state.snackbar.open = false;
             state.snackbar.message = null;
         },
@@ -80,6 +79,9 @@ export const slice = createSlice({
         },
         updateFriendRequests(state, action) {
             state.friendRequests = action.payload.requests;
+        },
+        updateSentFriendRequests(state, action) {
+            state.sentRequests = action.payload.requests;
         },
         updateBlockedFriends(state, action) {
             state.blockedFriends = action.payload.listBlockedFriends;

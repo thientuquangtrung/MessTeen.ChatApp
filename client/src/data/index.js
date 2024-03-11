@@ -30,7 +30,7 @@ const Nav_Buttons = [
     {
         index: 2,
         icon: <Phone />,
-        path: '/phone',
+        path: '/call',
     },
 ];
 
@@ -208,4 +208,111 @@ const Message_options = [
     },
 ];
 
-export { Profile_Menu, Nav_Setting, Nav_Buttons, ChatList, Chat_History, Message_options };
+const CallList = [
+    {
+        id: 0,
+        img: faker.image.avatar(),
+        name: faker.name.firstName(),
+        online: true,
+        incoming: true,
+        missed: false,
+    },
+    {
+        id: 1,
+        img: faker.image.avatar(),
+        name: faker.name.firstName(),
+        online: true,
+        incoming: false,
+        missed: true,
+    },
+    {
+        id: 2,
+        img: faker.image.avatar(),
+        name: faker.name.firstName(),
+        online: false,
+        incoming: true,
+        missed: true,
+    },
+    {
+        id: 3,
+        img: faker.image.avatar(),
+        name: faker.name.firstName(),
+        online: false,
+        incoming: false,
+        missed: false,
+    },
+    {
+        id: 4,
+        img: faker.image.avatar(),
+        name: faker.name.firstName(),
+        online: true,
+        incoming: true,
+        missed: false,
+    },
+    {
+        id: 5,
+        img: faker.image.avatar(),
+        name: faker.name.firstName(),
+        online: false,
+        incoming: false,
+        missed: false,
+    },
+    {
+        id: 6,
+        img: faker.image.avatar(),
+        name: faker.name.firstName(),
+        online: true,
+        incoming: true,
+        missed: false,
+    },
+    {
+        id: 7,
+        img: faker.image.avatar(),
+        name: faker.name.firstName(),
+        online: false,
+        incoming: false,
+        missed: false,
+    },
+    {
+        id: 8,
+        img: faker.image.avatar(),
+        name: faker.name.firstName(),
+        online: true,
+        incoming: true,
+        missed: false,
+    },
+    {
+        id: 9,
+        img: faker.image.avatar(),
+        name: faker.name.firstName(),
+        online: false,
+        incoming: false,
+        missed: false,
+    },
+    {
+        id: 10,
+        img: faker.image.avatar(),
+        name: faker.name.firstName(),
+        online: true,
+        incoming: true,
+        missed: false,
+    },
+    {
+        id: 11,
+        img: faker.image.avatar(),
+        name: faker.name.firstName(),
+        online: false,
+        incoming: false,
+        missed: false,
+    },
+    {
+        id: 12,
+        img: faker.image.avatar(),
+        name: faker.name.firstName(),
+        online: true,
+        incoming: true,
+        missed: false,
+    },
+];
+
+export { Profile_Menu, Nav_Setting, Nav_Buttons, ChatList, Chat_History, Message_options, CallList };

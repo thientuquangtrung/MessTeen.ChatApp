@@ -46,7 +46,7 @@ class MessageController {
     };
     getAllMessage = async (req, res, next) => {
         const msg_room_id = req.params.chatroomId.toString();
-        const messages = await MessageService.getAllMessages(msg_room_id);
+        const messages = await MessageService.getAllMessages({ msg_room_id, page: req.query.page });
         new OK({
             message: 'Get all messages success',
             metadata: messages,

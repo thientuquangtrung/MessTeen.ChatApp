@@ -1,11 +1,17 @@
 // mainRouter.js
 const express = require('express');
 const asyncHandler = require('../../helpers/asyncHandler');
+const { authenticate } = require('../Auth/auth.utils');
 const userController = require('./user.controller');
 const userStatisticController = require('./userStatistic.controller');
 // const isAdmin = require("../../middlewares/isAdmin");
 
 const router = express.Router();
+
+// authentication middleware //
+router.use(authenticate);
+// ========================
+
 //addFriends
 router.post('/send-friend-request', asyncHandler(userController.sendFriendRequest));
 router.post('/accept-friend-request', asyncHandler(userController.acceptFriendRequest));
@@ -16,6 +22,7 @@ router.delete('/remove-friend', asyncHandler(userController.removeFriend));
 router.get('/explore-users/:userId', asyncHandler(userController.getExploreUsers));
 router.get('/friends-list/:userId', asyncHandler(userController.friendsList));
 router.get('/pending-friend-requests/:userId', asyncHandler(userController.pendingFriendRequests));
+router.get('/sent-friend-requests/:userId', asyncHandler(userController.sentFriendRequests));
 router.put('/update-profile-user/:userId', asyncHandler(userController.updateProfileUser));
 
 // CRUD User

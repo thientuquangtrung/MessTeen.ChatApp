@@ -9,7 +9,7 @@ module.exports = {
 
         // data: {to, from, text}
 
-        const { message, conversation_id, from, to, type, msg_parent_id } = data;
+        const { message, conversation_id, from, to, type, msg_parent_id, fileURL } = data;
 
         const to_user = await userModel.findById(to);
         const from_user = await userModel.findById(from);
@@ -22,9 +22,10 @@ module.exports = {
             msg_content: message,
             msg_type: type,
             msg_parent_id: msg_parent_id,
+            msg_media_url: fileURL ? fileURL : '',
         });
 
-        (await new_message.populate('msg_parent_id', 'msg_content _id')).populate(
+        (await new_message.populate('msg_parent_id', 'msg_content _id msg_media_url')).populate(
             'msg_sender_id',
             'usr_name usr_avatar',
         );
@@ -36,7 +37,7 @@ module.exports = {
                 {
                     room_last_msg: {
                         sender_id: new_message.msg_sender_id,
-                        content: new_message.msg_content,
+                        content: new_message.msg_type === 'TEXT' ? new_message.msg_content : 'Multimedia Message ',
                         timestamp: new_message.msg_timestamp,
                     },
                 },
@@ -47,7 +48,7 @@ module.exports = {
             )
             .populate(
                 'room_participant_ids',
-                '_id usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people',
+                '_id usr_name usr_room_ids usr_email usr_status usr_avatar usr_blocked_people usr_friends usr_bio',
             );
 
         if (chatroom_data.room_type === 'GROUP') {
@@ -72,13 +73,13 @@ module.exports = {
         }
     },
     getMessagesWS: async (data, callback) => {
-        const messages = await MessageService.getAllMessages(data.conversation_id);
+        const messages = await MessageService.getAllMessages({ msg_room_id: data.conversation_id });
         callback(messages);
     },
     reactMessageWS: async (data, callback) => {
         // const messages = await MessageService.reactOnMessage(data.)
 
-        const { messageID, reaction, conversation_id, from, to } = data;
+        const { messageID, reaction, conversation_id, from, to, fileURL } = data;
 
         const to_user = await userModel.findById(to);
         const from_user = await userModel.findById(from);
