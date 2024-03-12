@@ -21,6 +21,7 @@ export const getFormattedConversation = (conversationBE, user_id) => {
             user_id: user._id,
             name: user.usr_name,
             img: user.usr_avatar,
+            online: user.usr_status === 'ONLINE',
         }));
         return {
             id: conversationBE._id,
@@ -29,6 +30,7 @@ export const getFormattedConversation = (conversationBE, user_id) => {
             img: conversationBE.room_participant_ids.map((user) => user.usr_avatar),
             msg: conversationBE.room_last_msg.content,
             time: conversationBE.room_last_msg.timestamp,
+            room_owner_id: conversationBE.room_owner_id,
             unread: 0,
             pinned: false,
             type: conversationBE.room_type,

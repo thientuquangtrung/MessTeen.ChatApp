@@ -20,7 +20,6 @@ const ChatroomSchema = new mongoose.Schema(
             ref: 'User',
             // required: true,
         },
-        room_admins: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         room_pending_members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         room_settings: {
             edit_info_permission: {

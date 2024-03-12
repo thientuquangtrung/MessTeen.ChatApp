@@ -16,8 +16,8 @@ const ProfileForm = () => {
     const { user, isLoading } = useSelector((state) => state.app);
 
     const ProfileSchema = Yup.object().shape({
-        fullName: Yup.string().required('Name is required'),
-        about: Yup.string().required('About is required'),
+        fullName: Yup.string().trim().required('Name is required'),
+        about: Yup.string().trim().required('About is required'),
         avatar: Yup.string().required('Avatar is required').nullable(true),
     });
 
@@ -72,16 +72,6 @@ const ProfileForm = () => {
         },
         [setValue],
     );
-
-    // useEffect(() => {
-    //     if (isSubmitSuccessful) {
-    //         const timeout = setTimeout(() => {
-    //             reset();
-    //         }, 2000);
-
-    //         return () => clearTimeout(timeout);
-    //     }
-    // }, [isSubmitSuccessful, reset]);
 
     return (
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>

@@ -4,6 +4,9 @@ import {
     Box,
     Button,
     Collapse,
+    Dialog,
+    DialogContent,
+    DialogTitle,
     Divider,
     IconButton,
     List,
@@ -19,6 +22,8 @@ import {
     Bell,
     CaretDown,
     CaretRight,
+    Crown,
+    MinusCircle,
     Phone,
     Prohibit,
     SignOut,
@@ -32,11 +37,21 @@ import { faker } from '@faker-js/faker';
 import AntSwitch from './AntSwitch';
 import { useDispatch, useSelector } from 'react-redux';
 import AddFriendToGroup from '../sections/main/AddFriendsToGroup';
-import LeaveGroup from '../sections/main/LeaveGroup';
+import { LeaveGroup, RemoveUser } from '../sections/main/LeaveGroup';
 import { BlockedFriendAction, UnblockedFriendAction, toggleSidebar } from '../redux/app/appActionCreators';
 import useResponsive from "../hooks/useResponsive";
+import { socket } from '../socket';
+import StyledBadge from './settings/StyledBadge';
+import { styled } from '@mui/system';
 
 const user_id = window.localStorage.getItem('user_id');
+const SmallDotStyledBadge = styled(StyledBadge)({
+    '& .MuiBadge-dot': {
+        width: 8,
+        height: 8,
+        borderRadius: '50%',
+    },
+});
 
 const Contact = () => {
     const isDesktop = useResponsive("up", "md");
@@ -44,16 +59,24 @@ const Contact = () => {
     const theme = useTheme();
     const dispatch = useDispatch();
     const { current_conversation } = useSelector((state) => state.conversation);
+    const { conversations } = useSelector((state) => state.conversation);
     const isGroup = current_conversation?.type === 'GROUP';
     const { blockedFriends } = useSelector((state) => state.app);
     const isBlocked = blockedFriends.includes(current_conversation?.user_id);
-
+    const user = localStorage.getItem('user_id');
     const img = current_conversation?.img || [];
 
-    const [openDialog, setOpenDialog] = useState(false);
+    const [openDialogs, setOpenDialogs] = useState();
     const [openDialogGroup, setOpenDialogGroup] = useState(false);
     const [openDialogLeaveGroup, setOpenDialogLeaveGroup] = useState(false);
+    const handleOpenDialog = (userId) => {
+        setOpenDialogs(userId);
+    };
 
+    // Function to close dialog for a specific participant
+    const handleCloseDialog = (userId) => {
+        setOpenDialogs(false);
+    };
     const handleCloseDialogGroup = () => {
         setOpenDialogGroup(false);
     };
@@ -175,6 +198,7 @@ const Contact = () => {
                                     <Typography variant="subtitle2">
                                         Group Members: {current_conversation.participant_details?.length}
                                     </Typography>
+
                                     {open ? (
                                         <CaretDown style={{ width: 24, height: 24, color: '#637381' }} />
                                     ) : (
@@ -185,14 +209,31 @@ const Contact = () => {
                             <Collapse in={open} timeout="auto" unmountOnExit>
                                 <List component="div" disablePadding>
                                     {current_conversation.participant_details?.map((participant) => (
-                                        <ListItemButton key={participant._id}>
-                                            <ListItemIcon>
-                                                <Avatar
-                                                    sx={{ width: 24, height: 24 }}
-                                                    src={participant.img}
-                                                    alt={participant.name}
-                                                />
-                                            </ListItemIcon>
+                                        <Stack direction={'row'} alignItems={'center'} key={participant.user_id}>
+                                            {participant?.online ? (
+                                                <ListItemIcon>
+                                                    <SmallDotStyledBadge
+                                                        overlap="circular"
+                                                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                                        variant="dot"
+                                                    >
+                                                        <Avatar
+                                                            sx={{ width: 24, height: 24 }}
+                                                            src={participant.img}
+                                                            alt={participant.name}
+                                                        />
+                                                    </SmallDotStyledBadge>
+                                                </ListItemIcon>
+                                            ) : (
+                                                <ListItemIcon>
+                                                    <Avatar
+                                                        sx={{ width: 24, height: 24 }}
+                                                        src={participant.img}
+                                                        alt={participant.name}
+                                                    />
+                                                </ListItemIcon>
+                                            )}
+
                                             <ListItemText
                                                 sx={{
                                                     '.MuiListItemText-primary': {
@@ -203,7 +244,30 @@ const Contact = () => {
                                                 }}
                                                 primary={participant.name}
                                             />
-                                        </ListItemButton>
+                                            {participant.user_id === current_conversation.room_owner_id && (
+                                                <IconButton disabled>
+                                                    <Crown size={24} color="#FFD700" />
+                                                </IconButton>
+                                            )}
+                                            {participant.user_id !== current_conversation.room_owner_id &&
+                                            user === current_conversation.room_owner_id ? (
+                                                <Stack>
+                                                    <IconButton onClick={() => handleOpenDialog(participant.user_id)}>
+                                                        <MinusCircle size={24} color="#B22222" />
+                                                    </IconButton>
+                                                    {openDialogs === participant.user_id && (
+                                                        <RemoveUser
+                                                            open={openDialogs}
+                                                            handleClose={handleCloseDialog}
+                                                            user={participant.user_id}
+                                                            userName={participant.name}
+                                                        />
+                                                    )}
+                                                </Stack>
+                                            ) : (
+                                                <Stack margin="30px 0 10px 0"></Stack>
+                                            )}
+                                        </Stack>
                                     ))}
                                 </List>
                             </Collapse>
@@ -307,7 +371,11 @@ const Contact = () => {
                                     Leave Group
                                 </Button>
                                 {openDialogLeaveGroup && (
-                                    <LeaveGroup open={openDialogLeaveGroup} handleClose={handleCloseDialogLeaveGroup} />
+                                    <LeaveGroup
+                                        open={openDialogLeaveGroup}
+                                        handleClose={handleCloseDialogLeaveGroup}
+                                        room_owner_id={current_conversation.room_owner_id}
+                                    />
                                 )}
                             </Stack>
                         </>
