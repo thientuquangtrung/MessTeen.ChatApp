@@ -11,7 +11,7 @@ class UserRepository {
             usr_avatar: 1,
         },
     ) {
-        return await userModel.findOne({ usr_email }).select(select).lean();
+        return await userModel.findOne({ usr_email, usr_enabled: true }).select(select).lean();
     }
 }
 
