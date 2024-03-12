@@ -149,7 +149,7 @@ const Footer = () => {
 
     const isMobile = useResponsive('between', 'md', 'xs', 'sm');
 
-    const { sideBar} = useSelector((state) => state.app);
+    const { sidebar } = useSelector((state) => state.app);
 
     const sendMessage = () => {
         if (current_conversation?.isBeingBlocked) {
@@ -319,7 +319,7 @@ const Footer = () => {
                                         zIndex: 10,
                                         position: 'fixed',
                                         bottom: 81,
-                                        right: isMobile ? 20 : sideBar.open ? 420 : 100,
+                                        right: isMobile ? 20 : sidebar.open ? 420 : 100,
                                     }}
                                 >
                                     <Picker

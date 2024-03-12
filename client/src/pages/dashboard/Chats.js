@@ -160,7 +160,7 @@ const ChatElement = ({ id, name, img, msg, time, unread, online, type }) => {
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
-                                    width: '140px',
+                                    width: isGroup ? '120px' : '140px',
                                 }}
                                 variant="subtitle2"
                             >
