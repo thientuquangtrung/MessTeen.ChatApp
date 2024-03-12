@@ -27,6 +27,7 @@ const { findByUserId } = require('./src/v1/modules/Auth/keyToken.service');
 const { AuthFailureError } = require('./src/v1/core/error.response');
 const crypto = require('crypto');
 const JWT = require('jsonwebtoken');
+const userModel = require('./src/v1/modules/User/user.model');
 
 const server = app.listen(PORT, () => {
     console.log(`MessTeen server start with port ${PORT}`);
@@ -44,6 +45,9 @@ global._io = io;
 // Listen for when the client connects via socket.io-client
 io.use(async function (socket, next) {
     if (socket.handshake.query && socket.handshake.query.token && socket.handshake.query.user_id) {
+        const foundUser = await userModel.findOne({ _id: socket.handshake.query.user_id, usr_enabled: true });
+        if (!foundUser) return next(new AuthFailureError(`Invalid user`));
+
         const keyStore = await findByUserId(socket.handshake.query.user_id);
         if (!keyStore) return next(new AuthFailureError(`Keystore not found`));
 

@@ -35,7 +35,6 @@ const CallNotification = ({ open }) => {
     }, []);
 
     const handleAccept = () => {
-        socket.emit('video_call_accepted', { ...call_details });
         dispatch(UpdateVideoCallDialog({ state: true }));
     };
 

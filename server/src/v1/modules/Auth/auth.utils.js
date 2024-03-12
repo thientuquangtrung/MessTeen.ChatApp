@@ -3,6 +3,7 @@ const { NotFoundError, AuthFailureError } = require('../../core/error.response')
 const asyncHandler = require('../../helpers/asyncHandler');
 const { findByUserId } = require('./keyToken.service');
 const crypto = require('crypto');
+const userModel = require('../User/user.model');
 
 const HEADER = {
     API_KEY: 'x-api-key',
@@ -18,19 +19,21 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
             expiresIn: '30 days', // only for demo
         });
 
-        const refreshToken = await JWT.sign(payload, privateKey, {
-            algorithm: 'RS256',
-            expiresIn: '7 days',
-        });
+        const refreshToken = accessToken;
 
-        // double check
-        JWT.verify(accessToken, publicKey, (error, decode) => {
-            if (error) {
-                console.error(`error verifying: ${error}`);
-            } else {
-                console.log(`decoded value: ${decode}`);
-            }
-        });
+        // const refreshToken = await JWT.sign(payload, privateKey, {
+        //     algorithm: 'RS256',
+        //     expiresIn: '7 days',
+        // });
+
+        // // double check
+        // JWT.verify(accessToken, publicKey, (error, decode) => {
+        //     if (error) {
+        //         console.error(`error verifying: ${error}`);
+        //     } else {
+        //         console.log(`decoded value: ${decode}`);
+        //     }
+        // });
 
         return { accessToken, refreshToken };
     } catch (error) {}
@@ -64,6 +67,9 @@ const authenticate = asyncHandler(async (req, res, next) => {
 
     const userId = req.headers[HEADER.CLIENT_ID];
     if (!userId) throw new AuthFailureError(`Invalid request`);
+
+    const foundUser = await userModel.findOne({ _id: userId, usr_enabled: true });
+    if (!foundUser) throw new AuthFailureError(`Invalid user`);
 
     const keyStore = await findByUserId(userId);
     if (!keyStore) throw new NotFoundError(`Keystore not found`);
