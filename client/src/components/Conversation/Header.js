@@ -96,25 +96,22 @@ const Header = () => {
                         )}
                     </Box>
                     <Stack spacing={0.2}>
-                        <Stack direction={'row'} spacing={0.5} sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Stack direction={'row'} spacing={0.8} sx={{ display: 'flex', alignItems: 'center' }}>
                             {isGroup ? (
                                 <Box
                                     sx={{
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        backgroundColor: '#f7f7fa',
-                                        borderRadius: '5px',
-                                        width: '15px',
-                                        height: '15px',
+                                        backgroundColor: '#f2f2ff',
+                                        borderRadius: '30%',
+                                        padding: '3px',
                                     }}
                                 >
                                     <UsersThree
-                                        weight="fill"
+                                        weight="regular"
                                         style={{
-                                            color: '#474799',
-                                            width: '10px',
-                                            height: '10px',
+                                            color: '#2d63c6',
                                         }}
                                     />
                                 </Box>
