@@ -49,6 +49,21 @@ const CallDialog = ({ open, handleClose }) => {
 
         peer.on('open', (id) => {
             console.log('My peer id:::::', id);
+            if (!incoming) {
+                socket.emit('start_video_call', {
+                    to: call_details?.streamID,
+                    from: userID,
+                    roomID,
+                });
+            } else {
+                socket.emit('video_call_accepted', { ...call_details });
+            }
+        });
+
+        peer.on('error', (error) => {
+            console.error('Peer connection error:', error);
+            dispatch(showSnackbar({ severity: 'error', message: 'Peer connection error' }));
+            handleEndVideoCall();
         });
 
         peer.on('error', (error) => {
@@ -59,11 +74,6 @@ const CallDialog = ({ open, handleClose }) => {
 
         if (!incoming) {
             //caller
-            socket.emit('start_video_call', {
-                to: call_details?.streamID,
-                from: userID,
-                roomID,
-            });
 
             // // create a job to decline call automatically after 30 sec if not picked
             const notPickTimer = setTimeout(() => {
@@ -102,13 +112,11 @@ const CallDialog = ({ open, handleClose }) => {
                 navigator.mediaDevices
                     .getUserMedia({ video: true, audio: true })
                     .then((mediaStream) => {
-                        localVideoRef.current.srcObject = mediaStream;
-                        localVideoRef.current.play();
+                        addVideoStream(localVideoRef.current, mediaStream);
                         const call = peer.call(remotePeerId, mediaStream);
 
                         call.on('stream', (remoteStream) => {
-                            remoteVideoRef.current.srcObject = remoteStream;
-                            remoteVideoRef.current.play();
+                            addVideoStream(remoteVideoRef.current, remoteStream);
                         });
 
                         call.on('close', () => {
@@ -123,28 +131,26 @@ const CallDialog = ({ open, handleClose }) => {
             };
         } else {
             // receiver
-            peer.on('call', (call) => {
-                navigator.mediaDevices
-                    .getUserMedia({ video: true, audio: true })
-                    .then((mediaStream) => {
-                        localVideoRef.current.srcObject = mediaStream;
-                        localVideoRef.current.play();
+            navigator.mediaDevices
+                .getUserMedia({ video: true, audio: true })
+                .then((mediaStream) => {
+                    addVideoStream(localVideoRef.current, mediaStream);
 
+                    peer.on('call', (call) => {
                         call.answer(mediaStream);
                         call.on('stream', function (remoteStream) {
-                            remoteVideoRef.current.srcObject = remoteStream;
-                            remoteVideoRef.current.play();
+                            addVideoStream(remoteVideoRef.current, remoteStream);
                         });
                         call.on('close', () => {
                             console.log(`call close:::::`);
                         });
-                    })
-                    .catch((err) => {
-                        console.error('Failed to get local stream', err);
-                        dispatch(showSnackbar({ severity: 'error', message: 'Failed to get local stream' }));
-                        handleEndVideoCall();
                     });
-            });
+                })
+                .catch((err) => {
+                    console.error('Failed to get local stream', err);
+                    dispatch(showSnackbar({ severity: 'error', message: 'Failed to get local stream' }));
+                    handleEndVideoCall();
+                });
         }
     }, []);
 
@@ -179,6 +185,17 @@ const CallDialog = ({ open, handleClose }) => {
     const handleEndVideoCall = () => {
         socket.emit('end_video_call', { from: userID, to: call_details?.streamID, roomID });
         handleDisconnect();
+    };
+
+    const addVideoStream = (video, stream) => {
+        try {
+            video.srcObject = stream;
+            video.addEventListener('loadedmetadata', () => {
+                video.play();
+            });
+        } catch (error) {
+            console.error('Error adding video stream:', error);
+        }
     };
 
     return (

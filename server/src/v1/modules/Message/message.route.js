@@ -4,6 +4,11 @@ const MessageController = require('./message.controller');
 const MessageStatisticController = require('./messageStatistic.controller');
 
 const asyncHandler = require('../../helpers/asyncHandler');
+const { authenticate } = require('../Auth/auth.utils');
+
+// authentication middleware //
+router.use(authenticate);
+// ========================
 
 router.post('/send', asyncHandler(MessageController.send));
 router.delete('/delete/:id', asyncHandler(MessageController.delete));

@@ -6,8 +6,10 @@ import Footer from './Footer';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 import { FetchMoreMessages } from '../../redux/conversation/convActionCreators';
 import { useDispatch, useSelector } from 'react-redux';
+import useResponsive from "../../hooks/useResponsive";
 
 const Conversation = () => {
+    const isMobile = useResponsive("between", "md", "xs", "sm");
     const theme = useTheme();
     const dispatch = useDispatch();
     const [isFetching, setIsFetching, elementRef] = useInfiniteScroll(fetchMoreListItems, 'up');
@@ -22,7 +24,7 @@ const Conversation = () => {
     }
 
     return (
-        <Stack height="100%" maxHeight="100vh" width="auto">
+        <Stack height="100%" maxHeight="100vh" width={isMobile ? "100vw" : "auto"}>
             {/* Chat Header */}
             <Header />
             {/* Msg */}
@@ -41,7 +43,7 @@ const Conversation = () => {
                         <CircularProgress />
                     </Box>
                 )}
-                <Message />
+                <Message isMobile={isMobile}/>
             </Box>
             {/* Chat Footer*/}
             <Footer />

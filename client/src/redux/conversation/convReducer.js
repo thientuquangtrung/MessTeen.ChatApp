@@ -36,7 +36,7 @@ export const slice = createSlice({
                     } else {
                         let formatted_conversation = getFormattedConversation(this_conversation, user_id);
 
-                        if (state.current_conversation.id === formatted_conversation.id) {
+                        if (state.current_conversation?.id === formatted_conversation.id) {
                             state.current_conversation = formatted_conversation;
                         }
                         return formatted_conversation;
@@ -127,7 +127,7 @@ export const slice = createSlice({
             const id = action.payload.id;
             const blocked = action.payload.blocked;
 
-            if (id === state.current_conversation.id) {
+            if (id === state.current_conversation?.id) {
                 state.current_conversation.isBeingBlocked = blocked;
             }
 

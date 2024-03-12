@@ -292,7 +292,7 @@ class UserService {
     }
 
     static async getAllUsers() {
-        const users = await UserModel.find();
+        const users = await UserModel.find({ usr_role: 'user' });
         return users;
     }
 
@@ -314,6 +314,7 @@ class UserService {
         if (updatedUserData.usr_password) {
             const hashedPassword = await bcrypt.hash(updatedUserData.usr_password, 10);
             user.usr_password = hashedPassword;
+            await user.save();
         }
 
         return user;

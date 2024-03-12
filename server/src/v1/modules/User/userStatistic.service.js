@@ -1,5 +1,5 @@
 const UserStatistic = require('../User/userStatistic.model');
-const { BadRequestError, NotFoundError } = require("../../core/error.response");
+const { BadRequestError, NotFoundError } = require('../../core/error.response');
 
 class UserStatisticService {
     static async getUserStatisticByDate(receivedDate) {
@@ -16,9 +16,7 @@ class UserStatisticService {
     static async getAllUserStatistics() {
         const userStatistics = await UserStatistic.find();
         return userStatistics;
-
     }
-
 }
 
 module.exports = UserStatisticService;

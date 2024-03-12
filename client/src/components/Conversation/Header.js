@@ -2,19 +2,32 @@ import { Box, useTheme, Stack, Avatar, Typography, IconButton, Divider, AvatarGr
 import { faker } from '@faker-js/faker';
 import React from 'react';
 import StyledBadge from '../settings/StyledBadge';
-import { CaretDown, CaretLeft, CaretRight, Divide, MagnifyingGlass, Phone, VideoCamera } from 'phosphor-react';
+import {
+    CaretDown,
+    CaretLeft,
+    CaretRight,
+    Divide,
+    MagnifyingGlass,
+    Phone,
+    UsersThree,
+    VideoCamera,
+} from 'phosphor-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { dispatch } from '../../redux/store';
-import { toggleSidebar } from '../../redux/app/appActionCreators';
+import { showSnackbar, toggleSidebar } from '../../redux/app/appActionCreators';
 import { StartVideoCall } from '../../redux/videoCall/videoCallActionCreators';
+import useResponsive from '../../hooks/useResponsive';
 
 const user_id = window.localStorage.getItem('user_id');
 
 const Header = () => {
     const theme = useTheme();
     const dispatch = useDispatch();
+    const isMobile = useResponsive('between', 'md', 'xs', 'sm');
+
     const { current_conversation } = useSelector((state) => state.conversation);
-    const { friends, sidebar } = useSelector((state) => state.app);
+    const { friends, sidebar, blockedFriends } = useSelector((state) => state.app);
+    const isBlocked = blockedFriends.includes(current_conversation?.user_id);
     const img = current_conversation?.img || [];
     const isGroup = current_conversation?.type === 'GROUP';
     const isFriend = friends?.some((f) => f._id === current_conversation?.user_id);
@@ -83,17 +96,50 @@ const Header = () => {
                         )}
                     </Box>
                     <Stack spacing={0.2}>
-                        <Typography variant="subtitle2">{current_conversation?.name}</Typography>
+                        <Stack direction={'row'} spacing={0.5} sx={{ display: 'flex', alignItems: 'center' }}>
+                            {isGroup ? (
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        backgroundColor: '#f7f7fa',
+                                        borderRadius: '5px',
+                                        width: '15px',
+                                        height: '15px',
+                                    }}
+                                >
+                                    <UsersThree
+                                        weight="fill"
+                                        style={{
+                                            color: '#474799',
+                                            width: '10px',
+                                            height: '10px',
+                                        }}
+                                    />
+                                </Box>
+                            ) : null}
+                            <Typography variant="subtitle2">{current_conversation?.name}</Typography>
+                        </Stack>
                         <Typography variant="caption">
                             {!isFriend && !isGroup ? 'Stranger' : current_conversation?.online ? 'Online' : 'Offline'}
                         </Typography>
                     </Stack>
                 </Stack>
-                <Stack direction="row" alignItems={'center'} spacing={3}>
+                <Stack direction="row" alignItems={'center'} spacing={isMobile ? 1 : 3}>
                     {current_conversation?.type === 'PRIVATE' && isFriend && (
                         <IconButton
                             onClick={() => {
-                                dispatch(StartVideoCall(user_id, current_conversation.user_id));
+                                if (!isBlocked && !current_conversation?.isBeingBlocked) {
+                                    dispatch(StartVideoCall(user_id, current_conversation.user_id));
+                                } else {
+                                    dispatch(
+                                        showSnackbar({
+                                            severity: 'info',
+                                            message: ' You cannot text or call in this chat.',
+                                        }),
+                                    );
+                                }
                             }}
                         >
                             <VideoCamera />
@@ -106,9 +152,11 @@ const Header = () => {
                     >
                         <Phone />
                     </IconButton> */}
-                    <IconButton>
-                        <MagnifyingGlass />
-                    </IconButton>
+                    {!isMobile && (
+                        <IconButton>
+                            <MagnifyingGlass />
+                        </IconButton>
+                    )}
                     <Divider orientation="vertical" flexItem />
                     <IconButton
                         onClick={() => {

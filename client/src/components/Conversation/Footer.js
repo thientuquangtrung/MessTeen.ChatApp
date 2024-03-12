@@ -11,6 +11,7 @@ import { socket } from '../../socket';
 import { CloseReplyMessage, SendMultimedia } from '../../redux/conversation/convActionCreators';
 import { dispatch } from '../../redux/store';
 import { showSnackbar } from '../../redux/app/appActionCreators';
+import useResponsive from '../../hooks/useResponsive';
 
 const StyledInput = styled(TextField)(({ theme }) => ({
     '& .MuiInputBase-input': {
@@ -146,8 +147,13 @@ const Footer = () => {
     };
     const [selectedFiles, setSelectedFiles] = useState([]);
 
+    const isMobile = useResponsive('between', 'md', 'xs', 'sm');
+
+    const { sidebar } = useSelector((state) => state.app);
+
+
     const sendMessage = () => {
-        if (current_conversation.isBeingBlocked) {
+        if (current_conversation?.isBeingBlocked) {
             dispatch(showSnackbar({ severity: 'info', message: ' You cannot text or call in this chat.' }));
         } else {
             let messageToSend = value.trim();
@@ -219,7 +225,7 @@ const Footer = () => {
 
     return (
         <Box
-            p={2}
+            p={isMobile ? 1 : 2}
             width={'100%'}
             sx={{
                 backgroundColor: theme.palette.mode === 'light' ? '#F8FAFF' : theme.palette.background,
@@ -305,7 +311,7 @@ const Footer = () => {
                             ))}
                         </Stack>
                     )}
-                    <Stack direction="row" alignItems={'center'} spacing={3}>
+                    <Stack direction="row" alignItems={'center'} spacing={isMobile ? 1 : 3}>
                         <Stack sx={{ width: '100%' }} justifyContent={'flex-end'}>
                             <ClickAwayListener mouseEvent="onMouseDown" onClickAway={handleClickAwayPicker}>
                                 <Box
@@ -314,7 +320,7 @@ const Footer = () => {
                                         zIndex: 10,
                                         position: 'fixed',
                                         bottom: 81,
-                                        right: 100,
+                                        right: isMobile ? 20 : sidebar.open ? 420 : 100,
                                     }}
                                 >
                                     <Picker
