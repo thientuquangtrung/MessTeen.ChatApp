@@ -234,12 +234,19 @@ const Chats = () => {
             >
                 <Stack p={3} spacing={2} sx={{ height: '100vh' }}>
                     <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-                        <Typography
-                            style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-                            variant="h5"
-                        >
-                            🙌 {user?.usr_name}!
-                        </Typography>
+                        <Stack direction="row" alignItems="center" gap={1}>
+                            <Avatar
+                                sx={{ width: '30px', height: '30px' }}
+                                alt={user?.usr_name}
+                                src={user?.usr_avatar}
+                            />
+                            <Typography
+                                style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                                variant="h5"
+                            >
+                                {user?.usr_name}!
+                            </Typography>
+                        </Stack>
 
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <IconButton

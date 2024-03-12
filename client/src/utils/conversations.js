@@ -21,6 +21,7 @@ export const getFormattedConversation = (conversationBE, user_id) => {
             user_id: user._id,
             name: user.usr_name,
             img: user.usr_avatar,
+            online: user.usr_status === 'ONLINE',
         }));
         return {
             id: conversationBE._id,
