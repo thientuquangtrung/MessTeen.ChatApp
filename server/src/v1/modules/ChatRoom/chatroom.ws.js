@@ -68,6 +68,7 @@ module.exports = {
             room_owner_id: from,
             room_admins: [from],
         });
+        const fromUser = await userModel.findById(from).select('usr_name');
 
         const fromUser = await userModel.findById(from).select('usr_name');
 
