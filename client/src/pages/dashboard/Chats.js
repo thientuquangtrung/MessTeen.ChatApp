@@ -280,10 +280,15 @@ const Chats = () => {
                                 src={user?.usr_avatar}
                             />
                             <Typography
-                                style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                                style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    width: '200px',
+                                }}
                                 variant="h5"
                             >
-                                {user?.usr_name}!
+                                {user?.usr_name}
                             </Typography>
                         </Stack>
 
