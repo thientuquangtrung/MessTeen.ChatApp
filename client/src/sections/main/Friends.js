@@ -214,14 +214,14 @@ const Friends = ({ open, handleClose }) => {
                     />
                 </Search>
                 {value === 2 && (
-                    <Tabs value={subValue} onChange={handleChangeSubTab} centered>
+                    <Tabs sx={{ px: 1 }} value={subValue} onChange={handleChangeSubTab} centered>
                         <Tab sx={{ px: 1 }} icon={<ArrowSquareIn size={18} />} label="Received Requests" />
                         <Tab sx={{ px: 1 }} icon={<ArrowSquareOut size={18} />} label="Sent Requests" />
                     </Tabs>
                 )}
             </Stack>
             {/* Dialog Content */}
-            <DialogContent>
+            <DialogContent sx={{ height: '600px', overflowY: 'auto' }}>
                 <Stack sx={{ height: '100%' }}>
                     <Stack spacing={2.4}>
                         {(() => {

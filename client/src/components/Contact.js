@@ -34,8 +34,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import AddFriendToGroup from '../sections/main/AddFriendsToGroup';
 import LeaveGroup from '../sections/main/LeaveGroup';
 import { BlockedFriendAction, UnblockedFriendAction, toggleSidebar } from '../redux/app/appActionCreators';
+import StyledBadge from './settings/StyledBadge';
+import { styled } from '@mui/system';
 
 const user_id = window.localStorage.getItem('user_id');
+const SmallDotStyledBadge = styled(StyledBadge)({
+    '& .MuiBadge-dot': {
+        width: 8,
+        height: 8,
+        borderRadius: '50%',
+    },
+});
 
 const Contact = () => {
     const theme = useTheme();
@@ -172,6 +181,7 @@ const Contact = () => {
                                     <Typography variant="subtitle2">
                                         Group Members: {current_conversation.participant_details?.length}
                                     </Typography>
+
                                     {open ? (
                                         <CaretDown style={{ width: 24, height: 24, color: '#637381' }} />
                                     ) : (
@@ -183,13 +193,30 @@ const Contact = () => {
                                 <List component="div" disablePadding>
                                     {current_conversation.participant_details?.map((participant) => (
                                         <ListItemButton key={participant._id}>
-                                            <ListItemIcon>
-                                                <Avatar
-                                                    sx={{ width: 24, height: 24 }}
-                                                    src={participant.img}
-                                                    alt={participant.name}
-                                                />
-                                            </ListItemIcon>
+                                            {participant?.online ? (
+                                                <ListItemIcon>
+                                                    <SmallDotStyledBadge
+                                                        overlap="circular"
+                                                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                                        variant="dot"
+                                                    >
+                                                        <Avatar
+                                                            sx={{ width: 24, height: 24 }}
+                                                            src={participant.img}
+                                                            alt={participant.name}
+                                                        />
+                                                    </SmallDotStyledBadge>
+                                                </ListItemIcon>
+                                            ) : (
+                                                <ListItemIcon>
+                                                    <Avatar
+                                                        sx={{ width: 24, height: 24 }}
+                                                        src={participant.img}
+                                                        alt={participant.name}
+                                                    />
+                                                </ListItemIcon>
+                                            )}
+
                                             <ListItemText
                                                 sx={{
                                                     '.MuiListItemText-primary': {

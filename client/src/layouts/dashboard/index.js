@@ -221,15 +221,29 @@ const DashboardLayout = () => {
         const friendId = data.userId;
         const conversationsToUpdate = conversations.map((conversation) => {
             const hasParticipant =
-                conversation.participant_ids?.length === 2 &&
-                conversation.participant_ids?.includes(user_id) &&
-                conversation.participant_ids?.includes(friendId);
+                conversation.participant_ids?.includes(user_id) && conversation.participant_ids?.includes(friendId);
 
             if (hasParticipant) {
-                const newConvStatus = {
-                    ...conversation,
-                    online: data.status,
-                };
+                let newConvStatus;
+                if (conversation.type === 'PRIVATE') {
+                    newConvStatus = {
+                        ...conversation,
+                        online: data.status,
+                    };
+                } else {
+                    newConvStatus = {
+                        ...conversation,
+                        participant_details: conversation.participant_details.map((participant) => {
+                            if (participant.user_id === friendId) {
+                                return {
+                                    ...participant,
+                                    online: data.status,
+                                };
+                            }
+                            return participant;
+                        }),
+                    };
+                }
 
                 if (newConvStatus.id === current_conversation?.id) {
                     dispatch(SetCurrentConversation(newConvStatus));
