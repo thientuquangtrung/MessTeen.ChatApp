@@ -51,7 +51,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     },
 }));
 
-const UserComponent = ({ usr_name, _id, usr_status, usr_avatar, userList }) => {
+const UserComponent = ({ usr_name, _id, usr_email, usr_avatar, userList }) => {
     const theme = useTheme();
 
     return (
@@ -79,6 +79,19 @@ const UserComponent = ({ usr_name, _id, usr_status, usr_avatar, userList }) => {
                         >
                             {usr_name}
                         </Typography>
+                        <Typography
+                            style={{
+                                maxWidth: '200px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontStyle: 'italic',
+                            }}
+                            variant="body2"
+                            color="textSecondary"
+                        >
+                            {usr_email}
+                        </Typography>
                     </Stack>
                 </Stack>
                 <Stack direction={'row'} spacing={2} alignItems={'center'}>
@@ -100,7 +113,7 @@ const UserComponent = ({ usr_name, _id, usr_status, usr_avatar, userList }) => {
     );
 };
 
-const FriendRequestComponent = ({ usr_name, _id, usr_status, usr_avatar, friendsRequestList }) => {
+const FriendRequestComponent = ({ usr_name, _id, usr_email, usr_avatar, friendsRequestList }) => {
     const theme = useTheme();
 
     return (
@@ -126,6 +139,19 @@ const FriendRequestComponent = ({ usr_name, _id, usr_status, usr_avatar, friends
                             variant="subtitle2"
                         >
                             {usr_name}
+                        </Typography>
+                        <Typography
+                            style={{
+                                maxWidth: '200px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontStyle: 'italic',
+                            }}
+                            variant="body2"
+                            color="textSecondary"
+                        >
+                            {usr_email}
                         </Typography>
                     </Stack>
                 </Stack>
@@ -154,7 +180,7 @@ const FriendRequestComponent = ({ usr_name, _id, usr_status, usr_avatar, friends
     );
 };
 
-const SentRequestComponent = ({ usr_name, _id, usr_status, usr_avatar, friendsRequestList }) => {
+const SentRequestComponent = ({ usr_name, _id, usr_email, usr_avatar, friendsRequestList }) => {
     const theme = useTheme();
 
     return (
@@ -181,6 +207,19 @@ const SentRequestComponent = ({ usr_name, _id, usr_status, usr_avatar, friendsRe
                         >
                             {usr_name}
                         </Typography>
+                        <Typography
+                            style={{
+                                maxWidth: '200px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontStyle: 'italic',
+                            }}
+                            variant="body2"
+                            color="textSecondary"
+                        >
+                            {usr_email}
+                        </Typography>
                     </Stack>
                 </Stack>
                 <Stack direction={'row'} spacing={2} alignItems={'center'}>
@@ -201,7 +240,7 @@ const SentRequestComponent = ({ usr_name, _id, usr_status, usr_avatar, friendsRe
     );
 };
 
-const FriendComponent = ({ usr_avatar, usr_name, usr_status, _id, handleCloseDialog, friendList }) => {
+const FriendComponent = ({ usr_avatar, usr_name, usr_email, usr_status, _id, handleCloseDialog, friendList }) => {
     const theme = useTheme();
 
     return (
@@ -241,6 +280,19 @@ const FriendComponent = ({ usr_avatar, usr_name, usr_status, _id, handleCloseDia
                             variant="subtitle2"
                         >
                             {usr_name}
+                        </Typography>
+                        <Typography
+                            style={{
+                                maxWidth: '200px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontStyle: 'italic',
+                            }}
+                            variant="body2"
+                            color="textSecondary"
+                        >
+                            {usr_email}
                         </Typography>
                     </Stack>
                 </Stack>
