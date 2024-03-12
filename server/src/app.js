@@ -15,6 +15,7 @@ const {
     leaveGroupWS,
     joinGroupSocketWS,
     listGroupsWS,
+    kickMemberFromGroupWS,
 } = require('./v1/modules/ChatRoom/chatroom.ws');
 const { sendMesssageWS, getMessagesWS, reactMessageWS } = require('./v1/modules/Message/message.ws');
 const {
@@ -110,6 +111,7 @@ const handleSocketConnect = async (socket) => {
     socket.on('add_member_to_group', withErrorHandling(socket, addMemberToGroupWS));
 
     socket.on('leave_group', withErrorHandling(socket, leaveGroupWS));
+    socket.on('kick_from_group', withErrorHandling(socket, kickMemberFromGroupWS));
 
     socket.on('get_messages', withErrorHandling(socket, getMessagesWS));
 
