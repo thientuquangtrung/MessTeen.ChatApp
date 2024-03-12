@@ -6,7 +6,7 @@ import { FetchCurrentMessages, SetCurrentConversation } from '../../redux/conver
 import { socket } from '../../socket';
 import { DocMsg, LinkMsg, MediaMsg, ReplyMsg, TextMsg, Timeline } from './MsgTypes';
 
-const Message = () => {
+const Message = ({ isMobile, menu }) => {
     const dispatch = useDispatch();
     const { conversations, current_messages, message_page } = useSelector((state) => state.conversation);
     const { room_id } = useSelector((state) => state.app);
@@ -43,7 +43,7 @@ const Message = () => {
     }, [current_messages]);
 
     return (
-        <Box p={3}>
+        <Box p={isMobile ? 1 : 3}>
             <Stack spacing={3}>
                 {current_messages.map((el) => {
                     switch (el.type) {
