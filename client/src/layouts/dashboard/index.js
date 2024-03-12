@@ -117,7 +117,6 @@ const DashboardLayout = () => {
 
             socket.on('update_conversation_list', ({ chatroom, message }) => {
                 // add / update to conversation list
-                console.log('adlkwalkdlkwamdw""""""""""""', chatroom);
                 const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
                 if (existing_conversation) {
                     dispatch(UpdateDirectConversation({ conversation: chatroom }));

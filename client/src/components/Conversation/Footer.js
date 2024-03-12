@@ -151,6 +151,7 @@ const Footer = () => {
 
     const { sidebar } = useSelector((state) => state.app);
 
+
     const sendMessage = () => {
         if (current_conversation?.isBeingBlocked) {
             dispatch(showSnackbar({ severity: 'info', message: ' You cannot text or call in this chat.' }));

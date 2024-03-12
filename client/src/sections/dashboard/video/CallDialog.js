@@ -66,6 +66,12 @@ const CallDialog = ({ open, handleClose }) => {
             handleEndVideoCall();
         });
 
+        peer.on('error', (error) => {
+            console.error('Peer connection error:', error);
+            dispatch(showSnackbar({ severity: 'error', message: 'Peer connection error' }));
+            handleEndVideoCall();
+        });
+
         if (!incoming) {
             //caller
 

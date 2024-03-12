@@ -70,6 +70,8 @@ module.exports = {
         });
         const fromUser = await userModel.findById(from).select('usr_name');
 
+        const fromUser = await userModel.findById(from).select('usr_name');
+
         chatroom = await chatroomModel
             .findById(chatroom._id)
             .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status usr_avatar');
@@ -85,6 +87,7 @@ module.exports = {
                 socket.join(chatroom._id.toString());
             }
         }
+
         _io.to(chatroom._id.toString()).emit('update_conversation_list', {
             message: `You have been added to a new group chat: ${title}`,
             chatroom,

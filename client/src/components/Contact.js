@@ -66,7 +66,7 @@ const Contact = () => {
     const user = localStorage.getItem('user_id');
     const img = current_conversation?.img || [];
 
-    const [openDialogs, setOpenDialogs] = useState();
+    const [openDialogs, setOpenDialogs] = useState(false);
     const [openDialogGroup, setOpenDialogGroup] = useState(false);
     const [openDialogLeaveGroup, setOpenDialogLeaveGroup] = useState(false);
     const handleOpenDialog = (userId) => {
