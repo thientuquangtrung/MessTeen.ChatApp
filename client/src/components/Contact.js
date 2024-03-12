@@ -39,6 +39,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import AddFriendToGroup from '../sections/main/AddFriendsToGroup';
 import { LeaveGroup, RemoveUser } from '../sections/main/LeaveGroup';
 import { BlockedFriendAction, UnblockedFriendAction, toggleSidebar } from '../redux/app/appActionCreators';
+import useResponsive from "../hooks/useResponsive";
 import { socket } from '../socket';
 import StyledBadge from './settings/StyledBadge';
 import { styled } from '@mui/system';
@@ -53,6 +54,8 @@ const SmallDotStyledBadge = styled(StyledBadge)({
 });
 
 const Contact = () => {
+    const isDesktop = useResponsive("up", "md");
+
     const theme = useTheme();
     const dispatch = useDispatch();
     const { current_conversation } = useSelector((state) => state.conversation);
@@ -97,7 +100,7 @@ const Contact = () => {
     };
 
     return (
-        <Box sx={{ width: 320, height: '100vh' }}>
+        <Box sx={{ width: !isDesktop ? "100vw" : 320, height: '100vh' }}>
             <Stack sx={{ height: '100%' }}>
                 <Box
                     sx={{
