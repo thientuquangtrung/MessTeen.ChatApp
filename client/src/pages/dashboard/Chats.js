@@ -25,6 +25,9 @@ import { FetchDirectConversations } from '../../redux/conversation/convActionCre
 import { formatDate } from '../../utils/formatTime';
 import CreateGroup from '../../sections/main/CreateGroup';
 import { escapeRegExp } from '../../utils/formatText';
+import { UsersThree } from 'phosphor-react';
+import useResponsive from '../../hooks/useResponsive';
+import BottomNav from '../../layouts/dashboard/BottomNav';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
     '& .MuiBadge-badge': {
@@ -129,12 +132,42 @@ const ChatElement = ({ id, name, img, msg, time, unread, online, type }) => {
                     )}
 
                     <Stack spacing={0.3}>
-                        <Typography
-                            sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '140px' }}
-                            variant="subtitle2"
-                        >
-                            {name}
-                        </Typography>
+                        <Stack direction={'row'} spacing={0.5} sx={{ display: 'flex', alignItems: 'center' }}>
+                            {isGroup ? (
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        backgroundColor: '#f7f7fa',
+                                        borderRadius: '5px',
+                                        width: '15px',
+                                        height: '15px',
+                                    }}
+                                >
+                                    <UsersThree
+                                        weight="fill"
+                                        style={{
+                                            color: '#474799',
+                                            width: '10px',
+                                            height: '10px',
+                                        }}
+                                    />
+                                </Box>
+                            ) : null}
+                            <Typography
+                                sx={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    width: '140px',
+                                }}
+                                variant="subtitle2"
+                            >
+                                {name}
+                            </Typography>
+                        </Stack>
+
                         <Typography
                             sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '140px' }}
                             variant="caption"
@@ -191,6 +224,8 @@ const Chats = () => {
     const [searchValue, setSearchValue] = useState('');
     const theme = useTheme();
 
+    const isDesktop = useResponsive('up', 'md');
+
     const dispatch = useDispatch();
     const { conversations } = useSelector((state) => state.conversation);
     const { user, friendRequests } = useSelector((state) => state.app);
@@ -227,11 +262,15 @@ const Chats = () => {
             <Box
                 sx={{
                     position: 'relative',
-                    width: 320,
+                    width: isDesktop ? 320 : '100vw',
                     backgroundColor: theme.palette.mode === 'light' ? 'F8FAFF' : theme.palette.background.paper,
                     boxShadow: '0px 0px 2px rgba(0,0,0,0.25)',
                 }}
             >
+                {!isDesktop && (
+                    // Bottom Nav
+                    <BottomNav />
+                )}
                 <Stack p={3} spacing={2} sx={{ height: '100vh' }}>
                     <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
                         <Typography

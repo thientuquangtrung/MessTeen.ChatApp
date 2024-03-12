@@ -34,10 +34,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import AddFriendToGroup from '../sections/main/AddFriendsToGroup';
 import LeaveGroup from '../sections/main/LeaveGroup';
 import { BlockedFriendAction, UnblockedFriendAction, toggleSidebar } from '../redux/app/appActionCreators';
+import useResponsive from "../hooks/useResponsive";
 
 const user_id = window.localStorage.getItem('user_id');
 
 const Contact = () => {
+    const isDesktop = useResponsive("up", "md");
+
     const theme = useTheme();
     const dispatch = useDispatch();
     const { current_conversation } = useSelector((state) => state.conversation);
@@ -74,7 +77,7 @@ const Contact = () => {
     };
 
     return (
-        <Box sx={{ width: 320, height: '100vh' }}>
+        <Box sx={{ width: !isDesktop ? "100vw" : 320, height: '100vh' }}>
             <Stack sx={{ height: '100%' }}>
                 <Box
                     sx={{
