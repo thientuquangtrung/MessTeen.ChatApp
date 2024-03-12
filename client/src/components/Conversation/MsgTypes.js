@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import { Box, Divider, IconButton, Link, Menu, MenuItem, Stack, Typography } from '@mui/material';
+import { Box, Divider, IconButton, Link, Menu, MenuItem, Popover, Stack, Typography } from '@mui/material';
 import { ArrowBendUpLeft, DotsThreeVertical, DownloadSimple, Image, Smiley } from 'phosphor-react';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
@@ -45,76 +45,62 @@ const Response = ({ el }) => {
         setAnchorEl(null);
     };
     const anchorOrigin = el.incoming
+        ? { horizontal: 'right', vertical: 'bottom' }
+        : { horizontal: 'left', vertical: 'bottom' };
+    const transformOrigin = el.incoming
         ? { horizontal: 'left', vertical: 'top' }
         : { horizontal: 'right', vertical: 'top' };
-    const transformOrigin = el.incoming
-        ? { horizontal: 'left', vertical: 'bottom' }
-        : { horizontal: 'right', vertical: 'bottom' };
 
     const theme = useTheme();
-    const [openPicker, setOpenPicker] = useState(false);
 
     return (
         <Stack direction={el.incoming ? 'row' : 'row-reverse'} alignItems="center" position="relative">
             <IconButton
-                sx={{
-                    position: 'relative',
-                }}
+                id="basic-button"
+                aria-controls={open ? 'basic-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
+                onClick={handleClick}
                 size="small"
-                onClick={() => {
-                    setOpenPicker(!openPicker);
+            >
+                <Smiley opacity={0.7} size={20} style={{ cursor: 'pointer' }} />
+            </IconButton>
+            <Popover
+                anchorOrigin={anchorOrigin}
+                transformOrigin={transformOrigin}
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                    'aria-labelledby': 'basic-button',
                 }}
             >
-                <Smiley
-                    opacity={0.7}
-                    id="basic-button"
-                    aria-controls={open ? 'basic-menu' : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={open ? 'true' : undefined}
-                    onClick={handleClick}
-                    size={20}
-                    style={{ cursor: 'pointer' }}
-                />
-                <Menu
-                    anchorOrigin={anchorOrigin}
-                    transformOrigin={transformOrigin}
-                    id="basic-menu"
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    MenuListProps={{
-                        'aria-labelledby': 'basic-button',
-                    }}
-                >
-                    <Stack direction="row">
-                        <IconButton size="small" onClick={() => handleEmojiSelect('heart')}>
-                            <em-emoji id="heart" size="1.2em"></em-emoji>
-                        </IconButton>
-                        <IconButton size="small" onClick={() => handleEmojiSelect('laughing')}>
-                            <em-emoji id="laughing" size="1.2em"></em-emoji>
-                        </IconButton>
-                        <IconButton size="small" onClick={() => handleEmojiSelect('open_mouth')}>
-                            <em-emoji id="open_mouth" size="1.2em"></em-emoji>
-                        </IconButton>
-                        <IconButton size="small" onClick={() => handleEmojiSelect('cry')}>
-                            <em-emoji id="cry" size="1.2em"></em-emoji>
-                        </IconButton>
-                        <IconButton size="small" onClick={() => handleEmojiSelect('angry')}>
-                            <em-emoji id="angry" size="1.2em"></em-emoji>
-                        </IconButton>
-                        <IconButton size="small" onClick={() => handleEmojiSelect('+1')}>
-                            <em-emoji id="+1" size="1.2em"></em-emoji>
-                        </IconButton>
-                        <IconButton size="small">
-                            <em-emoji id="heavy_plus_sign" size="1.2em"></em-emoji>
-                        </IconButton>
-                    </Stack>
-                </Menu>
-            </IconButton>
+                <Stack direction="row">
+                    <IconButton size="small" onClick={() => handleEmojiSelect('heart')}>
+                        <em-emoji id="heart" size="1.2em"></em-emoji>
+                    </IconButton>
+                    <IconButton size="small" onClick={() => handleEmojiSelect('laughing')}>
+                        <em-emoji id="laughing" size="1.2em"></em-emoji>
+                    </IconButton>
+                    <IconButton size="small" onClick={() => handleEmojiSelect('open_mouth')}>
+                        <em-emoji id="open_mouth" size="1.2em"></em-emoji>
+                    </IconButton>
+                    <IconButton size="small" onClick={() => handleEmojiSelect('cry')}>
+                        <em-emoji id="cry" size="1.2em"></em-emoji>
+                    </IconButton>
+                    <IconButton size="small" onClick={() => handleEmojiSelect('angry')}>
+                        <em-emoji id="angry" size="1.2em"></em-emoji>
+                    </IconButton>
+                    <IconButton size="small" onClick={() => handleEmojiSelect('+1')}>
+                        <em-emoji id="+1" size="1.2em"></em-emoji>
+                    </IconButton>
+                </Stack>
+            </Popover>
             <IconButton size="small" onClick={handleReply}>
                 <ArrowBendUpLeft opacity={0.7} />
             </IconButton>
-            <MessageOptions el={el} />
+            {/* <MessageOptions el={el} /> */}
             {/* Emoji Picker */}
             {/* <Box
                 sx={{
