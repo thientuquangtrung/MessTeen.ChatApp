@@ -38,7 +38,7 @@ const GeneralApp = () => {
                 )}
                 {/* conversations */}
             </Box>
-            {sidebar.open && <Contact />}
+            {room_id !== null && sidebar.open && <Contact />}
         </Stack>
     );
 };

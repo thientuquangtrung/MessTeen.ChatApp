@@ -1,5 +1,6 @@
 import { slice } from './videoCallReducer';
 import axios from '../../utils/axios';
+import { showSnackbar } from '../app/appActionCreators';
 
 export const StartVideoCall = (from, to) => {
     return async (dispatch, getState) => {
@@ -16,7 +17,10 @@ export const StartVideoCall = (from, to) => {
                 );
             })
             .catch((err) => {
-                console.log(err);
+                console.log(`call error:::`, err);
+                dispatch(
+                    showSnackbar({ severity: 'error', message: err?.error?.message || 'Cannot start video call' }),
+                );
             });
     };
 };

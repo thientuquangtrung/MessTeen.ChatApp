@@ -5,7 +5,7 @@ export const getFormattedConversation = (conversationBE, user_id) => {
             id: conversationBE._id,
             user_id: user?._id,
             name: `${user?.usr_name}`,
-            online: user?.usr_status === 'ONLINE' && user.usr_friends?.includes(user_id),
+            online: user?.usr_status !== 'OFFLINE' && user.usr_friends?.includes(user_id),
             img: [user.usr_avatar],
             msg: conversationBE.room_last_msg.content,
             time: conversationBE.room_last_msg.timestamp,
@@ -21,12 +21,12 @@ export const getFormattedConversation = (conversationBE, user_id) => {
             user_id: user._id,
             name: user.usr_name,
             img: user.usr_avatar,
-            online: user.usr_status === 'ONLINE',
+            online: user.usr_status !== 'OFFLINE',
         }));
         return {
             id: conversationBE._id,
             name: conversationBE.room_title,
-            online: conversationBE.room_participant_ids.some((user) => user.usr_status === 'ONLINE'),
+            online: conversationBE.room_participant_ids.some((user) => user.usr_status !== 'OFFLINE'),
             img: conversationBE.room_participant_ids.map((user) => user.usr_avatar),
             msg: conversationBE.room_last_msg.content,
             time: conversationBE.room_last_msg.timestamp,

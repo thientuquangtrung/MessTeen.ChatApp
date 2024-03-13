@@ -132,7 +132,7 @@ const DashboardLayout = () => {
                 if (existing_conversation !== -1) {
                     dispatch(RemoveDirectConversation({ id: chatroom._id }));
                     dispatch(SelectConversation({ room_id: null }));
-                    dispatch(toggleSidebar());
+                    // dispatch(toggleSidebar());
                     dispatch(showSnackbar({ severity: 'info', message }));
                 } else {
                     dispatch(showSnackbar({ severity: 'error', message: 'Error: Conversation not found.' }));

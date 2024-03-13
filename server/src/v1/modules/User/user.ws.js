@@ -57,13 +57,13 @@ module.exports = {
         // emit event request accepted to both
         _io.to(from?.usr_socket_id).emit('request_accepted', {
             message: 'Friend Request Accepted',
-            status: to.usr_status === 'ONLINE',
+            status: to.usr_status !== 'OFFLINE',
             userId: to._id,
             friendList: from.usr_friends,
         });
         _io.to(to?.usr_socket_id).emit('request_accepted', {
             message: 'Friend Request Accepted',
-            status: from.usr_status === 'ONLINE',
+            status: from.usr_status !== 'OFFLINE',
             userId: from._id,
             friendList: to.usr_friends,
         });

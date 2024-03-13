@@ -19,7 +19,7 @@ class UserStatisticService {
         const users = await userModel.find({ usr_role: 'user' });
 
         // Step 2: Filter out online users and count them
-        const onlineUsersCount = users.filter((user) => user.usr_status === 'ONLINE').length;
+        const onlineUsersCount = users.filter((user) => user.usr_status !== 'OFFLINE').length;
 
         // Step 3: Count new signups for the current month
         const startOfMonth = new Date();
