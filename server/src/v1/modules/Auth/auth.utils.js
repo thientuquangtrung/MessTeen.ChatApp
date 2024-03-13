@@ -108,8 +108,16 @@ const authenticate = asyncHandler(async (req, res, next) => {
     }
 });
 
+const isAdmin = (req, res, next) => {
+    if (req.user && req.user.usr_role === 'admin') {
+        return next();
+    }
+    return next(new AuthFailureError(`You do not have permission to access this`));
+};
+
 module.exports = {
     createTokenPair,
     authenticate,
     generatePubPriKey,
+    isAdmin,
 };

@@ -1,7 +1,7 @@
 // mainRouter.js
 const express = require('express');
 const asyncHandler = require('../../helpers/asyncHandler');
-const { authenticate } = require('../Auth/auth.utils');
+const { authenticate, isAdmin } = require('../Auth/auth.utils');
 const userController = require('./user.controller');
 const userStatisticController = require('./userStatistic.controller');
 // const isAdmin = require("../../middlewares/isAdmin");
@@ -24,6 +24,8 @@ router.get('/friends-list/:userId', asyncHandler(userController.friendsList));
 router.get('/pending-friend-requests/:userId', asyncHandler(userController.pendingFriendRequests));
 router.get('/sent-friend-requests/:userId', asyncHandler(userController.sentFriendRequests));
 router.put('/update-profile-user/:userId', asyncHandler(userController.updateProfileUser));
+
+router.use(isAdmin);
 
 // CRUD User
 router.post('/admin', asyncHandler(userController.createUser));

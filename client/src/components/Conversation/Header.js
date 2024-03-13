@@ -24,6 +24,7 @@ const Header = () => {
     const theme = useTheme();
     const dispatch = useDispatch();
     const isMobile = useResponsive('between', 'md', 'xs', 'sm');
+    const isDesktop = useResponsive('up', 'md');
 
     const { current_conversation } = useSelector((state) => state.conversation);
     const { friends, sidebar, blockedFriends } = useSelector((state) => state.app);
@@ -116,7 +117,7 @@ const Header = () => {
                                     />
                                 </Box>
                             ) : null}
-                            <Typography variant="subtitle2">{current_conversation?.name}</Typography>
+                            {isDesktop && <Typography variant="subtitle2">{current_conversation?.name}</Typography>}
                         </Stack>
                         <Typography variant="caption">
                             {!isFriend && !isGroup ? 'Stranger' : current_conversation?.online ? 'Online' : 'Offline'}
@@ -149,7 +150,7 @@ const Header = () => {
                     >
                         <Phone />
                     </IconButton> */}
-                    {!isMobile && (
+                    {isDesktop && (
                         <IconButton>
                             <MagnifyingGlass />
                         </IconButton>

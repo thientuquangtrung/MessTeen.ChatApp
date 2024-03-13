@@ -42,7 +42,11 @@ class AccessService {
         if (!foundUser) throw new AuthFailureError(`User has not registered`);
 
         const { publicKey, privateKey } = generatePubPriKey();
-        const tokens = await createTokenPair({ usr_id: foundUser._id, usr_email }, publicKey, privateKey);
+        const tokens = await createTokenPair(
+            { usr_id: foundUser._id, usr_email, usr_role: foundUser.usr_role },
+            publicKey,
+            privateKey,
+        );
 
         await holderToken.updateOne({
             $set: {
@@ -75,7 +79,11 @@ class AccessService {
         const { publicKey, privateKey } = generatePubPriKey();
 
         // create tokens
-        const tokens = await createTokenPair({ usr_id: foundUser._id, usr_email }, publicKey, privateKey);
+        const tokens = await createTokenPair(
+            { usr_id: foundUser._id, usr_email, usr_role: foundUser.usr_role },
+            publicKey,
+            privateKey,
+        );
 
         await KeyTokenService.savePublicKeyToDB({
             userId: foundUser._id,
@@ -85,7 +93,7 @@ class AccessService {
 
         return {
             user: getInfoData({
-                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_bio', 'usr_provider_type'],
+                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_bio', 'usr_provider_type', 'usr_role'],
                 object: foundUser,
             }),
             tokens,
@@ -125,7 +133,11 @@ class AccessService {
         }
 
         // create tokens
-        const tokens = await createTokenPair({ usr_id: newUser._id, usr_email }, publicKeyObject, privateKey);
+        const tokens = await createTokenPair(
+            { usr_id: newUser._id, usr_email, usr_role: foundUser.usr_role },
+            publicKeyObject,
+            privateKey,
+        );
 
         await KeyTokenService.savePublicKeyToDB({
             userId: newUser._id,
@@ -135,7 +147,7 @@ class AccessService {
 
         return {
             user: getInfoData({
-                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_bio', 'usr_provider_type'],
+                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_bio', 'usr_provider_type', 'usr_role'],
                 object: newUser,
             }),
             tokens,
@@ -182,7 +194,11 @@ class AccessService {
         }
 
         // create tokens
-        const tokens = await createTokenPair({ usr_id: foundUser._id, usr_email }, publicKeyObject, privateKey);
+        const tokens = await createTokenPair(
+            { usr_id: foundUser._id, usr_email, usr_role: foundUser.usr_role },
+            publicKeyObject,
+            privateKey,
+        );
 
         await KeyTokenService.savePublicKeyToDB({
             userId: foundUser._id,
@@ -192,7 +208,7 @@ class AccessService {
 
         return {
             user: getInfoData({
-                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_bio', 'usr_provider_type'],
+                fields: ['_id', 'usr_name', 'usr_email', 'usr_avatar', 'usr_bio', 'usr_provider_type', 'usr_role'],
                 object: foundUser,
             }),
             tokens,
