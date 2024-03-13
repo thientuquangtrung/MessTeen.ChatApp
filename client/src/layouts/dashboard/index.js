@@ -138,17 +138,6 @@ const DashboardLayout = () => {
                     dispatch(showSnackbar({ severity: 'error', message: 'Error: Conversation not found.' }));
                 }
             });
-            socket.on('kick_from_group', ({ chatroom, message }) => {
-                const existing_conversation = conversations.find((el) => el?.id === chatroom._id);
-                if (existing_conversation !== -1) {
-                    dispatch(RemoveDirectConversation({ id: chatroom._id }));
-                    dispatch(SelectConversation({ room_id: null }));
-                    dispatch(toggleSidebar());
-                    dispatch(showSnackbar({ severity: 'info', message }));
-                } else {
-                    dispatch(showSnackbar({ severity: 'error', message: 'Error: Conversation not found.' }));
-                }
-            });
 
             socket.on('friend_blocked', (data) => {
                 dispatch(

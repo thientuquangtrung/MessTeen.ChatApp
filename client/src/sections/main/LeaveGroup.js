@@ -43,10 +43,10 @@ const LeaveGroup = ({ open, handleClose }) => {
         </Dialog>
     );
 };
-const RemoveUser = ({ open, handleClose, user, userName }) => {
+const RemoveUser = ({ open, handleClose, toKickId, userName }) => {
     const { current_conversation } = useSelector((state) => state.conversation);
     const handleKick = (user_kicked_id) => {
-        socket.emit('kick_from_group', { from: user_kicked_id, conversation_id: current_conversation.id });
+        socket.emit('kick_from_group', { to: user_kicked_id, conversation_id: current_conversation.id, from: user_id });
         handleClose();
     };
 
@@ -62,7 +62,7 @@ const RemoveUser = ({ open, handleClose, user, userName }) => {
                 <Stack spacing={3}>
                     <Stack spacing={2} direction={'row'} alignItems={'center'} justifyContent={'center'}>
                         <Button onClick={handleClose}>Cancel</Button>
-                        <Button onClick={() => handleKick(user)} variant="contained">
+                        <Button onClick={() => handleKick(toKickId)} variant="contained">
                             Yes
                         </Button>
                     </Stack>
