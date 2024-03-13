@@ -80,7 +80,7 @@ const handleSocketConnect = async (socket) => {
                 usr_status: 'ONLINE',
             }).populate('usr_friends', 'usr_socket_id usr_status');
 
-            const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status === 'ONLINE');
+            const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status !== 'OFFLINE');
             onlineFriends.forEach((friend) => {
                 if (friend.usr_socket_id) {
                     _io.to(friend.usr_socket_id).emit('friend-online', { userId: user_id, status: true });
@@ -261,7 +261,7 @@ const handleSocketConnect = async (socket) => {
         console.log(`user disconnected:::::::::::`, user_id);
 
         if (user) {
-            const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status === 'ONLINE');
+            const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status !== 'OFFLINE');
             onlineFriends.forEach((friend) => {
                 if (friend.usr_socket_id) {
                     _io.to(friend.usr_socket_id).emit('friend-online', { userId: user_id, status: false });
