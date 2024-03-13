@@ -224,7 +224,7 @@ const Chats = () => {
     const [searchValue, setSearchValue] = useState('');
     const theme = useTheme();
 
-    const isDesktop = useResponsive('up', 'md');
+    // const isDesktop = useResponsive('up', 'md');
 
     const dispatch = useDispatch();
     const { conversations } = useSelector((state) => state.conversation);
@@ -262,15 +262,16 @@ const Chats = () => {
             <Box
                 sx={{
                     position: 'relative',
-                    width: isDesktop ? 320 : '100vw',
+                    // width: isDesktop ? 320 : '100vw',
+                    width: 320,
                     backgroundColor: theme.palette.mode === 'light' ? 'F8FAFF' : theme.palette.background.paper,
                     boxShadow: '0px 0px 2px rgba(0,0,0,0.25)',
                 }}
             >
-                {!isDesktop && (
+                {/* {!isDesktop && (
                     // Bottom Nav
                     <BottomNav />
-                )}
+                )} */}
                 <Stack p={3} spacing={2} sx={{ height: '100vh' }}>
                     <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
                         <Stack direction="row" alignItems="center" gap={1}>

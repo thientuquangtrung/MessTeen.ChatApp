@@ -54,7 +54,7 @@ const SmallDotStyledBadge = styled(StyledBadge)({
 });
 
 const Contact = () => {
-    const isDesktop = useResponsive('up', 'md');
+    // const isDesktop = useResponsive('up', 'md');
 
     const theme = useTheme();
     const dispatch = useDispatch();
@@ -100,7 +100,8 @@ const Contact = () => {
     };
 
     return (
-        <Box sx={{ width: !isDesktop ? '100vw' : 320, height: '100vh' }}>
+        // <Box sx={{ width: !isDesktop ? '100vw' : 320, height: '100vh' }}>
+        <Box sx={{ width: 320, height: '100vh' }}>
             <Stack sx={{ height: '100%' }}>
                 <Box
                     sx={{
