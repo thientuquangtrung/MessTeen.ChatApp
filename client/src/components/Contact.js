@@ -63,20 +63,22 @@ const Contact = () => {
     const isGroup = current_conversation?.type === 'GROUP';
     const { blockedFriends } = useSelector((state) => state.app);
     const isBlocked = blockedFriends.includes(current_conversation?.user_id);
-    const user = localStorage.getItem('user_id');
     const img = current_conversation?.img || [];
 
-    const [openDialogs, setOpenDialogs] = useState(false);
+    const [open, setOpen] = useState(true);
+    const [openDialogs, setOpenDialogs] = useState('');
     const [openDialogGroup, setOpenDialogGroup] = useState(false);
     const [openDialogLeaveGroup, setOpenDialogLeaveGroup] = useState(false);
+
     const handleOpenDialog = (userId) => {
         setOpenDialogs(userId);
     };
 
     // Function to close dialog for a specific participant
     const handleCloseDialog = (userId) => {
-        setOpenDialogs(false);
+        setOpenDialogs('');
     };
+
     const handleCloseDialogGroup = () => {
         setOpenDialogGroup(false);
     };
@@ -92,8 +94,6 @@ const Contact = () => {
             dispatch(BlockedFriendAction(current_conversation?.user_id));
         }
     };
-
-    const [open, setOpen] = React.useState(true);
 
     const handleClick = () => {
         setOpen(!open);
@@ -250,7 +250,7 @@ const Contact = () => {
                                                 </IconButton>
                                             )}
                                             {participant.user_id !== current_conversation.room_owner_id &&
-                                            user === current_conversation.room_owner_id ? (
+                                            user_id === current_conversation.room_owner_id ? (
                                                 <Stack>
                                                     <IconButton onClick={() => handleOpenDialog(participant.user_id)}>
                                                         <MinusCircle size={24} color="#B22222" />
@@ -259,7 +259,7 @@ const Contact = () => {
                                                         <RemoveUser
                                                             open={openDialogs}
                                                             handleClose={handleCloseDialog}
-                                                            user={participant.user_id}
+                                                            toKickId={participant.user_id}
                                                             userName={participant.name}
                                                         />
                                                     )}

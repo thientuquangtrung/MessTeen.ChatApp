@@ -66,10 +66,8 @@ module.exports = {
             room_type: 'GROUP',
             room_title: title,
             room_owner_id: from,
-            room_admins: [from],
+            // room_admins: [from],
         });
-        const fromUser = await userModel.findById(from).select('usr_name');
-
         const fromUser = await userModel.findById(from).select('usr_name');
 
         chatroom = await chatroomModel
@@ -108,35 +106,27 @@ module.exports = {
             )
             .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status usr_avatar');
 
-        let messageChangeAdmin = '';
+        let newOwner = null;
         // Check if the leaving user is the owner
         if (room_owner_id === from) {
             // If leaving user is the owner, randomly select another participant as the new owner
-            const newOwner =
-                chatroom.room_participant_ids[Math.floor(Math.random() * chatroom.room_participant_ids.length)];
+            newOwner = chatroom.room_participant_ids[Math.floor(Math.random() * chatroom.room_participant_ids.length)];
             chatroom.room_owner_id = newOwner;
             await chatroom.save();
-            console.log('newOwner::::::::::::', newOwner);
-            console.log('chatroom.room_owner_id::::::::::::', chatroom.room_owner_id);
-            // Check if the leaving user becomes the new owner
-            if (newOwner._id === chatroom.room_owner_id) {
-                messageChangeAdmin = 'You are now the owner of this room';
-            }
         }
 
-        const user = await userModel.findByIdAndUpdate(from, {
+        const fromUser = await userModel.findByIdAndUpdate(from, {
             $pull: {
                 usr_room_ids: conversation_id,
             },
         });
 
         // Lấy socket id của user và leave group
-        const socket = _io.sockets.sockets.get(user.usr_socket_id);
-        peopleOut = user.usr_name;
+        const socket = _io.sockets.sockets.get(fromUser.usr_socket_id);
         if (socket) {
             socket.leave(chatroom._id.toString());
             socket.emit('leave_group', {
-                message: `${peopleOut} has left the group.`,
+                message: `You has left the group.`,
                 chatroom,
             });
         }
@@ -146,39 +136,47 @@ module.exports = {
 
             const socket = _io.sockets.sockets.get(user.usr_socket_id);
             if (socket) {
-                _io.to(chatroom._id.toString()).emit('update_conversation_list', {
-                    message: `${peopleOut} has left the group. ${messageChangeAdmin}`,
-                    chatroom,
-                });
+                if (newOwner?._id.toString() === user._id.toString()) {
+                    socket.emit('update_conversation_list', {
+                        message: `${fromUser.usr_name} has left the group ${chatroom.room_title}. You are now owner of this group`,
+                        chatroom,
+                    });
+                } else {
+                    socket.emit('update_conversation_list', {
+                        message: `${fromUser.usr_name} has left the group ${chatroom.room_title}.`,
+                        chatroom,
+                    });
+                }
             }
         }
     },
+
     kickMemberFromGroupWS: async (data) => {
-        const { from, conversation_id, room_owner_id } = data;
+        const { from, to, conversation_id } = data;
         const chatroom = await chatroomModel
             .findByIdAndUpdate(
                 conversation_id,
                 {
                     $pull: {
-                        room_participant_ids: from,
+                        room_participant_ids: to,
                     },
                 },
                 { new: true },
             )
             .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status usr_avatar');
 
-        const user = await userModel.findByIdAndUpdate(from, {
+        const toUser = await userModel.findByIdAndUpdate(to, {
             $pull: {
                 usr_room_ids: conversation_id,
             },
         });
 
         // Lấy socket id của user và leave group
-        const socket = _io.sockets.sockets.get(user.usr_socket_id);
+        const socket = _io.sockets.sockets.get(toUser.usr_socket_id);
         if (socket) {
             socket.leave(chatroom._id.toString());
-            socket.emit('kick_from_group', {
-                message: `You have been romoved from group.`,
+            socket.emit('leave_group', {
+                message: `You have been removed from group.`,
                 chatroom,
             });
         }
@@ -187,7 +185,7 @@ module.exports = {
 
             const socket = _io.sockets.sockets.get(user.usr_socket_id);
             if (socket) {
-                _io.to(chatroom._id.toString()).emit('update_conversation_list', {
+                socket.emit('update_conversation_list', {
                     chatroom,
                 });
             }

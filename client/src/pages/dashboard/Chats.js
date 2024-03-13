@@ -87,6 +87,9 @@ const ChatElement = ({ id, name, img, msg, time, unread, online, type }) => {
                     : theme.palette.mode === 'light'
                     ? '#fff'
                     : theme.palette.background.paper,
+                '&:hover': {
+                    cursor: 'pointer',
+                },
             }}
             p={2}
         >
@@ -131,8 +134,8 @@ const ChatElement = ({ id, name, img, msg, time, unread, online, type }) => {
                         </AvatarGroup>
                     )}
 
-                    <Stack spacing={0.3}>
-                        <Stack direction={'row'} spacing={0.8} sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Stack spacing={0.3} justifyContent={'space-between'}>
+                        <Stack direction={'row'} spacing={0.8} alignItems={'flex-start'}>
                             {isGroup ? (
                                 <Box
                                     sx={{
