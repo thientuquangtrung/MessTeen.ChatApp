@@ -7,7 +7,7 @@ const UserSchema = new Schema(
         usr_name: {
             type: 'String',
             required: true,
-            unique: true,
+            // unique: true,
             trim: true,
         },
         usr_password: {
@@ -45,7 +45,7 @@ const UserSchema = new Schema(
         },
         usr_status: {
             type: 'String',
-            enum: ['ONLINE', 'OFFLINE', 'IN_CALL'], //TODO: add more values
+            enum: ['ONLINE', 'OFFLINE', 'IN_CALL'],
             default: 'ONLINE',
         },
         usr_last_active: {
