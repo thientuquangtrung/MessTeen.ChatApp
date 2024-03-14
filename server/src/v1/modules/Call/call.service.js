@@ -1,12 +1,16 @@
 const callModel = require('./call.model');
 const userModel = require('../User/user.model');
 const { getInfoData } = require('../../utils');
+const { ConflictRequestError } = require('../../core/error.response');
 
 class CallService {
     static async startVideoCall({ from, to }) {
         const from_user = await userModel.findById(from);
         const to_user = await userModel.findById(to);
         // TODO: check if user is busy
+        if (to_user.usr_status !== 'ONLINE') {
+            throw new ConflictRequestError(`User is busy`);
+        }
 
         // create a new call videoCall Doc and send required data to client
         const new_video_call = await callModel.create({
@@ -87,7 +91,7 @@ class CallService {
                     id: element._id,
                     img: other_user.usr_avatar,
                     name: other_user.usr_name,
-                    online: other_user.usr_status === 'ONLINE',
+                    online: other_user.usr_status !== 'OFFLINE',
                     incoming: false,
                     missed,
                     start: element.call_startedAt,
@@ -102,7 +106,7 @@ class CallService {
                     id: element._id,
                     img: other_user.usr_avatar,
                     name: other_user.usr_name,
-                    online: other_user.usr_status === 'ONLINE',
+                    online: other_user.usr_status !== 'OFFLINE',
                     incoming: true,
                     missed,
                     start: element.call_startedAt,

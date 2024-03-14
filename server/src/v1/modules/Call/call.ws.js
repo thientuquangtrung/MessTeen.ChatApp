@@ -6,10 +6,8 @@ module.exports = {
     startVideoCallWS: async (data) => {
         const { from, to, roomID } = data;
 
-        const to_user = await userModel.findById(to);
-        const from_user = await userModel.findById(from);
-
-        // TODO: check if user is busy
+        const to_user = await userModel.findByIdAndUpdate(to, { usr_status: 'IN_CALL' });
+        const from_user = await userModel.findByIdAndUpdate(from, { usr_status: 'IN_CALL' });
 
         // send notification to receiver of call
         _io.to(to_user?.usr_socket_id).emit('video_call_notification', {
@@ -28,7 +26,8 @@ module.exports = {
     endVideoCallWS: async (data) => {
         const { from, to, roomID } = data;
 
-        const to_user = await userModel.findById(to);
+        const from_user = await userModel.findByIdAndUpdate(from, { usr_status: 'ONLINE' });
+        const to_user = await userModel.findByIdAndUpdate(to, { usr_status: 'ONLINE' });
 
         await callModel.findOneAndUpdate(
             {
@@ -49,7 +48,8 @@ module.exports = {
         // find and update call record
         const { to, from, roomID } = data;
 
-        const to_user = await userModel.findById(to);
+        const from_user = await userModel.findByIdAndUpdate(from, { usr_status: 'ONLINE' });
+        const to_user = await userModel.findByIdAndUpdate(to, { usr_status: 'ONLINE' });
 
         await callModel.findOneAndUpdate(
             {
@@ -69,7 +69,8 @@ module.exports = {
     videoCallAcceptedWS: async (data) => {
         const { to, from, roomID } = data;
 
-        const from_user = await userModel.findById(from);
+        const from_user = await userModel.findByIdAndUpdate(from, { usr_status: 'IN_CALL' });
+        const to_user = await userModel.findByIdAndUpdate(to, { usr_status: 'IN_CALL' });
 
         // find and update call record
         await callModel.findOneAndUpdate(
@@ -99,7 +100,8 @@ module.exports = {
             { call_verdict: 'Denied', call_status: 'Ended', call_endedAt: Date.now() },
         );
 
-        const from_user = await userModel.findById(from);
+        const from_user = await userModel.findByIdAndUpdate(from, { usr_status: 'ONLINE' });
+        const to_user = await userModel.findByIdAndUpdate(to, { usr_status: 'ONLINE' });
         // TODO => emit call_denied to sender of call
 
         _io.to(from_user?.usr_socket_id).emit('video_call_denied', {
@@ -120,7 +122,7 @@ module.exports = {
             { call_verdict: 'Busy', call_status: 'Ended', call_endedAt: Date.now() },
         );
 
-        const from_user = await userModel.findById(from);
+        const from_user = await userModel.findByIdAndUpdate(from, { usr_status: 'ONLINE' });
         // TODO => emit on_another_video_call to sender of call
         _io.to(from_user?.usr_socket_id).emit('on_another_video_call', {
             from,

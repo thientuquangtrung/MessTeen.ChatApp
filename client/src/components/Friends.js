@@ -255,7 +255,7 @@ const FriendComponent = ({ usr_avatar, usr_name, usr_email, usr_status, _id, han
             <Stack direction="row" alignItems={'center'} justifyContent="space-between">
                 <Stack direction="row" alignItems={'center'} spacing={2}>
                     {' '}
-                    {usr_status === 'ONLINE' ? (
+                    {usr_status !== 'OFFLINE' ? (
                         <StyledBadge
                             overlap="circular"
                             anchorOrigin={{

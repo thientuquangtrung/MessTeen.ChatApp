@@ -14,7 +14,6 @@ const {
     addMemberToGroupWS,
     leaveGroupWS,
     joinGroupSocketWS,
-    listGroupsWS,
     kickMemberFromGroupWS,
 } = require('./v1/modules/ChatRoom/chatroom.ws');
 const { sendMesssageWS, getMessagesWS, reactMessageWS } = require('./v1/modules/Message/message.ws');
@@ -80,7 +79,7 @@ const handleSocketConnect = async (socket) => {
                 usr_status: 'ONLINE',
             }).populate('usr_friends', 'usr_socket_id usr_status');
 
-            const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status === 'ONLINE');
+            const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status !== 'OFFLINE');
             onlineFriends.forEach((friend) => {
                 if (friend.usr_socket_id) {
                     _io.to(friend.usr_socket_id).emit('friend-online', { userId: user_id, status: true });
@@ -111,117 +110,15 @@ const handleSocketConnect = async (socket) => {
     socket.on('add_member_to_group', withErrorHandling(socket, addMemberToGroupWS));
 
     socket.on('leave_group', withErrorHandling(socket, leaveGroupWS));
+
     socket.on('kick_from_group', withErrorHandling(socket, kickMemberFromGroupWS));
 
     socket.on('get_messages', withErrorHandling(socket, getMessagesWS));
 
     // // Handle incoming text/link messages
     socket.on('text_message', withErrorHandling(socket, sendMesssageWS));
+
     socket.on('react_message', withErrorHandling(socket, reactMessageWS));
-
-    // // -------------- HANDLE AUDIO CALL SOCKET EVENTS ----------------- //
-
-    // // handle start_audio_call event
-    // socket.on('start_audio_call', async (data) => {
-    //     const { from, to, roomID } = data;
-
-    //     const to_user = await User.findById(to);
-    //     const from_user = await User.findById(from);
-
-    //     console.log('to_user', to_user);
-
-    //     // send notification to receiver of call
-    //     io.to(to_user?.socket_id).emit('audio_call_notification', {
-    //         from: from_user,
-    //         roomID,
-    //         streamID: from,
-    //         userID: to,
-    //         userName: to,
-    //     });
-    // });
-
-    // // handle audio_call_not_picked
-    // socket.on('audio_call_not_picked', async (data) => {
-    //     console.log(data);
-    //     // find and update call record
-    //     const { to, from } = data;
-
-    //     const to_user = await User.findById(to);
-
-    //     await AudioCall.findOneAndUpdate(
-    //         {
-    //             participants: { $size: 2, $all: [to, from] },
-    //         },
-    //         { verdict: 'Missed', status: 'Ended', endedAt: Date.now() },
-    //     );
-
-    //     // TODO => emit call_missed to receiver of call
-    //     io.to(to_user?.socket_id).emit('audio_call_missed', {
-    //         from,
-    //         to,
-    //     });
-    // });
-
-    // // handle audio_call_accepted
-    // socket.on('audio_call_accepted', async (data) => {
-    //     const { to, from } = data;
-
-    //     const from_user = await User.findById(from);
-
-    //     // find and update call record
-    //     await AudioCall.findOneAndUpdate(
-    //         {
-    //             participants: { $size: 2, $all: [to, from] },
-    //         },
-    //         { verdict: 'Accepted' },
-    //     );
-
-    //     // TODO => emit call_accepted to sender of call
-    //     io.to(from_user?.socket_id).emit('audio_call_accepted', {
-    //         from,
-    //         to,
-    //     });
-    // });
-
-    // // handle audio_call_denied
-    // socket.on('audio_call_denied', async (data) => {
-    //     // find and update call record
-    //     const { to, from } = data;
-
-    //     await AudioCall.findOneAndUpdate(
-    //         {
-    //             participants: { $size: 2, $all: [to, from] },
-    //         },
-    //         { verdict: 'Denied', status: 'Ended', endedAt: Date.now() },
-    //     );
-
-    //     const from_user = await User.findById(from);
-    //     // TODO => emit call_denied to sender of call
-
-    //     io.to(from_user?.socket_id).emit('audio_call_denied', {
-    //         from,
-    //         to,
-    //     });
-    // });
-
-    // // handle user_is_busy_audio_call
-    // socket.on('user_is_busy_audio_call', async (data) => {
-    //     const { to, from } = data;
-    //     // find and update call record
-    //     await AudioCall.findOneAndUpdate(
-    //         {
-    //             participants: { $size: 2, $all: [to, from] },
-    //         },
-    //         { verdict: 'Busy', status: 'Ended', endedAt: Date.now() },
-    //     );
-
-    //     const from_user = await User.findById(from);
-    //     // TODO => emit on_another_audio_call to sender of call
-    //     io.to(from_user?.socket_id).emit('on_another_audio_call', {
-    //         from,
-    //         to,
-    //     });
-    // });
 
     // // --------------------- HANDLE VIDEO CALL SOCKET EVENTS ---------------------- //
 
@@ -261,7 +158,7 @@ const handleSocketConnect = async (socket) => {
         console.log(`user disconnected:::::::::::`, user_id);
 
         if (user) {
-            const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status === 'ONLINE');
+            const onlineFriends = user.usr_friends.filter((friend) => friend.usr_status !== 'OFFLINE');
             onlineFriends.forEach((friend) => {
                 if (friend.usr_socket_id) {
                     _io.to(friend.usr_socket_id).emit('friend-online', { userId: user_id, status: false });

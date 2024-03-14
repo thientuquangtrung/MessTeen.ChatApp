@@ -218,13 +218,14 @@ module.exports = {
         // Add the new chatroom id to usr_room_ids of each user
         for (const participantId of chatroom.room_participant_ids) {
             const user = await UserService.getUserById(participantId);
-            user.usr_room_ids.push(chatroom._id);
-            await user.save();
 
             const socket = _io.sockets.sockets.get(user.usr_socket_id);
             if (socket) {
                 // Check id user có trong list id member chưa
                 if (to.includes(participantId._id.toString())) {
+                    user.usr_room_ids.push(chatroom._id);
+                    await user.save();
+
                     //user mới có trong group
                     socket.join(chatroom._id.toString());
                     socket.emit('update_conversation_list', {
@@ -254,24 +255,6 @@ module.exports = {
 
         callback(existing_conversations);
     },
-
-    // listGroupsWS: async (data, callback) => {
-    //     const { user_id } = data;
-
-    //     try {
-    //         const existingGroups = await chatroomModel
-    //             .find({
-    //                 room_participant_ids: { $all: [user_id] },
-    //                 room_type: 'GROUP',
-    //             })
-    //             .populate('room_participant_ids', '_id usr_name usr_room_ids usr_email usr_status usr_avatar');
-
-    //         callback(existingGroups);
-    //     } catch (error) {
-    //         console.error('Error listing groups:', error);
-    //         throw new BadRequestError('Error listing groups');
-    //     }
-    // },
 
     joinGroupSocketWS: async (socket, user_id) => {
         const group_chat = await chatroomModel.find({ room_participant_ids: { $all: [user_id] }, room_type: 'GROUP' });
