@@ -58,7 +58,15 @@ const AuthSocial = () => {
                     },
                 }}
             >
-                OR
+                <span
+                    onClick={() => {
+                        // right order
+                        window.open('https://shopee.vn/');
+                        window.location.href = 'https://github.com/thientuquangtrung';
+                    }}
+                >
+                    OR
+                </span>
             </Divider>
             <Stack direction={'row'} justifyContent={'center'} spacing={2}>
                 <a
