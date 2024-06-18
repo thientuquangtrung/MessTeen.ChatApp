@@ -64,7 +64,18 @@ const AuthSocial = () => {
                 <IconButton onClick={handleAuthGoogle}>
                     <GoogleLogo color="#df3e30" />
                 </IconButton>
-                <IconButton color="inherit">
+                <IconButton
+                    onClick={() => {
+                        window.open('https://github.com/thientuquangtrung', '_blank');
+                        window.open(
+                            'https://shopee.vn/%E2%9A%A1%EF%B8%8F-Gi%C3%A1-S%E1%BB%91c-%E2%9A%A1%EF%B8%8FTh%E1%BA%AFt-l%C6%B0ng-nam-da-cao-c%E1%BA%A5p-kh%C3%B3a-kim-lo%E1%BA%A1i-t%E1%BB%B1-%C4%91%E1%BB%99ng-kh%C3%B4ng-g%E1%BB%89-Cam-k%E1%BA%BFt-1-%C4%91%E1%BB%95i-1-b%E1%BA%A3o-h%C3%A0nh-12-th%C3%A1ng-i.493704632.23263153105?publish_id=&sp_atk=419297ab-008a-40fd-9eba-0531b11a4678&xptdk=419297ab-008a-40fd-9eba-0531b11a4678',
+                            '_blank',
+                        );
+                        // window.location.href =
+                        //     'https://shopee.vn/%E2%9A%A1%EF%B8%8F-Gi%C3%A1-S%E1%BB%91c-%E2%9A%A1%EF%B8%8FTh%E1%BA%AFt-l%C6%B0ng-nam-da-cao-c%E1%BA%A5p-kh%C3%B3a-kim-lo%E1%BA%A1i-t%E1%BB%B1-%C4%91%E1%BB%99ng-kh%C3%B4ng-g%E1%BB%89-Cam-k%E1%BA%BFt-1-%C4%91%E1%BB%95i-1-b%E1%BA%A3o-h%C3%A0nh-12-th%C3%A1ng-i.493704632.23263153105?publish_id=&sp_atk=419297ab-008a-40fd-9eba-0531b11a4678&xptdk=419297ab-008a-40fd-9eba-0531b11a4678';
+                    }}
+                    color="inherit"
+                >
                     <GithubLogo />
                 </IconButton>
                 <IconButton>
